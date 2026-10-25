@@ -162,6 +162,7 @@ if (form) {
 
   document.querySelector('#another-request')?.addEventListener('click', (event) => {
     event.preventDefault();
-    window.location.assign(window.location.pathname);
+    history.replaceState(null, '', `${window.location.pathname}#request`);
+    window.location.reload();
   });
 }

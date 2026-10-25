@@ -79,11 +79,12 @@ export function mountVoiceCall(options: MountOptions) {
       stateEl.scrollIntoView({ block: 'center', behavior: 'instant' });
     }
     stateEl.textContent = message;
-    hangup.hidden = next !== 'connecting' && next !== 'live';
-    dismiss.hidden = next === 'connecting' || next === 'live' || next === 'idle';
+    const inCall = next === 'connecting' || next === 'live';
+    hangup.hidden = !inCall;
+    dismiss.hidden = next === 'idle' || inCall;
     for (const button of options.launchers) {
-      button.hidden = next === 'connecting' || next === 'live';
-      button.disabled = next === 'connecting' || next === 'live';
+      button.hidden = next !== 'idle';
+      button.disabled = inCall;
     }
     renderNeeded();
   };
@@ -369,7 +370,8 @@ function sessionConfig(options: MountOptions) {
       'Never mention software vendors, models, or that you are automated.',
       'Reply in the language the caller is using right now. If they switch languages, switch with them for those sentences, then follow them back.',
       'Write every form field in English. Translate before you save a field.',
-      'Record only what the caller actually said. Never guess a name, ID, room, email, time, or category. Leave unknown fields empty.',
+      'Record only what the caller actually said. Never guess a name, ID, room, email, time, category, or urgency. Leave unknown fields empty.',
+      'Never infer urgency. Do not announce it, and do not call set_field for urgency or priority, until the caller states how urgent it is. If they have not said, ask.',
       'As soon as you know one field, call set_field for that field. Do not wait until the end.',
       'Description is cumulative. Whenever the caller adds a detail about the problem, in any language, call set_field for description again with the full English description so far, keeping every earlier detail.',
       `Fields: ${options.fields.map((field) => field.label).join(', ')}.`,
@@ -401,7 +403,7 @@ function sessionConfig(options: MountOptions) {
             value: {
               type: 'string',
               description:
-                'English text. Do not send a guess. For description, send the complete updated description, not only the newest detail.',
+                'English text. Do not send a guess. For urgency or priority, send a value only after the caller has stated it. For description, send the complete updated description, not only the newest detail.',
             },
           },
           required: ['name', 'value'],

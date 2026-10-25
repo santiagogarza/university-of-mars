@@ -107,7 +107,6 @@ export function mountVoiceCall(options: MountOptions) {
   const focusForm = () => {
     const missing = options.fields.find((field) => field.required && !field.get());
     const target = missing ? fieldElement(missing) : options.form.querySelector<HTMLElement>('button[type="submit"]');
-    panel.hidden = false;
     (target ?? returnFocus ?? options.form).focus();
   };
 

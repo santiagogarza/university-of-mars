@@ -55,7 +55,7 @@ if (form) {
     }
   }
 
-  category?.addEventListener('change', () => fillSubcategories());
+  category?.addEventListener('change', () => fillSubcategories(subcategory?.value));
 
   const grid = form.querySelector('.form-grid');
   const nameInput = document.createElement('input');

@@ -46,6 +46,7 @@ const NEXT_STEPS = [
 const INVESTIGATORS = ['Coordinator (Title IX office)', 'Deputy coordinator A', 'Deputy coordinator B'];
 
 const ALLOWED_ORIGINS = new Set(['https://santiagogarza.github.io']);
+const UPSTREAM_TIMEOUT_MS = 8000;
 
 const OPTIONAL_TICKET_FIELDS = ['name', 'hall', 'room', 'availability', 'phone', 'language'];
 
@@ -86,11 +87,13 @@ async function route(request, url, ctx) {
   // parts[0] is "api"
   if (parts[0] !== 'api') return json(404, { error: 'Not found.' });
 
+  // Public: the browser mints a short-lived voice token; gated by allowedOrigin instead of a key.
   if (parts[1] === 'voice' && parts[2] === 'session' && parts.length === 3) {
     if (request.method !== 'POST') return methodNotAllowed(['POST']);
     return mintVoiceSession(request, ctx);
   }
 
+  // Public: exchanges the staff passcode for a signed staff token, so it cannot require one.
   if (parts[1] === 'staff' && parts[2] === 'session' && parts.length === 3) {
     if (request.method !== 'POST') return methodNotAllowed(['POST']);
     return createStaffSession(request, ctx);
@@ -102,6 +105,7 @@ async function route(request, url, ctx) {
     return resetState(ctx);
   }
 
+  // Public: students create tickets and look up their own by ?ids= without an account; listing needs the demo key.
   if (parts[1] === 'tickets' && parts.length === 2) {
     if (request.method === 'GET') return listTickets(request, url, ctx);
     if (request.method === 'POST') return createTicket(request, ctx);
@@ -132,8 +136,9 @@ async function route(request, url, ctx) {
     return methodNotAllowed(['GET', 'PATCH']);
   }
 
+  // Public reads: the facilities page shows work orders without sign-in; creating needs the demo key.
   if (parts[1] === 'work-orders' && parts.length === 2) {
-    if (request.method === 'GET') return listWorkOrders(ctx);
+    if (request.method === 'GET') return listWorkOrders(url, ctx);
     if (request.method === 'POST') {
       if (!requireDemoKey(request, ctx.env)) return unauthorized();
       return createWorkOrder(request, ctx);
@@ -141,6 +146,7 @@ async function route(request, url, ctx) {
     return methodNotAllowed(['GET', 'POST']);
   }
 
+  // Public: confirmation lookup from the facilities page.
   if (parts[1] === 'work-orders' && parts.length === 3) {
     if (request.method !== 'GET') return methodNotAllowed(['GET']);
     return getWorkOrder(parts[2], ctx);
@@ -148,7 +154,7 @@ async function route(request, url, ctx) {
 
   if (parts[1] === 'title-ix' && parts[2] === 'cases' && parts.length === 3) {
     if (!requireStaffOrDemo(request, ctx.env)) return unauthorized();
-    if (request.method === 'GET') return listCases(ctx);
+    if (request.method === 'GET') return listCases(url, ctx);
     if (request.method === 'POST') return createCase(request, ctx);
     return methodNotAllowed(['GET', 'POST']);
   }
@@ -308,6 +314,7 @@ async function mintVoiceSession(request, ctx) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({ expires_after: { seconds: 300 } }),
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
     });
   } catch (error) {
     ctx.log('voice session request failed', error instanceof Error ? error.message : 'network');
@@ -375,7 +382,6 @@ async function listTickets(request, url, ctx) {
   const status = url.searchParams.get('status');
   const category = url.searchParams.get('category');
   const since = url.searchParams.get('since');
-  const limitRaw = url.searchParams.get('limit');
   if (status && !STATUSES.includes(status) && status !== 'Submitted') {
     return json(400, { error: 'Unknown status.' });
   }
@@ -385,20 +391,11 @@ async function listTickets(request, url, ctx) {
     sinceMs = Date.parse(since);
     if (Number.isNaN(sinceMs)) return json(400, { error: 'since must be a date or time.' });
   }
-  let limit = 100;
-  if (limitRaw !== null && limitRaw !== '') {
-    limit = Number(limitRaw);
-    if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
-      return json(400, { error: 'limit must be an integer from 1 to 500.' });
-    }
-  }
+  const limit = parseLimit(url);
+  if (limit === null) return json(400, { error: 'limit must be an integer from 1 to 500.' });
 
-  let tickets = [];
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    tickets = state.tickets.slice();
-    return state;
-  });
+  const all = normalizeState(await ctx.storage.read()).tickets;
+  let tickets = all.slice();
 
   if (hasIds) {
     const wanted = idsParam.split(',').map((id) => id.trim()).filter(Boolean);
@@ -416,17 +413,18 @@ async function listTickets(request, url, ctx) {
   if (hasIds) {
     return json(200, { tickets: tickets.map(toPublicTicket), count: tickets.length });
   }
-  let all = tickets;
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    all = state.tickets;
-    return state;
-  });
   const full = new Map(all.map((ticket) => [ticket.id, ticket]));
   return json(200, {
     tickets: tickets.map((ticket) => withRelations(ticket, full)),
     count: tickets.length,
   });
+}
+
+function parseLimit(url) {
+  const raw = url.searchParams.get('limit');
+  if (raw === null || raw === '') return 100;
+  const limit = Number(raw);
+  return Number.isInteger(limit) && limit >= 1 && limit <= 500 ? limit : null;
 }
 
 function newestFirst(a, b) {
@@ -436,14 +434,8 @@ function newestFirst(a, b) {
 }
 
 async function getTicket(id, ctx) {
-  let found = null;
-  let all = [];
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    all = state.tickets;
-    found = state.tickets.find((ticket) => ticket.id === id) ?? null;
-    return state;
-  });
+  const all = normalizeState(await ctx.storage.read()).tickets;
+  const found = all.find((ticket) => ticket.id === id) ?? null;
   if (!found) return json(404, { error: 'Ticket not found.' });
   const full = new Map(all.map((ticket) => [ticket.id, ticket]));
   return json(200, withRelations(found, full));
@@ -547,7 +539,7 @@ async function forwardTicket(ticket, ctx) {
   }
   const body = JSON.stringify({ event: 'ticket.created', ticket });
   try {
-    const response = await ctx.fetchImpl(url, { method: 'POST', headers, body });
+    const response = await ctx.fetchImpl(url, { method: 'POST', headers, body, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
     ctx.log('intake webhook', response.ok ? 'delivered' : `status ${response.status}`, ticket.id);
   } catch (error) {
     ctx.log('intake webhook failed', ticket.id, error instanceof Error ? error.message : 'network');
@@ -721,23 +713,15 @@ function brief(ticket) {
   };
 }
 
-async function listWorkOrders(ctx) {
-  let workOrders = [];
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    workOrders = state.workOrders.slice().sort(newestFirst);
-    return state;
-  });
+async function listWorkOrders(url, ctx) {
+  const limit = parseLimit(url);
+  if (limit === null) return json(400, { error: 'limit must be an integer from 1 to 500.' });
+  const workOrders = normalizeState(await ctx.storage.read()).workOrders.slice().sort(newestFirst).slice(0, limit);
   return json(200, { workOrders, count: workOrders.length });
 }
 
 async function getWorkOrder(id, ctx) {
-  let found = null;
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    found = state.workOrders.find((order) => order.confirmation === id || order.id === id) ?? null;
-    return state;
-  });
+  const found = normalizeState(await ctx.storage.read()).workOrders.find((order) => order.confirmation === id || order.id === id) ?? null;
   if (!found) return json(404, { error: 'Work order not found.' });
   return json(200, found);
 }
@@ -797,23 +781,18 @@ async function createWorkOrder(request, ctx) {
   return json(201, created);
 }
 
-async function listCases(ctx) {
-  let cases = [];
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    cases = state.cases.slice().sort((a, b) => b.caseNumber.localeCompare(a.caseNumber));
-    return state;
-  });
+async function listCases(url, ctx) {
+  const limit = parseLimit(url);
+  if (limit === null) return json(400, { error: 'limit must be an integer from 1 to 500.' });
+  const cases = normalizeState(await ctx.storage.read())
+    .cases.slice()
+    .sort((a, b) => b.caseNumber.localeCompare(a.caseNumber))
+    .slice(0, limit);
   return json(200, { cases, count: cases.length });
 }
 
 async function getCase(caseNumber, ctx) {
-  let found = null;
-  await ctx.storage.update(async (current) => {
-    const state = normalizeState(current);
-    found = state.cases.find((item) => item.caseNumber === caseNumber) ?? null;
-    return state;
-  });
+  const found = normalizeState(await ctx.storage.read()).cases.find((item) => item.caseNumber === caseNumber) ?? null;
   if (!found) return json(404, { error: 'Case not found.' });
   return json(200, found);
 }

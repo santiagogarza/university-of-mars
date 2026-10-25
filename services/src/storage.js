@@ -13,6 +13,9 @@ export function memoryStorage(initial) {
   let state = structuredClone(initial);
   let queue = Promise.resolve();
   return {
+    async read() {
+      return queue.then(() => structuredClone(state));
+    },
     async update(mutator) {
       const run = queue.then(async () => {
         const next = await mutator(structuredClone(state));
@@ -33,6 +36,9 @@ const BLOB_PATH = 'uom-services/state.json';
 export function blobStorage(token) {
   let queue = Promise.resolve();
   return {
+    async read() {
+      return readBlob(token);
+    },
     async update(mutator) {
       const run = queue.then(async () => {
         const current = await readBlob(token);

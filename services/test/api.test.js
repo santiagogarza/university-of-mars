@@ -421,6 +421,18 @@ test('voice session returns an ephemeral token and never the API key', async () 
   assert.equal(missing.status, 503);
 });
 
+test('a list does not persist the seed into an empty store', async () => {
+  const storage = memoryStorage(null);
+  const { api } = app({ storage });
+  const listed = await call(api, 'GET', '/api/tickets', { key: KEY });
+  assert.equal(listed.status, 200);
+  assert.equal(listed.json.count, 16);
+  assert.equal(await storage.read(), null);
+  const capped = await call(api, 'GET', '/api/title-ix/cases?limit=1', { key: KEY });
+  assert.equal(capped.json.count, 1);
+  assert.equal(capped.json.cases[0].caseNumber, 'TIX-2026-0041');
+});
+
 test('admin reset and writes reject a missing demo key', async () => {
   const { api } = app();
   assert.equal((await call(api, 'POST', '/api/admin/reset')).status, 401);

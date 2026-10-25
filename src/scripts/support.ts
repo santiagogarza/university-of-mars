@@ -55,7 +55,11 @@ if (form) {
     }
   }
 
-  category?.addEventListener('change', () => fillSubcategories(subcategory?.value));
+  category?.addEventListener('change', () => {
+    const pending = subcategory?.dataset.pending ?? '';
+    fillSubcategories(pending || subcategory?.value || '');
+    if (pending && subcategory) delete subcategory.dataset.pending;
+  });
 
   const grid = form.querySelector('.form-grid');
   const nameInput = document.createElement('input');
@@ -91,7 +95,23 @@ if (form) {
       fields: [
         inputField('name', 'Name', nameInput, false),
         inputField('category', 'Category', category),
-        inputField('subcategory', 'Subcategory', subcategory),
+        {
+          ...inputField('subcategory', 'Subcategory', subcategory),
+          set: (value: string) => {
+            subcategory.dataset.pending = value;
+            const match = [...subcategory.options].find((option) => {
+              return (
+                option.value.toLowerCase() === value.toLowerCase() ||
+                option.textContent?.trim().toLowerCase() === value.toLowerCase()
+              );
+            });
+            if (!match) return;
+            subcategory.value = match.value;
+            delete subcategory.dataset.pending;
+            subcategory.dispatchEvent(new Event('input', { bubbles: true }));
+            subcategory.dispatchEvent(new Event('change', { bubbles: true }));
+          },
+        },
         inputField('studentId', 'Student ID', studentId),
         inputField('email', 'UM email', email),
         inputField('subject', 'Subject', subject),

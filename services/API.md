@@ -218,8 +218,11 @@ The confirmation is `HWO-2027-` plus four digits, starting at `HWO-2027-1001` af
 
 ```bash
 curl -s "$BASE/api/work-orders"
+curl -s "$BASE/api/work-orders?limit=100"
 curl -s "$BASE/api/work-orders/HWO-2027-1001"
 ```
+
+`limit` defaults to 100 and cannot exceed 500. `count` is how many rows came back.
 
 Recommended `category` values: Plumbing, Electrical, Heat or cooling, Furniture or fixture, Pest, Other repair. Recommended `shop` values: HVAC, Plumbing, Electrical, Carpentry, Pest. Recommended `safetyLevel` values: Emergency, Urgent, Routine. Recommended `access` values: `student present`, `entry approved`. Recommended `language` values: English, Spanish, both.
 
@@ -286,7 +289,7 @@ curl -s "$BASE/api/title-ix/cases" -H "x-demo-key: $DEMO_BOT_KEY"
 curl -s "$BASE/api/title-ix/cases/TIX-2026-0041" -H "x-demo-key: $DEMO_BOT_KEY"
 ```
 
-List response: `{ "cases", "count" }`, highest case number first.
+List response: `{ "cases", "count" }`, highest case number first. `limit` defaults to 100 and cannot exceed 500.
 
 ## Aid-hold releases
 

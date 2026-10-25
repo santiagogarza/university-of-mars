@@ -371,6 +371,7 @@ function sessionConfig(options: MountOptions) {
       'Write every form field in English. Translate before you save a field.',
       'Record only what the caller actually said. Never guess a name, ID, room, email, time, or category. Leave unknown fields empty.',
       'As soon as you know one field, call set_field for that field. Do not wait until the end.',
+      'Description is cumulative. Whenever the caller adds a detail about the problem, in any language, call set_field for description again with the full English description so far, keeping every earlier detail.',
       `Fields: ${options.fields.map((field) => field.label).join(', ')}.`,
       'When the required fields are filled, read them back briefly and ask the caller to press Submit. You cannot submit the form.',
       options.mode === 'housing'
@@ -397,7 +398,11 @@ function sessionConfig(options: MountOptions) {
           type: 'object',
           properties: {
             name: { type: 'string', enum: names },
-            value: { type: 'string', description: 'English text. Do not send a guess.' },
+            value: {
+              type: 'string',
+              description:
+                'English text. Do not send a guess. For description, send the complete updated description, not only the newest detail.',
+            },
           },
           required: ['name', 'value'],
         },

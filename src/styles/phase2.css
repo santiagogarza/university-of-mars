@@ -30,8 +30,9 @@
 }
 
 .mic-meter {
-  height: 0.45rem;
-  background: var(--sand-deep);
+  height: 0.7rem;
+  background: #3f3a34;
+  border: 1px solid #1c1917;
   margin: 0 0 var(--space-sm);
   overflow: hidden;
 }
@@ -40,7 +41,7 @@
   display: block;
   height: 100%;
   width: 100%;
-  background: var(--navy);
+  background: #f4efe6;
   transform-origin: left center;
   transform: scaleX(0.04);
 }
@@ -72,17 +73,18 @@
 
 .transcript-line {
   margin: 0;
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
-  line-height: 1.4;
+  font-size: 1rem;
+  line-height: 1.45;
 }
 
 .transcript-line .who {
   display: block;
   font-family: var(--sans);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
   color: var(--rust);
 }
 
@@ -97,6 +99,18 @@
   min-height: 3.25rem;
   min-width: 10rem;
   font-size: 1.08rem;
+}
+
+.call-dismiss {
+  background: var(--white);
+  color: var(--navy);
+  border-color: var(--navy);
+}
+
+.call-dismiss:hover {
+  background: var(--sand);
+  color: var(--oxblood-deep);
+  border-color: var(--oxblood-deep);
 }
 
 .field.is-just-filled input,

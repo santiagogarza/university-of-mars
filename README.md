@@ -118,7 +118,7 @@ Open [https://santiagogarza.github.io/university-of-mars/support/?reset=1](https
 
 ## Voice calls
 
-Housing has a **Call Housing Support** button. The Help Center form has **Talk to Student Support**. Each opens an in-browser call. A server route mints a short-lived token; the API key stays on the server. The transcript shows both sides in large type. The form fills one field at a time, highlights the field, and leaves unknown fields empty. The caller can switch to Spanish and back. Replies follow the caller’s language. Saved fields are English. The person presses Submit. Hang up is the only primary action while the call is live. If the microphone is blocked or the call drops, the typed form is still there.
+Housing has a **Call Housing Support** button. The Help Center form has **Talk to Student Support**. Each opens an in-browser call. A server route mints a short-lived token; the API key stays on the server. The transcript shows both sides in body-sized type. The form fills one field at a time, highlights the field, and leaves unknown fields empty. The caller can switch to Spanish and back. Replies follow the caller’s language. Saved fields are English. The person presses Submit. Hang up is the only primary action while the call is live. If the microphone is blocked or the call drops, the typed form is still there.
 
 `PUBLIC_SERVICES_URL` must be set at build time or the buttons explain that calls are not connected and the form still works offline, saved in this browser as before.
 
@@ -133,7 +133,8 @@ Set these on the services project:
 - `BLOB_READ_WRITE_TOKEN` — durable storage; omit it for local memory
 - `INTAKE_WEBHOOK_URL` and optional `INTAKE_WEBHOOK_HEADERS` — forward each new ticket
 - `STAFF_PASSCODE` — case-log sign-in
-- `RELEASE_APPROVERS` — comma-separated emails that may approve an aid-hold release
+- `RELEASE_APPROVERS` — comma-separated approver names or emails, for example `resolver-bot`
+- `ALLOWED_ORIGINS` — optional comma-separated origins added to `https://santiagogarza.github.io` for the voice token and browser calls
 
 On the site repository, set the Actions variables `PUBLIC_SERVICES_URL` (the services origin, no trailing slash) and `PUBLIC_STAFF_PASSCODE` (the same workshop passcode). `pages.yml` inlines both. The passcode is a gate for a public demo, not the bot key. The bot key is never in the site bundle.
 
@@ -149,10 +150,12 @@ These scripts are for a rehearsal when `XAI_API_KEY` is available. They are not 
 XAI_API_KEY=... npm run make-demo-audio
 ```
 
-That writes `scripts/demo-caller.wav`: English, a short Spanish turn, then English again, with silence between the turns so the other side can answer. The file is gitignored.
+That writes `scripts/demo-caller.wav`: English, a short Spanish turn, then English again. `DEMO_LEAD_SECONDS` (default 9) is silence before the caller speaks, so the greeting can finish. `DEMO_GAP_SECONDS` (default 12) is the pause after each turn. The file is gitignored.
 
 ```bash
-npm run record-demo
+DEMO_URL=http://127.0.0.1:4321/university-of-mars/housing/ npm run record-demo
 ```
 
-That opens system Chrome through Playwright with a fake microphone pointed at the wav, clicks **Call Housing Support** on the live housing page, waits, hangs up, and writes a video under `scripts/demo-recordings/`. Override `DEMO_URL`, `DEMO_AUDIO`, `DEMO_HOLD_MS`, and `DEMO_HEADLESS=0` when you need to. Chrome has to be installed. The voice key has to be configured on the deployed services project, and the site build has to point at it, or the call will not go live.
+`DEMO_URL` must be set for a local run. The default is the published housing page. The script opens Chrome with a fake microphone pointed at the wav and does not loop that file. Set `CHROME_PATH` to a Chrome binary, or leave it unset to use the `chrome` channel (`CHROME_CHANNEL` overrides the channel). It clicks **Call Housing Support**, waits, hangs up, and writes a video under `scripts/demo-recordings/`. Also override `DEMO_AUDIO`, `DEMO_HOLD_MS`, and `DEMO_HEADLESS=0` when you need to.
+
+Playwright’s video has no audio track. The script looks for `ffmpeg` on `PATH`, `FFMPEG_PATH`, or the copy from `npx playwright-core install ffmpeg`, then muxes the caller WAV onto a second file ending in `-audio.webm`. Agent speech is played inside the page and is not captured. If you already have that WAV, set `DEMO_AGENT_AUDIO` and the mux mixes it with the caller from the start of the file. Chrome has to be installed. The voice key has to be configured on the services project, and the site build has to point at it, or the call will not go live.

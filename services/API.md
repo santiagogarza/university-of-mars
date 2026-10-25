@@ -4,7 +4,7 @@ Base URL after deploy: `https://<your-project>.vercel.app`
 
 The browser site calls this API with `PUBLIC_SERVICES_URL` set to that origin (no trailing slash). Bots send the demo key in the `x-demo-key` header. That key is the `DEMO_BOT_KEY` environment variable. It is never part of the site build.
 
-CORS allows `https://santiagogarza.github.io` and `http://localhost` or `http://127.0.0.1` on any port.
+CORS allows `https://santiagogarza.github.io`, any origin listed in `ALLOWED_ORIGINS` (comma-separated), and `http://localhost` or `http://127.0.0.1` on any port.
 
 Ticket status values bots may set: `Received`, `In progress`, `Resolved`. Seeded tickets stay `Submitted` until a bot changes them.
 
@@ -18,7 +18,8 @@ Ticket status values bots may set: `Received`, `In progress`, `Resolved`. Seeded
 | `INTAKE_WEBHOOK_URL` | No | If set, each new ticket is forwarded here. |
 | `INTAKE_WEBHOOK_HEADERS` | No | JSON object of extra headers, for example `{"x-intake-key":"..."}`. |
 | `STAFF_PASSCODE` | For the case log screen | Exchanged for an 8-hour `x-staff-token`. Not the demo key. |
-| `RELEASE_APPROVERS` | For aid-hold approval | Comma-separated emails. Comparison is case-insensitive. If empty, approval is refused. |
+| `RELEASE_APPROVERS` | For aid-hold approval | Comma-separated approver names or emails, for example `resolver-bot`. Comparison is case-insensitive. If empty, approval is refused. |
+| `ALLOWED_ORIGINS` | No | Extra origins for browser calls, comma-separated, added to `https://santiagogarza.github.io`. |
 
 ## Seeded tickets
 
@@ -318,7 +319,7 @@ curl -s -X PATCH "$BASE/api/aid-holds/releases/REL-1001" \
   -d '{"approvalChannel":"aid-approvals","approvalRef":"1710000000.0001"}'
 ```
 
-Approve. `approvedBy` must be on `RELEASE_APPROVERS`. `slackTs` is accepted as `approvalRef`.
+Approve. `approvedBy` must match one entry in `RELEASE_APPROVERS` (a name or an email). `slackTs` is accepted as `approvalRef`.
 
 ```bash
 curl -s -X POST "$BASE/api/aid-holds/releases/REL-1001/approve" \

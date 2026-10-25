@@ -16,7 +16,8 @@ Set these on the project, not in the repository:
 | `INTAKE_WEBHOOK_URL` | No | Where each new ticket is forwarded. |
 | `INTAKE_WEBHOOK_HEADERS` | No | JSON object of headers to add to that forward. |
 | `STAFF_PASSCODE` | For the case-log screens | What a person types on `/staff/title-ix`. The server returns a short-lived `x-staff-token`. |
-| `RELEASE_APPROVERS` | For beat 4.5 | Comma-separated emails allowed to approve an aid-hold release. |
+| `RELEASE_APPROVERS` | For aid-hold approval | Comma-separated approver names or emails, for example `resolver-bot`. Comparison is case-insensitive. If empty, approval is refused. |
+| `ALLOWED_ORIGINS` | No | Extra browser origins, comma-separated, added to `https://santiagogarza.github.io`. Localhost is always allowed. |
 
 Do not put `DEMO_BOT_KEY` or `XAI_API_KEY` in the site build. The site variable `PUBLIC_STAFF_PASSCODE` is only a matching copy of `STAFF_PASSCODE` so the public pages can show the gate. It is a workshop passcode, not the bot key.
 

@@ -45,7 +45,6 @@ const NEXT_STEPS = [
 ];
 const INVESTIGATORS = ['Coordinator (Title IX office)', 'Deputy coordinator A', 'Deputy coordinator B'];
 
-const ALLOWED_ORIGINS = new Set(['https://santiagogarza.github.io']);
 const UPSTREAM_TIMEOUT_MS = 8000;
 
 const OPTIONAL_TICKET_FIELDS = ['name', 'hall', 'room', 'availability', 'phone', 'language'];
@@ -67,7 +66,7 @@ export function createApp(options = {}) {
 async function handleRequest(request, ctx) {
   const url = new URL(request.url);
   const origin = request.headers.get('origin');
-  const cors = corsHeaders(origin);
+  const cors = corsHeaders(origin, ctx.env);
 
   if (request.method === 'OPTIONS') {
     return json(204, {}, cors);
@@ -192,21 +191,26 @@ async function route(request, url, ctx) {
   return json(404, { error: 'Not found.' });
 }
 
-function corsHeaders(origin) {
+function corsHeaders(origin, env) {
   const headers = {
     'access-control-allow-methods': 'GET, POST, PATCH, OPTIONS',
     'access-control-allow-headers': 'content-type, x-demo-key, x-staff-token',
     'access-control-max-age': '86400',
     vary: 'Origin',
   };
-  const allowed = allowedOrigin(origin);
+  const allowed = allowedOrigin(origin, env);
   if (allowed) headers['access-control-allow-origin'] = allowed;
   return headers;
 }
 
-function allowedOrigin(origin) {
+function allowedOrigin(origin, env) {
   if (!origin) return null;
-  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  if (origin === 'https://santiagogarza.github.io') return origin;
+  const extras = String(env?.ALLOWED_ORIGINS ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (extras.includes(origin)) return origin;
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return origin;
   return null;
 }
@@ -298,7 +302,7 @@ async function resetState(ctx) {
 
 async function mintVoiceSession(request, ctx) {
   const origin = request.headers.get('origin');
-  if (!allowedOrigin(origin)) {
+  if (!allowedOrigin(origin, ctx.env)) {
     return json(403, { error: 'This voice session is only started from the university site.' });
   }
   if (!ctx.env.XAI_API_KEY) {

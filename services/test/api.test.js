@@ -403,6 +403,14 @@ test('aid-hold release approval, aliases, and reset', async () => {
   assert.equal(restored.json.comments.length, 0);
 });
 
+test('an extra origin in ALLOWED_ORIGINS can mint a voice session', async () => {
+  const { api } = app({ env: { ALLOWED_ORIGINS: 'https://workshop.example.test' } });
+  const extra = await call(api, 'POST', '/api/voice/session', { origin: 'https://workshop.example.test' });
+  assert.equal(extra.status, 200);
+  const blocked = await call(api, 'POST', '/api/voice/session', { origin: 'https://other.example' });
+  assert.equal(blocked.status, 403);
+});
+
 test('voice session returns an ephemeral token and never the API key', async () => {
   const { api, calls } = app();
   const ok = await call(api, 'POST', '/api/voice/session', { origin: 'https://santiagogarza.github.io' });

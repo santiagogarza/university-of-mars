@@ -9,22 +9,25 @@ if (!key) {
   process.exit(1);
 }
 
+const leadSeconds = Number(process.env.DEMO_LEAD_SECONDS || 9);
+const gapSeconds = Number(process.env.DEMO_GAP_SECONDS || 12);
+
 const lines = [
   {
     language: 'en',
-    text: 'Hello, this is Lucia Mendoza in Isidis Hall, room 214. My student ID is 700440782, and my email is lucia.mendoza at umars.edu.',
+    text: 'Hi, my name is Jordan Rivera. My student ID is 7 0 0, 1 2 3, 4 5 6. My email is jordan.rivera at umars dot edu. I live in Isidis Hall, room 214, and there is a leak under my bathroom sink.',
   },
   {
     language: 'es-MX',
-    text: 'La calefacción no funciona desde anoche y hace mucho frío en el cuarto.',
+    text: 'El agua ya está llegando al piso. Me preocupa porque hay un enchufe muy cerca.',
   },
   {
     language: 'en',
-    text: 'The heater has been out since last night and the room is very cold. This is urgent. I can be there Wednesday from 2 to 4 in the afternoon. Please do not submit the form. I will press the button myself.',
+    text: 'Sorry, back to English. It needs to be fixed soon, but it is not an emergency. I am available weekday mornings. Please do not submit the form. I will press the button myself.',
   },
 ];
 
-const clips = [];
+const clips = [silence(24000, leadSeconds)];
 for (const line of lines) {
   const response = await fetch('https://api.x.ai/v1/tts', {
     method: 'POST',
@@ -58,7 +61,7 @@ for (const line of lines) {
     bytes = Buffer.from(await response.arrayBuffer());
   }
   clips.push(decodeWav(bytes));
-  clips.push(silence(24000, 4.5));
+  clips.push(silence(24000, gapSeconds));
 }
 
 const merged = concat(clips);
@@ -107,7 +110,7 @@ function concat(parts) {
   const samples = [];
   for (const part of parts) {
     if (part.rate !== rate) throw new Error('Audio clips did not share a sample rate.');
-    samples.push(...part.samples);
+    for (const sample of part.samples) samples.push(sample);
   }
   return { samples, rate };
 }

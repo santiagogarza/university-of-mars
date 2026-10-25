@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
 import { u } from '../lib/paths';
 
-const widths = [640, 960, 1280, 1920];
+const widths = [640, 960, 1280];
 const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`).join(', ');
 ---
 
@@ -17,8 +17,8 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
       <img
         class="hero-media"
         src={u('/images/hero-quad.jpg')}
-        width="1920"
-        height="1280"
+        width="1280"
+        height="720"
         fetchpriority="high"
         decoding="async"
       />
@@ -56,7 +56,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
           <div class="frame">
             <Photo
               name="library"
-              alt="Reading room of the University Library with long tables and tall windows."
+              alt="Glass atrium of the University Library at dusk, with wide steps and red hills behind it."
               sizes="(min-width: 900px) 340px, 100vw"
             />
           </div>
@@ -70,7 +70,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
           <div class="frame">
             <Photo
               name="research"
-              alt="The Jezero Observatory, a low research building with a dome, at dusk."
+              alt="Research building with a rooftop observatory dome at blue hour, beside a red plain."
               sizes="(min-width: 900px) 340px, 100vw"
             />
           </div>
@@ -84,7 +84,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
           <div class="frame">
             <Photo
               name="students"
-              alt="Students walking across the main quad between classes."
+              alt="Students studying with laptops at an outdoor table, seen mostly from behind."
               sizes="(min-width: 900px) 340px, 100vw"
             />
           </div>

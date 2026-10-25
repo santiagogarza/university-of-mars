@@ -34,9 +34,9 @@ The six campus photographs live in `public/images/` under these filenames:
 - `lecture-hall.jpg`
 - `research.jpg`
 
-Neutral placeholders are checked in until the final photographs arrive. Replace a file, keep the filename, then run `npm run optimize-images`. The dev server and the production build generate responsive WebP files (`name-640.webp` through `name-1920.webp`) next to the JPEGs. Those derivatives are gitignored.
+Replace a file, keep the filename, then run `npm run optimize-images`. The dev server and the production build write responsive WebP files beside the JPEGs, at 640, 960, and 1280 pixels wide, plus 1920 when the source is at least that wide. Those derivatives are gitignored.
 
-`scripts/make-placeholders.py` overwrites the six JPEGs with the placeholders. Do not run it after the final photographs are in place.
+`scripts/make-placeholders.py` overwrites the six JPEGs with flat stand-ins. Do not run it unless you mean to discard the photographs.
 
 ## Deploy
 

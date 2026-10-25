@@ -17,11 +17,11 @@ const {
   sizes = '(min-width: 900px) 40rem, 100vw',
   class: className,
   loading = 'lazy',
-  width = 1920,
-  height = 1280,
+  width = 1280,
+  height = 720,
 } = Astro.props;
 
-const widths = [640, 960, 1280, 1920];
+const widths = [640, 960, 1280];
 const srcset = widths.map((w) => `${u(`/images/${name}-${w}.webp`)} ${w}w`).join(', ');
 ---
 

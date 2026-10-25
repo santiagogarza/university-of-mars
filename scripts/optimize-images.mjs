@@ -19,7 +19,9 @@ for (const name of names) {
     process.exit(1);
   }
 
+  const sourceWidth = (await sharp(input).metadata()).width ?? widths.at(-1);
   for (const width of widths) {
+    if (width > sourceWidth) continue;
     const output = path.join(dir, `${name}-${width}.webp`);
     let fresh = false;
     try {

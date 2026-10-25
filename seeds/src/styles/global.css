@@ -24,6 +24,14 @@
   --sans: 'Source Sans 3', 'Segoe UI', Helvetica, Arial, sans-serif;
   --shadow: 0 16px 40px rgba(28, 25, 23, 0.12);
   --wrap: 1120px;
+  --gutter: 1rem;
+  --measure: 40rem;
+  --space-2xs: 0.35rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.35rem;
+  --space-lg: 2.25rem;
+  --space-xl: 3.5rem;
 }
 
 *,
@@ -133,12 +141,12 @@ a:hover {
 }
 
 .wrap {
-  width: min(var(--wrap), calc(100% - 2rem));
+  width: min(var(--wrap), calc(100% - 2 * var(--gutter)));
   margin-inline: auto;
 }
 
 .narrow {
-  width: min(44rem, calc(100% - 2rem));
+  width: min(44rem, calc(100% - 2 * var(--gutter)));
 }
 
 .eyebrow {
@@ -155,11 +163,11 @@ a:hover {
   font-size: 1.2rem;
   line-height: 1.5;
   color: var(--ink-soft);
-  max-width: 42rem;
+  max-width: var(--measure);
 }
 
 .section {
-  padding: 3.5rem 0;
+  padding: var(--space-xl) 0;
 }
 
 .section.tight {
@@ -170,8 +178,9 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  margin-bottom: var(--space-md);
 }
 
 .section-head a {
@@ -481,6 +490,12 @@ a:hover {
   overflow: hidden;
 }
 
+.hero > .wrap {
+  flex: none;
+  width: min(var(--wrap), calc(100% - 2 * var(--gutter)));
+  max-width: 100%;
+}
+
 .hero-picture,
 .hero-media,
 .hero-shade {
@@ -504,7 +519,7 @@ a:hover {
   position: relative;
   z-index: 1;
   padding: 4.5rem 0 3.25rem;
-  max-width: 42rem;
+  max-width: var(--measure);
 }
 
 .hero .eyebrow {
@@ -526,9 +541,9 @@ a:hover {
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem 1.25rem;
+  gap: var(--space-sm) 1.25rem;
   align-items: center;
-  margin: 1.3rem 0 0;
+  margin: var(--space-md) 0 0;
 }
 
 .stats {
@@ -539,8 +554,14 @@ a:hover {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
-  padding: 1.25rem 0;
+  gap: var(--space-md) var(--space-sm);
+  padding: var(--space-lg) 0;
+  align-items: start;
+}
+
+.stats-grid p {
+  margin: 0;
+  min-width: 0;
 }
 
 .stats-grid strong {
@@ -553,8 +574,11 @@ a:hover {
 }
 
 .stats-grid span {
+  display: block;
   color: var(--navy);
   font-size: 0.92rem;
+  line-height: 1.35;
+  overflow-wrap: break-word;
 }
 
 .news-grid {
@@ -587,7 +611,7 @@ a:hover {
 }
 
 .news-card-body {
-  padding: 1rem 1rem 1.15rem;
+  padding: var(--space-md) 1.2rem 1.35rem;
   background: #ffffff;
 }
 
@@ -632,8 +656,8 @@ a:hover {
 .event-list li {
   display: grid;
   grid-template-columns: 4.6rem 1fr;
-  gap: 0.85rem;
-  padding: 0.85rem 0;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
   border-top: 1px solid var(--line);
 }
 
@@ -678,15 +702,15 @@ a:hover {
 .tiles {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.85rem;
+  gap: var(--space-sm);
 }
 
 .tile {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-2xs);
   min-height: 7.5rem;
-  padding: 1rem 1rem 0.9rem;
+  padding: var(--space-md) 1.15rem 1.15rem;
   background: var(--sand);
   color: var(--ink);
   text-decoration: none;
@@ -725,7 +749,7 @@ a:hover {
     linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0)),
     var(--sand);
   border-bottom: 1px solid var(--line);
-  padding: 1.5rem 0 2rem;
+  padding: var(--space-lg) 0;
 }
 
 .crumbs {
@@ -754,15 +778,19 @@ a:hover {
 }
 
 .page-actions {
-  margin: 1rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-sm);
+  margin: var(--space-sm) 0;
 }
 
 .prose {
-  padding: 2.2rem 0 3.5rem;
+  padding: var(--space-lg) 0 var(--space-xl);
 }
 
 .prose h2 {
-  margin-top: 2rem;
+  margin-top: var(--space-lg);
 }
 
 .prose ul,
@@ -852,7 +880,7 @@ th {
 .form-card {
   background: var(--white);
   border: 1px solid var(--line);
-  padding: 1rem 1.05rem 1.1rem;
+  padding: var(--space-md) 1.25rem 1.35rem;
 }
 
 .card h3,
@@ -890,15 +918,15 @@ th {
 .portal-search {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 0.6rem;
+  gap: var(--space-xs);
   align-items: end;
-  margin: 1rem 0 0;
+  margin: var(--space-sm) 0 0;
 }
 
 .support-layout {
   display: grid;
-  gap: 1.5rem;
-  padding-bottom: 3.5rem;
+  gap: var(--space-xl);
+  padding: var(--space-lg) 0 var(--space-xl);
 }
 
 .form-card h2,
@@ -1038,7 +1066,7 @@ th {
 
 .faq details {
   border-top: 1px solid var(--line);
-  padding: 0.75rem 0;
+  padding: var(--space-sm) 0;
 }
 
 .faq details:last-child {
@@ -1146,7 +1174,7 @@ th {
 .site-footer {
   background: var(--navy);
   color: #efe7dc;
-  padding: 2.5rem 0 1.4rem;
+  padding: var(--space-xl) 0 var(--space-lg);
   margin-top: 0;
 }
 
@@ -1182,7 +1210,7 @@ th {
 .footer-grid {
   display: grid;
   grid-template-columns: 1.1fr repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: var(--space-lg) var(--space-md);
 }
 
 .seal {
@@ -1209,8 +1237,8 @@ th {
 }
 
 .footer-statement {
-  margin-top: 1.8rem;
-  padding-top: 1rem;
+  margin-top: var(--space-xl);
+  padding-top: var(--space-md);
   border-top: 1px solid rgba(244, 239, 230, 0.2);
   font-size: 0.92rem;
 }
@@ -1221,7 +1249,7 @@ th {
   gap: 0.8rem 1.2rem;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.6rem;
+  margin-top: var(--space-md);
   font-size: 0.92rem;
 }
 
@@ -1351,7 +1379,13 @@ address {
   .utility-inner {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0;
+    gap: var(--space-2xs);
+    padding-bottom: var(--space-2xs);
+  }
+
+  .hero-actions,
+  .page-actions {
+    gap: var(--space-sm);
   }
 
   .hero h1 {

@@ -7,7 +7,7 @@ import { u } from '../lib/paths';
 
 <Base
   title="About"
-  description="About the University of Mars, a public research university chartered in 1894 on the Jezero campus."
+  description={`About the University of Mars, a public research university chartered in ${site.founded} on the Jezero campus.`}
 >
   <PageHero
     eyebrow="About"
@@ -21,7 +21,7 @@ import { u } from '../lib/paths';
   </PageHero>
   <article class="prose wrap">
     <p>
-      The university was chartered in 1894 and still teaches on the ground it was given. The motto,
+      The university was chartered in {site.founded} on the Jezero campus. The motto,
       <em>{site.motto}</em>, means “{site.mottoEn}.” It is cut into the east face of the clock tower on the main quad.
     </p>
 

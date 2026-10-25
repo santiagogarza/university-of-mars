@@ -2,7 +2,7 @@
 
 Static website for the University of Mars, a fictional public research university on the Jezero campus. It is the target site for a live higher-ed workshop: it should look like a real campus site, and it includes five deliberate content and accessibility issues for the demo.
 
-Today on the site is late October 2026. The current term is Spring Semester 2027 (Fall Semester 2026 is still in session). The current aid year is 2026–27.
+Today on the site is Monday, January 11, 2027, the second week of Spring Semester 2027. Instruction began Monday, January 4, and the add/drop deadline is Friday, January 15, 2027. The current aid year is 2026–27. Fall Semester 2026 has ended. The university was chartered in 2004.
 
 ## Local development
 

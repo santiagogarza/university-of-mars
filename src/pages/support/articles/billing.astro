@@ -1,0 +1,32 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { u } from '../../../lib/paths';
+---
+
+<Base title="Read a billing statement" description="How University of Mars student bills are organized and how to ask about a charge.">
+  <PageHero
+    eyebrow="Billing"
+    title="Read a billing statement"
+    lede="The cashier posts charges in MyUM. Aid for 2026–27 pays after you accept the award and any hold is cleared."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/articles/billing/', label: 'Billing' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>The statement has three blocks: tuition and fees, housing and meals, and other charges such as a lab fee or a library fine. A credit from aid appears as a payment, not as a lower tuition line.</p>
+    <ul>
+      <li>Fall Semester charges posted in August 2026. Spring Semester charges post in December 2026.</li>
+      <li>A payment plan splits the remaining balance into four monthly payments. Enroll before the term begins.</li>
+      <li>Refunds of a credit balance go to the bank account on file about ten business days after aid disburses.</li>
+    </ul>
+    <p>
+      A past-due balance can place a bursar hold. That hold is separate from a financial aid hold. If a line looks wrong,
+      submit a billing request and include the charge date and the amount.
+    </p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=billing#request')}>Ask about a charge</a>
+    </p>
+  </article>
+</Base>

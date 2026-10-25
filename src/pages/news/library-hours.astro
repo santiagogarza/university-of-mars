@@ -1,0 +1,26 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+---
+
+<Base title="Library late hours" description="The University Library extends reading-room hours through Fall Semester 2026 finals.">
+  <PageHero
+    eyebrow="October 21, 2026"
+    title="Reading rooms stay open until 2 a.m. through finals"
+    lede="From Monday, November 30 through Friday, December 11, 2026, the main library reading rooms close at 2 a.m. instead of midnight."
+    crumbs={[
+      { href: '/#news', label: 'News' },
+      { href: '/news/library-hours/', label: 'Library hours' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      The first-floor reading room remains open overnight on those dates, as it does before every finals period. Stacks
+      above the second floor close at midnight. College of Science teaching labs are not part of this schedule.
+    </p>
+    <p>
+      A campus card is required after 10 p.m. Food is limited to covered drinks outside the special-collections room.
+      The late bus from the library loop to Syrtis Court and Elysium Hall runs until 2:15 a.m.
+    </p>
+  </article>
+</Base>

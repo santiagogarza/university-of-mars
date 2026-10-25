@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base title="Emergency information" description="Campus safety, UM Alert, and what to do in an emergency at the University of Mars.">
+  <PageHero
+    eyebrow="Campus safety"
+    title="Emergency information"
+    lede="For immediate danger, call campus safety. UM Alert is the campus notification system for closures and safety messages."
+    crumbs={[{ href: '/emergency/', label: 'Emergency' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={site.safetyHref}>Call campus safety</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <p>
+      Campus safety: <a href={site.safetyHref}>{site.safetyPhone}</a>. The desk is staffed at all hours. Program that
+      number into your phone. Residence-hall emergencies that are not a crime or a medical crisis — a flood, no heat, a
+      door that will not lock — go to <a href={site.repairHref}>{site.repairPhone}</a>.
+    </p>
+    <h2>UM Alert</h2>
+    <p>
+      Students and employees are enrolled with the mobile number and UM email on file. Update both in MyUM. A test
+      message is sent once each term. The Fall Semester 2026 test went out on Wednesday, September 2.
+    </p>
+    <h2>If you are told to leave a building</h2>
+    <ul>
+      <li>Use the stairs, not the elevator.</li>
+      <li>Gather on the main quad, east of the clock tower, unless a message names a different place.</li>
+      <li>Wait for campus safety or the building coordinator before you go back in.</li>
+    </ul>
+    <p>
+      Class cancellations for weather or a utility failure are posted on the home page and sent through UM Alert. A
+      delayed opening is not the same thing as a closed campus.
+    </p>
+    <p><a href={u('/housing/#emergency')}>Residence hall emergency repairs</a></p>
+  </article>
+</Base>

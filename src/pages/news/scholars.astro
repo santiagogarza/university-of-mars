@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base title="Red Planet Scholars" description="The 2026-27 Red Planet Scholars cohort has been named.">
+  <PageHero
+    eyebrow="October 2, 2026"
+    title="Red Planet Scholars named for 2026–27"
+    lede="The aid office has named this year’s Red Planet Scholars. The award is part of the need-based grant, not a separate contest."
+    crumbs={[
+      { href: '/#news', label: 'News' },
+      { href: '/news/scholars/', label: 'Red Planet Scholars' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      Continuing students did not file an extra essay. The office used the aid application already on file for aid year
+      2026–27. Students who were selected see the award as a line in MyUM. Accept it with the rest of the package or it
+      will not disburse.
+    </p>
+    <p>
+      The next cycle is aid year 2027–28. That application is separate and is described on the financial aid page under
+      the upcoming-year heading.
+    </p>
+    <p><a href={u('/financial-aid/#scholarships')}>Scholarship details</a></p>
+  </article>
+</Base>

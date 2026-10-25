@@ -1,0 +1,27 @@
+{
+  "name": "university-of-mars",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "predev": "node scripts/optimize-images.mjs",
+    "prebuild": "node scripts/optimize-images.mjs",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "lint": "astro check",
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "check-seeds": "node scripts/check-seeds.mjs",
+    "reset-demo": "bash scripts/reset-demo-seeds.sh"
+  },
+  "dependencies": {
+    "@fontsource/newsreader": "^5.2.8",
+    "@fontsource/source-sans-3": "^5.2.6",
+    "astro": "^5.15.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.5",
+    "sharp": "^0.34.4",
+    "typescript": "^5.9.3"
+  }
+}

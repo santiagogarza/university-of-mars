@@ -1,0 +1,7 @@
+# Files restored by scripts/reset-demo-seeds.sh
+src/pages/index.astro
+src/pages/financial-aid.astro
+src/pages/academics/calendar.astro
+src/pages/support/index.astro
+src/pages/support/articles/registration.astro
+src/styles/global.css

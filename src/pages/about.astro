@@ -1,0 +1,68 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="About"
+  description="About the University of Mars, a public research university chartered in 1894 on the Jezero campus."
+>
+  <PageHero
+    eyebrow="About"
+    title="About the university"
+    lede="The University of Mars is a public research university. The Jezero campus is its academic home."
+    crumbs={[{ href: '/about/', label: 'About' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href="#contact">Contact the campus</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap">
+    <p>
+      The university was chartered in 1894 and still teaches on the ground it was given. The motto,
+      <em>{site.motto}</em>, means “{site.mottoEn}.” It is cut into the east face of the clock tower on the main quad.
+    </p>
+
+    <h2 id="facts">Facts</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">University facts for 2026–27</caption>
+        <tbody>
+          <tr><th scope="row">Students</th><td>28,400 (21,600 undergraduate, 6,800 graduate)</td></tr>
+          <tr><th scope="row">Colleges</th><td>Eight, including the Graduate Division and the University Library</td></tr>
+          <tr><th scope="row">Student-faculty ratio</th><td>19 to 1</td></tr>
+          <tr><th scope="row">Calendar</th><td>Fall Semester 2026 and Spring Semester 2027, plus a summer session</td></tr>
+          <tr><th scope="row">Address</th><td>{site.street}, {site.locality}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="leadership">Leadership</h2>
+    <ul>
+      <li>Office of the Chancellor</li>
+      <li>Office of the Provost</li>
+      <li>Vice Chancellor for Student Affairs, which includes the Help Center, housing, and the aid office</li>
+      <li>Vice Chancellor for Research</li>
+      <li>Vice Chancellor for Finance, which includes the cashier</li>
+    </ul>
+    <p>The academic senate sets curriculum. The trustees set tuition.</p>
+
+    <h2 id="contact">Contact</h2>
+    <p>
+      {site.name}<br />
+      {site.street}<br />
+      {site.locality}<br />
+      <a href={site.phoneHref}>{site.phone}</a><br />
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+    </p>
+    <p>The main switchboard is open weekdays from 8 a.m. to 5 p.m. For an emergency, use <a href={u('/emergency/')}>campus safety</a>.</p>
+
+    <h2 id="connect">Campus updates</h2>
+    <p>
+      Photo essays, short talks, and announcements are posted from the communications office. The icons in the footer
+      point here and to the news on the home page.
+    </p>
+  </article>
+</Base>

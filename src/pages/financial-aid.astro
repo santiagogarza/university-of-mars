@@ -1,0 +1,180 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="Financial aid"
+  description="Aid year 2026-27 at the University of Mars: verification, required documents, holds, and key dates."
+>
+  <PageHero
+    eyebrow="Student Financial Services"
+    title="Financial aid"
+    lede="Aid year 2026–27 covers students enrolled this year, including Fall Semester 2026 and Spring Semester 2027. This page is for that file."
+    crumbs={[{ href: '/financial-aid/', label: 'Financial aid' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=financial-aid-hold#request')}>Submit an aid request</a>
+    </p>
+  </PageHero>
+
+  <article class="prose wrap">
+    <h2 id="overview">Aid year 2026–27</h2>
+    <p>
+      The University of Mars packages grants, work, and loans for undergraduates and graduate students who qualify. The
+      aid year runs from summer 2026 through Spring Semester 2027. If you are enrolled now, this is your aid year.
+    </p>
+    <p>
+      Your offer is posted in MyUM. Accept or decline each award before the term disburses. A grant left unaccepted does
+      not pay, and it does not hold a place for later.
+    </p>
+    <h3>Cost of attendance, on-campus undergraduate</h3>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Estimated 2026–27 cost of attendance for an on-campus undergraduate</caption>
+        <thead>
+          <tr>
+            <th scope="col">Budget item</th>
+            <th scope="col">In-state</th>
+            <th scope="col">Nonresident</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Tuition and fees</th>
+            <td>$13,940</td>
+            <td>$44,210</td>
+          </tr>
+          <tr>
+            <th scope="row">Housing and meals</th>
+            <td>$16,480</td>
+            <td>$16,480</td>
+          </tr>
+          <tr>
+            <th scope="row">Books and supplies</th>
+            <td>$1,120</td>
+            <td>$1,120</td>
+          </tr>
+          <tr>
+            <th scope="row">Personal and transportation</th>
+            <td>$2,640</td>
+            <td>$3,180</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>These figures are budgets, not a bill. Your housing contract and course fees can differ.</p>
+
+    <h2 id="scholarships">Scholarships</h2>
+    <p>
+      Red Planet Scholars is the university’s principal need-based scholarship. It is offered with the grant package for
+      aid year 2026–27. Departments name a smaller set of merit awards in March for the following year. Continuing
+      students do not file a separate Red Planet Scholars application for 2026–27; the office uses the aid application
+      already on file.
+    </p>
+
+    <h2 id="verification">How to complete verification</h2>
+    <p>
+      Each year the aid office selects a portion of files for verification. If you were selected for aid year 2026–27,
+      MyUM shows a task, and a financial aid hold keeps aid from disbursing until the file is complete.
+    </p>
+    <p>
+      Download and submit the <a href="#verification-worksheet">2025-26 Verification Worksheet</a>. Sign it, then send it
+      with the tax documents listed below. Upload the packet through the Help Center under Financial aid hold, or bring
+      it to the aid counter in Enrollment Services, 140 Olympus Way. The counter is open weekdays from 9 a.m. to 4 p.m.
+    </p>
+    <p id="verification-worksheet">
+      Print the worksheet, sign it in ink, and include every page. Most complete packets are reviewed within ten
+      business days. The office writes to your UM email when the hold is cleared or when a page is still missing.
+    </p>
+
+    <h2 id="documents">Required documents</h2>
+    <ul>
+      <li>The signed worksheet</li>
+      <li>A tax-return transcript, or a non-filing statement, for the student</li>
+      <li>The same for each parent on a dependent file</li>
+      <li>W-2 forms when the return reports wages</li>
+      <li>A government ID only if a signature cannot be matched</li>
+    </ul>
+
+    <h2 id="holds">Holds explained</h2>
+    <p>A hold can block registration, disbursement, or both. The comment on the hold names the office that placed it.</p>
+    <ul>
+      <li>
+        <strong>Financial aid hold.</strong> Usually a missing document, an unfinished verification file, or a
+        satisfactory academic progress review. Aid for 2026–27 does not disburse while this hold is open.
+      </li>
+      <li><strong>Bursar hold.</strong> A past-due balance. See the billing article or call the cashier.</li>
+      <li><strong>Registrar hold.</strong> A missing final transcript or an immunization record.</li>
+    </ul>
+    <p>
+      If you dropped units after aid was paid, the award may be recalculated. Questions go through the
+      <a href={u('/support/?category=financial-aid-hold#request')}>Help Center</a>.
+    </p>
+
+    <h2 id="dates">Key dates for 2026–27</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Key dates for aid year 2026–27</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">What happens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">February 15, 2026</th>
+            <td>Priority filing date for aid year 2026–27. Late files are still reviewed.</td>
+          </tr>
+          <tr>
+            <th scope="row">August 19, 2026</th>
+            <td>Fall Semester disbursement for accepted awards.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, November 20, 2026</th>
+            <td>Last day to turn in a complete verification packet if you need spring payment on time.</td>
+          </tr>
+          <tr>
+            <th scope="row">Wednesday, January 6, 2027</th>
+            <td>Spring Semester disbursement.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, January 15, 2027</th>
+            <td>Spring Semester 2027 add/drop deadline. Enrollment is locked for aid recalculation at the end of that day.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, March 1, 2027</th>
+            <td>Summer 2027 aid requests open for students already in a 2026–27 file.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <aside class="callout" id="next-year">
+      <h2>Upcoming: aid year 2027–28</h2>
+      <p>
+        This block is only for next year’s applicants and for continuing students planning ahead. It does not change aid
+        that is paying now for 2026–27.
+      </p>
+      <ul>
+        <li>The 2027–28 FAFSA and the state grant application opened October 1, 2026.</li>
+        <li>University priority date for 2027–28: Monday, February 15, 2027.</li>
+        <li>Offers for new Fall 2027 students begin going out in March 2027.</li>
+      </ul>
+      <p>Students enrolled now should keep using the 2026–27 file.</p>
+    </aside>
+
+    <h2 id="contact">Contact</h2>
+    <p>
+      Student Financial Services<br />
+      Enrollment Services, 140 Olympus Way<br />
+      {site.locality}<br />
+      <a href={site.aidHref}>{site.aidPhone}</a><br />
+      <a href={`mailto:${site.aidEmail}`}>{site.aidEmail}</a><br />
+      Weekdays, 9 a.m. to 4 p.m.
+    </p>
+  </article>
+</Base>

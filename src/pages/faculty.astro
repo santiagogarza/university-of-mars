@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="Faculty and staff" description="Calendar, account help, and research resources for University of Mars faculty and staff.">
+  <PageHero
+    eyebrow="Faculty & staff"
+    title="Faculty &amp; staff"
+    lede="Grade rosters, the calendar, and account help live in the same places students use, with a few extra duties."
+    crumbs={[{ href: '/faculty/', label: 'Faculty & staff' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=it#request')}>Get help with an account</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <ul>
+      <li>Fall grades are due Friday, December 18, 2026. Submit them in MyUM.</li>
+      <li>Spring Semester 2027 syllabi should be posted before Monday, January 4.</li>
+      <li>Final exam times are on the <a href={u('/academics/calendar/')}>academic calendar</a>. Do not move a final without the college’s approval.</li>
+      <li>Staff research support and the observatory schedule are on the <a href={u('/research/')}>research page</a>.</li>
+      <li>A duty to report sexual harassment or discrimination is described on the <a href={u('/title-ix/')}>Title IX page</a>.</li>
+    </ul>
+    <p>The library’s course-reserve desk needs reading lists three weeks before the term. For Spring Semester 2027, that is mid-December.</p>
+  </article>
+</Base>

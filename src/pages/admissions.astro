@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="Admissions"
+  description="Apply to the University of Mars for Fall 2027. Deadlines, visits, and tuition for the coming class."
+>
+  <PageHero
+    eyebrow="Admissions"
+    title="Admissions"
+    lede="The class that starts in Fall Semester 2027 is now taking applications. Fall Semester 2026 is already in session."
+    crumbs={[{ href: '/admissions/', label: 'Admissions' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href="#apply">Review how to apply</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap">
+    <h2 id="apply">First-year admission</h2>
+    <p>
+      First-year applicants for Fall 2027 need the application, a school report, and one academic recommendation. The
+      application opened August 1, 2026. Early action closes Monday, November 16, 2026. Regular decision closes Friday,
+      January 8, 2027.
+    </p>
+    <p>
+      Aid for students who enroll in Fall 2027 is aid year 2027–28, which is separate from the 2026–27 file used by
+      students already here. See the upcoming section on the <a href={u('/financial-aid/#next-year')}>financial aid page</a>.
+    </p>
+
+    <h2 id="transfer">Transfer admission</h2>
+    <p>
+      Spring Semester 2027 transfer applications close Monday, November 2, 2026. Fall 2027 transfer applications close
+      Monday, March 1, 2027. A transfer credit estimate is sent with the offer, not before.
+    </p>
+
+    <h2 id="international">International students</h2>
+    <p>
+      The same dates apply. After you accept an offer, the international office issues the admissions letter you need
+      for a visa appointment. Write to <a href={`mailto:${site.admitEmail}`}>{site.admitEmail}</a> with your applicant ID
+      in the subject.
+    </p>
+
+    <h2 id="visit">Visit campus</h2>
+    <p>
+      Fall preview day is Thursday, November 12, 2026. Information sessions start at 9 a.m. in the student union, with
+      walking tours of the quad, the library, and one residence hall. Weekday tours continue on most Fridays at 1 p.m.
+      Reserve a seat from the admissions office.
+    </p>
+
+    <h2 id="tuition">Tuition and fees</h2>
+    <p>
+      For the current year, 2026–27, undergraduate tuition and fees are $13,940 for residents and $44,210 for
+      nonresidents. The 2027–28 rates will be set by the trustees in spring 2027. Housing and meals for a standard
+      double are budgeted at $16,480 in 2026–27.
+    </p>
+    <p>
+      Admissions: <a href={site.admitHref}>{site.admitPhone}</a>,
+      <a href={`mailto:${site.admitEmail}`}>{site.admitEmail}</a>.
+    </p>
+  </article>
+</Base>

@@ -1,0 +1,118 @@
+---
+import Seal from './Seal.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+
+const columns = [
+  {
+    title: 'Colleges',
+    links: [
+      ['College of Arts & Letters', '/academics/#college-arts'],
+      ['College of Science', '/academics/#college-science'],
+      ['College of Engineering', '/academics/#college-engineering'],
+      ['School of Education', '/academics/#college-education'],
+      ['College of Health', '/academics/#college-health'],
+      ['School of Public Policy', '/academics/#college-policy'],
+      ['Graduate Division', '/academics/#graduate'],
+      ['University Library', '/academics/#libraries'],
+    ],
+  },
+  {
+    title: 'Departments',
+    links: [
+      ['Planetary Science', '/academics/#college-science'],
+      ['Biology', '/academics/#college-science'],
+      ['History', '/academics/#college-arts'],
+      ['Economics', '/academics/#college-policy'],
+      ['Mechanical Engineering', '/academics/#college-engineering'],
+      ['Public Health', '/academics/#college-health'],
+      ['Education', '/academics/#college-education'],
+      ['English', '/academics/#college-arts'],
+    ],
+  },
+  {
+    title: 'Offices',
+    links: [
+      ['Admissions', '/admissions/'],
+      ['Financial aid', '/financial-aid/'],
+      ['Registrar', '/academics/calendar/'],
+      ['Housing', '/housing/'],
+      ['Help Center', '/support/'],
+      ['Research', '/research/'],
+      ['Title IX', '/title-ix/'],
+      ['Give', '/give/'],
+    ],
+  },
+];
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <Seal />
+      <p class="footer-name">University of Mars</p>
+      <p class="footer-motto"><em>{site.motto}</em><span>{site.mottoEn}</span></p>
+    </div>
+    {
+      columns.map((column) => (
+        <div>
+          <h2>{column.title}</h2>
+          <ul>
+            {column.links.map(([label, href]) => (
+              <li>
+                <a href={u(href)}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+    <div>
+      <h2>Contact</h2>
+      <address>
+        {site.name}<br />
+        {site.street}<br />
+        {site.locality}
+      </address>
+      <p><a href={site.phoneHref}>{site.phone}</a></p>
+      <p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+      <p><a href={u('/login/')}>MyUM sign-in</a></p>
+    </div>
+  </div>
+  <div class="wrap footer-statement">
+    <p>
+      The University of Mars does not discriminate on the basis of race, color, national origin, religion, sex,
+      gender identity, sexual orientation, pregnancy, disability, age, medical condition, ancestry, marital status,
+      citizenship, or veteran status in its programs and activities. Inquiries may be directed to the Office for
+      Equal Opportunity, {site.street}, {site.locality}, or to
+      <a href={`mailto:${site.titleEmail}`}>{site.titleEmail}</a>.
+    </p>
+  </div>
+  <div class="wrap footer-legal">
+    <ul>
+      <li><a href={u('/accessibility/')}>Accessibility</a></li>
+      <li><a href={u('/title-ix/')}>Title IX</a></li>
+      <li><a href={u('/privacy/')}>Privacy</a></li>
+      <li><a href={u('/emergency/')}>Emergency</a></li>
+      <li><a href={u('/about/#contact')}>Contact</a></li>
+    </ul>
+    <ul class="social" aria-label="Campus updates">
+      <li>
+        <a href={u('/about/#connect')} aria-label="Photo updates">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"></circle><circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"></circle></svg>
+        </a>
+      </li>
+      <li>
+        <a href={u('/about/#connect')} aria-label="Video updates">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8.2v7.6L16.5 12 9 8.2z"></path><rect x="4" y="5" width="16" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"></rect></svg>
+        </a>
+      </li>
+      <li>
+        <a href={u('/#news')} aria-label="Campus announcements">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12v10H6z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M8.5 10h7M8.5 13h7M8.5 16h4" stroke="currentColor" stroke-width="1.4"></path></svg>
+        </a>
+      </li>
+    </ul>
+    <p>© 2026 University of Mars</p>
+  </div>
+</footer>

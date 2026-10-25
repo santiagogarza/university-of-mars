@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="Accessibility"
+  description="The University of Mars accessibility statement, including the WCAG 2.1 AA commitment and how to report a barrier."
+>
+  <PageHero
+    eyebrow="Access office"
+    title="Accessibility"
+    lede="The University of Mars works to meet WCAG 2.1 Level AA on its public websites and to provide equitable access to programs."
+    crumbs={[{ href: '/accessibility/', label: 'Accessibility' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=accessibility#request')}>Report a barrier</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <h2>Commitment</h2>
+    <p>
+      We aim to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 at Level AA. That covers public pages,
+      applications used in courses, and documents we publish as the official version of a policy. Where a legacy PDF
+      falls short, the office will provide the same information in another format.
+    </p>
+    <p>
+      Academic accommodations are handled one student at a time. The web standard is the floor for the public site, not
+      a limit on what an accommodation can include.
+    </p>
+    <h2>Report a barrier</h2>
+    <p>Tell us the page address, what you were trying to do, and the tool you were using, such as a browser or a screen reader. A phone call is enough if that is easier.</p>
+    <ul>
+      <li>Help Center category: Accessibility, subcategory Barrier on campus</li>
+      <li>Email: <a href={`mailto:${site.accessEmail}`}>{site.accessEmail}</a></li>
+      <li>Phone: <a href={site.accessHref}>{site.accessPhone}</a>, weekdays 9 a.m. to 4 p.m.</li>
+    </ul>
+    <p>
+      The office acknowledges barrier reports within two business days and says what will change, or what equivalent
+      access it can offer while a fix is underway.
+    </p>
+    <h2>Accommodations</h2>
+    <p>
+      Students who need an academic or housing accommodation should read
+      <a href={u('/support/articles/accommodations/')}>how to request one</a>. Faculty who need a classroom change write
+      to the same office.
+    </p>
+  </article>
+</Base>

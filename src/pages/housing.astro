@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="Housing and Residential Life"
+  description="Residence halls, Spring Semester 2027 move-in, and how to request a repair at the University of Mars."
+>
+  <PageHero
+    eyebrow="Campus Life"
+    title="Housing &amp; Residential Life"
+    lede="Most first-year students live on the Jezero campus. Fall 2026 contracts run through Spring Semester 2027."
+    crumbs={[{ href: '/housing/', label: 'Housing' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=housing-repair#request')}>Request a repair</a>
+    </p>
+  </PageHero>
+
+  <article class="prose wrap">
+    <div class="media-block">
+      <div class="frame">
+        <Photo
+          name="residence-halls"
+          alt="Residence halls around a courtyard at sunset, with string lights and a red ridge beyond."
+          sizes="(min-width: 800px) 36rem, 100vw"
+        />
+      </div>
+      <div>
+        <h2 id="halls">Residence halls</h2>
+        <p>
+          A standard double with a meal plan is budgeted at $16,480 for the 2026–27 academic year. Assignments for
+          students new in the spring are posted in MyUM in December.
+        </p>
+      </div>
+    </div>
+
+    <div class="hall-grid">
+      <article class="card">
+        <h3>Olympus Mons Hall</h3>
+        <p>First-year traditional rooms, south quad. 420 beds. Staffed desk until midnight.</p>
+      </article>
+      <article class="card">
+        <h3>Isidis Hall</h3>
+        <p>First-year and second-year suites, east of the library. Shared kitchen on each floor.</p>
+      </article>
+      <article class="card">
+        <h3>Syrtis Court</h3>
+        <p>Upper-division apartments on the north edge of campus. Nine-month and twelve-month contracts.</p>
+      </article>
+      <article class="card">
+        <h3>Elysium Hall</h3>
+        <p>Upper-division singles and doubles in the west village. Quiet house by agreement.</p>
+      </article>
+    </div>
+
+    <h2 id="move-in">Move-in</h2>
+    <p>
+      Fall move-in was Saturday and Sunday, August 22–23, 2026. Most continuing students keep their keys through winter
+      break and do not move out between semesters.
+    </p>
+    <p>
+      Spring Semester 2027 move-in is for students with a new spring assignment: Saturday, January 2, and Sunday,
+      January 3, 2027, from 9 a.m. to 5 p.m. at the hall desk. Bring a photo ID. Cars may stop on the service drive for
+      20 minutes.
+    </p>
+    <p>Quiet hours are 10 p.m. to 8 a.m. Sunday through Thursday, and midnight to 8 a.m. Friday and Saturday.</p>
+
+    <h2 id="repairs">Maintenance</h2>
+    <p>
+      For a dripping tap, a light, a heater that is uneven, or furniture that failed, submit a housing repair. The form
+      opens with that category already chosen.
+    </p>
+    <p>
+      <a href={u('/support/?category=housing-repair#request')}>Open the repair form</a>
+      with the housing category already selected.
+    </p>
+    <p>
+      Routine work is scheduled on weekdays. You will get a note at your UM email when the ticket is assigned. See the
+      <a href={u('/support/articles/housing-repair/')}>housing repair article</a> for what to include.
+    </p>
+
+    <h2 id="emergency">Emergency repairs</h2>
+    <p>
+      Call <a href={site.repairHref}>{site.repairPhone}</a> at any hour for an active leak, no heat when the night will
+      be unsafe, a power loss in the whole unit, or a door that will not secure. Do not use the online form for those.
+    </p>
+    <p>
+      Housing office: <a href={site.housingHref}>{site.housingPhone}</a>,
+      <a href={`mailto:${site.housingEmail}`}>{site.housingEmail}</a>. Weekdays, 9 a.m. to 4 p.m., Isidis Hall, Room 10.
+    </p>
+  </article>
+</Base>

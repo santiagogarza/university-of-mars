@@ -1,0 +1,103 @@
+---
+import Crest from './Crest.astro';
+import { primaryNav, utilityAudiences, utilityTools } from '../data/nav';
+import { normalizePath, u } from '../lib/paths';
+
+const current = normalizePath(Astro.url.pathname);
+
+function inSection(href: string): boolean {
+  const path = href.split('#')[0]?.split('?')[0] || '/';
+  const normalized = path.endsWith('/') ? path : `${path}/`;
+  if (normalized === '/') return current === '/';
+  return current === normalized || current.startsWith(normalized);
+}
+---
+
+<div class="utility">
+  <div class="wrap utility-inner">
+    <ul class="utility-links">
+      {
+        utilityAudiences.map((item) => (
+          <li>
+            <a href={u(item.href)} aria-current={current === item.href ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="utility-links utility-tools">
+      {
+        utilityTools.map((item) => (
+          <li>
+            <a href={u(item.href)} aria-current={current === item.href ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li><a class="give" href={u('/give/')}>Give</a></li>
+    </ul>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href={u('/')}>
+      <Crest />
+      <span class="wordmark">
+        <span class="wordmark-uni">University of Mars</span>
+        <span class="wordmark-sub">Public research university</span>
+      </span>
+    </a>
+    <nav class="primary" aria-label="Primary" data-nav>
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="primary-menu"
+        data-nav-toggle
+      >
+        <span class="sr-only">Menu</span>
+        <span class="bars" aria-hidden="true"></span>
+      </button>
+      <ul id="primary-menu" class="menu">
+        {
+          primaryNav.map((item) => (
+            <li data-mega>
+              <button
+                type="button"
+                aria-expanded="false"
+                aria-controls={`mega-${item.id}`}
+                aria-current={inSection(item.href) ? 'true' : undefined}
+              >
+                {item.label}
+              </button>
+              <div class="mega" id={`mega-${item.id}`}>
+                <div class="wrap mega-grid">
+                  <div class="mega-intro">
+                    <p class="mega-kicker">{item.label}</p>
+                    <p>{item.summary}</p>
+                    <a href={u(item.href)}>Overview</a>
+                  </div>
+                  {item.groups.map((group) => (
+                    <div class="mega-group">
+                      <p class="mega-label">{group.title}</p>
+                      <ul>
+                        {group.links.map((link) => (
+                          <li>
+                            <a href={u(link.href)}>{link.label}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>

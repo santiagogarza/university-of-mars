@@ -59,12 +59,14 @@ if (form) {
   }
 
   category?.addEventListener('change', () => {
-    const pending = subcategory?.dataset.pending ?? '';
-    const current = subcategory?.value ?? '';
-    fillSubcategories(pending, current);
-    if (pending && subcategory?.value.toLowerCase() === pending.trim().toLowerCase()) {
-      delete subcategory.dataset.pending;
-    }
+    if (!subcategory) return;
+    const pending = subcategory.dataset.pending ?? '';
+    const current = subcategory.value;
+    fillSubcategories(current, pending);
+    const chosen = subcategory.value.trim().toLowerCase();
+    const pendingApplied = Boolean(pending) && chosen === pending.trim().toLowerCase();
+    const keptCurrent = Boolean(current) && chosen === current.trim().toLowerCase();
+    if (pendingApplied || keptCurrent) delete subcategory.dataset.pending;
   });
   subcategory?.addEventListener('change', () => {
     if (subcategory) delete subcategory.dataset.pending;

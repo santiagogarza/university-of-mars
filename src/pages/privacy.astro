@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base title="Privacy" description="How the University of Mars handles education records and directory information.">
+  <PageHero
+    eyebrow="Registrar"
+    title="Privacy"
+    lede="Education records are kept for the work of the university. Directory information is public unless you place a hold."
+    crumbs={[{ href: '/privacy/', label: 'Privacy' }]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      The university follows the Family Educational Rights and Privacy Act. Students may inspect their education records,
+      request a correction, and file a consent that lets a named person see grades or conduct files. Requests start with
+      the registrar.
+    </p>
+    <h2>Directory information</h2>
+    <p>
+      Unless a student files a privacy hold, the university may confirm name, college, dates of attendance, degree, and
+      honors. It does not publish a home address, a student ID number, or a class schedule. File a hold in MyUM before
+      the third week of the term if you want it in place for the directory.
+    </p>
+    <h2>This website</h2>
+    <p>
+      Public pages describe programs and dates. The Help Center form collects the details you type so the office can
+      answer. Do not send a full tax return to any address other than the one on the
+      <a href={u('/financial-aid/')}>financial aid page</a>.
+    </p>
+    <p>
+      Privacy questions: <a href={`mailto:${site.email}`}>{site.email}</a>, or the registrar counter at Enrollment
+      Services, 140 Olympus Way.
+    </p>
+  </article>
+</Base>

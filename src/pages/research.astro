@@ -1,0 +1,66 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Photo from '../components/Photo.astro';
+import { u } from '../lib/paths';
+---
+
+<Base
+  title="Research"
+  description="Research at the University of Mars, including the Jezero Observatory and undergraduate fellowships."
+>
+  <PageHero
+    eyebrow="Research"
+    title="Research"
+    lede="Faculty research runs across the colleges. Undergraduates join labs, archives, and the observatory during the year and in summer."
+    crumbs={[{ href: '/research/', label: 'Research' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href="#undergraduate">Undergraduate fellowships</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap">
+    <div class="media-block" id="observatory">
+      <div class="frame">
+        <Photo
+          name="research"
+          alt="The Jezero Observatory, a low research building with a dome, at dusk."
+          sizes="(min-width: 800px) 36rem, 100vw"
+        />
+      </div>
+      <div>
+        <h2>Jezero Observatory</h2>
+        <p>
+          The observatory is a shared facility of the College of Science. It supports atmospheric measurement, geology
+          field prep, and instrument courses. Public viewing nights are posted each month during the term. The building
+          is not a museum; class and research time comes first.
+        </p>
+      </div>
+    </div>
+
+    <h2 id="centers">Centers and institutes</h2>
+    <ul>
+      <li>Center for Water and Climate, in the environmental engineering wing</li>
+      <li>Institute for Public Health, shared with the College of Health</li>
+      <li>Center for Teaching, which supports faculty course design</li>
+      <li>University archives, in the library’s lower level</li>
+    </ul>
+
+    <h2 id="facilities">Core facilities</h2>
+    <p>
+      Shared labs include imaging, a machine shop, and a research greenhouse. A principal investigator requests time.
+      Students do not book the machine shop directly; they work through a lab sponsor.
+    </p>
+
+    <h2 id="undergraduate">Undergraduate research</h2>
+    <p>
+      Summer Session 2027 fellowships are open now. The work lasts twelve weeks, carries a stipend, and does not have to
+      be about this planet. Students in every college may apply. The deadline is Monday, February 1, 2027.
+    </p>
+    <p>
+      Academic-year research is arranged with a faculty sponsor and can count as units. Credit is not the same as a
+      fellowship, and a student may not be paid and earn units for the same hours.
+    </p>
+    <p><a href={u('/news/fellowships/')}>Fellowship announcement</a></p>
+  </article>
+</Base>

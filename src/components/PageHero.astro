@@ -1,0 +1,42 @@
+---
+import { u } from '../lib/paths';
+
+interface Crumb {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  crumbs?: Crumb[];
+}
+
+const { eyebrow, title, lede, crumbs = [] } = Astro.props;
+const trail = [{ href: '/', label: 'Home' }, ...crumbs];
+---
+
+<header class="page-hero">
+  <div class="wrap">
+    <nav aria-label="Breadcrumb">
+      <ol class="crumbs">
+        {
+          trail.map((crumb, index) => (
+            <li>
+              {index < trail.length - 1 ? (
+                <a href={u(crumb.href)}>{crumb.label}</a>
+              ) : (
+                <span aria-current="page">{crumb.label}</span>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+    {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+    <h1>{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+    <slot />
+  </div>
+</header>

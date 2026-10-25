@@ -1,0 +1,34 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { site } from '../../../data/site';
+import { u } from '../../../lib/paths';
+---
+
+<Base title="Request a housing repair" description="How to ask Housing and Residential Life to fix something in a University of Mars residence hall.">
+  <PageHero
+    eyebrow="Housing"
+    title="Request a housing repair"
+    lede="Routine repairs are scheduled on weekdays. Safety issues are handled by phone, at any hour."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/articles/housing-repair/', label: 'Housing repair' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>Include the hall, the room number, and a short description of what failed. A photo helps for furniture and leaks that have stopped.</p>
+    <ul>
+      <li>Plumbing, electrical, heat, furniture, and pests go through the Help Center.</li>
+      <li>You do not need to be present for a lock shop or a lamp replacement. You do need to be present for a pest treatment.</li>
+      <li>If several roommates see the same problem, one request is enough.</li>
+    </ul>
+    <h2>Call instead</h2>
+    <p>
+      Call <a href={site.repairHref}>{site.repairPhone}</a> for an active leak, no heat on an unsafe night, a power loss
+      in the whole unit, or a door that will not lock. Those calls are answered overnight.
+    </p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=housing-repair#request')}>Request a repair</a>
+    </p>
+  </article>
+</Base>

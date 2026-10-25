@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="Search" description="Search University of Mars pages and help articles.">
+  <PageHero
+    eyebrow="Directory"
+    title="Search"
+    lede="Look across offices, help articles, and the academic calendar."
+    crumbs={[{ href: '/search/', label: 'Search' }]}
+  />
+  <div class="wrap prose">
+    <form id="site-search" class="portal-search" role="search" action={u('/search/')} method="get">
+      <div class="search-field">
+        <label for="q">Search the site</label>
+        <input id="q" name="q" type="search" />
+      </div>
+      <button class="btn" type="submit">Search</button>
+    </form>
+    <p id="result-count" aria-live="polite"></p>
+    <div id="search-empty" class="empty">
+      <h2>Search pages and help articles</h2>
+      <p>Try a word from the task, such as verification, move-in, transcript, or observatory.</p>
+      <ul>
+        <li><a href={u('/support/')}>Help Center</a></li>
+        <li><a href={u('/financial-aid/')}>Financial aid</a></li>
+        <li><a href={u('/academics/calendar/')}>Academic calendar</a></li>
+      </ul>
+    </div>
+    <div id="search-none" class="empty" hidden>
+      <h2>No pages matched “<span data-term></span>”</h2>
+      <p>Check the spelling, or browse the Help Center topics. The offices are listed in the footer.</p>
+      <p><a class="btn" href={u('/support/')}>Open the Help Center</a></p>
+    </div>
+    <ul id="results" class="results" hidden></ul>
+  </div>
+  <script>
+    import '../scripts/search.ts';
+  </script>
+</Base>

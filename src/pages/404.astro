@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="Page not found" description="That page is not in the University of Mars directory.">
+  <header class="page-hero">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1>We can’t find that page.</h1>
+      <p class="lede">The address may have changed, or the page may have been retired. Try search, or start from one of these.</p>
+      <p class="page-actions">
+        <a class="btn" href={u('/search/')}>Search the site</a>
+      </p>
+    </div>
+  </header>
+  <div class="wrap section">
+    <div class="tiles">
+      <a class="tile" href={u('/')}><strong>Home</strong><span>News, dates, and the quad.</span></a>
+      <a class="tile" href={u('/support/')}><strong>Help Center</strong><span>Articles and requests.</span></a>
+      <a class="tile" href={u('/academics/calendar/')}><strong>Academic calendar</strong><span>Fall 2026 and Spring 2027.</span></a>
+      <a class="tile" href={u('/financial-aid/')}><strong>Financial aid</strong><span>Aid year 2026–27.</span></a>
+    </div>
+  </div>
+</Base>

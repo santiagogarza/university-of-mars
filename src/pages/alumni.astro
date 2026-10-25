@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="Alumni" description="Records, Alumni Weekend, and giving for University of Mars graduates.">
+  <PageHero
+    eyebrow="Alumni"
+    title="Alumni"
+    lede="Transcripts, the spring gathering on the quad, and the funds that pay student aid."
+    crumbs={[{ href: '/alumni/', label: 'Alumni' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/give/')}>Give to UM</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <p>
+      Order a transcript the same way current students do, through Records in MyUM. If you no longer have the email
+      address, start with the <a href={u('/support/articles/registration/')}>registration article</a> and then a Help
+      Center request so the registrar can match your file.
+    </p>
+    <p>
+      Alumni Weekend is Saturday and Sunday, April 24–25, 2027. The program is on the quad and in the student union.
+      Class gatherings are arranged by the alumni office, not by the colleges alone.
+    </p>
+    <p>
+      The annual fund supports Red Planet Scholars and the library. Gifts for aid year 2026–27 are already at work in
+      this year’s packages. A gift now can also be designated for the 2027–28 cycle.
+    </p>
+  </article>
+</Base>

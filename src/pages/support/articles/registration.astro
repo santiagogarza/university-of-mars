@@ -1,0 +1,49 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { u } from '../../../lib/paths';
+---
+
+<Base
+  title="Add and drop in Spring Semester 2027"
+  description="How continuing students add and drop courses for Spring Semester 2027, and when a petition is required."
+>
+  <PageHero
+    eyebrow="Registration & records"
+    title="Add and drop in Spring Semester 2027"
+    lede="Continuing students register in MyUM. The spring term uses the same rules as the fall term."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/articles/registration/', label: 'Registration' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      Spring Semester 2027 instruction begins Monday, January 4, 2027. You may change your schedule in MyUM from the day
+      registration opened until the add/drop deadline.
+    </p>
+    <p>
+      The Spring Semester 2027 add/drop deadline is Friday, January 15, 2027. A course dropped by that day does not
+      appear on the transcript. After the deadline, a drop is a withdrawal, shows as a W, and needs the college
+      advisor’s approval.
+    </p>
+    <h2>Before you drop</h2>
+    <ul>
+      <li>Aid for 2026–27 can change if you fall below the units in your award. Read the financial aid dates before you drop.</li>
+      <li>International students and student athletes have a full-time unit minimum. Check with the advisor first.</li>
+      <li>A waitlist seat is not an enrollment. You are enrolled only when the class is on your schedule.</li>
+    </ul>
+    <h2>Transcripts and enrollment letters</h2>
+    <p>
+      Order a transcript or an enrollment verification from MyUM under Records. Paper copies are ready in two business
+      days at Enrollment Services, 140 Olympus Way. There is no charge for the first three official copies in an aid year.
+    </p>
+    <p>
+      If MyUM will not let you enroll, submit a request and choose Registration &amp; records.
+    </p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=registration#request')}>Submit a registration request</a>
+    </p>
+    <p><a href={u('/academics/calendar/')}>Full academic calendar</a></p>
+  </article>
+</Base>

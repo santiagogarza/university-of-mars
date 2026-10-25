@@ -1,0 +1,25 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base title="Summer research fellowships" description="Undergraduate research fellowships for Summer Session 2027 are open.">
+  <PageHero
+    eyebrow="October 14, 2026"
+    title="Summer research fellowships are open"
+    lede="Twelve-week fellowships for Summer Session 2027 are open to undergraduates in every college."
+    crumbs={[
+      { href: '/#news', label: 'News' },
+      { href: '/news/fellowships/', label: 'Fellowships' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      The stipend covers the summer session. A faculty sponsor is required before you submit. The project does not have
+      to concern this planet; historians, engineers, and studio artists are funded in the same pool.
+    </p>
+    <p>Applications close Monday, February 1, 2027. Awards are announced in March, in time to decline a conflicting summer plan.</p>
+    <p><a href={u('/research/#undergraduate')}>Undergraduate research</a></p>
+  </article>
+</Base>

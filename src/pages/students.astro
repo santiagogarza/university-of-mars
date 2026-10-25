@@ -1,0 +1,46 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base title="Students" description="Services for current University of Mars students: help, housing, health, and the spring term.">
+  <PageHero
+    eyebrow="Current students"
+    title="Students"
+    lede="Fall Semester 2026 runs through December 11. Spring Semester 2027 registration is open in MyUM."
+    crumbs={[{ href: '/students/', label: 'Students' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/')}>Open the Help Center</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap">
+    <div class="tiles">
+      <a class="tile" href={u('/academics/calendar/')}><strong>Academic calendar</strong><span>Finals, recess, and spring dates.</span></a>
+      <a class="tile" href={u('/financial-aid/')}><strong>Financial aid</strong><span>Your 2026–27 file and holds.</span></a>
+      <a class="tile" href={u('/housing/')}><strong>Housing</strong><span>Halls and repair requests.</span></a>
+      <a class="tile" href={u('/support/articles/registration/')}><strong>Add or drop</strong><span>Spring enrollment rules.</span></a>
+      <a class="tile" href={u('/support/articles/billing/')}><strong>Billing</strong><span>Statements and payment plans.</span></a>
+      <a class="tile" href={u('/login/')}><strong>MyUM</strong><span>Registration, aid, and the bill.</span></a>
+    </div>
+
+    <h2>Campus life</h2>
+    <p>
+      Student Affairs uses a plain line for move-in and the rec center: two moons, one community. It is a reminder that
+      the halls, the clubs, and the commuters are one student body.
+    </p>
+    <p>
+      Student organizations register each fall with the campus life office in the student union. The rec center membership
+      is included in tuition for 2026–27.
+    </p>
+
+    <h2 id="health">Health and wellbeing</h2>
+    <p>
+      University Health Services is open weekdays 8 a.m. to 6 p.m. and Saturday 10 a.m. to 2 p.m. during the term. The
+      after-hours nurse line is on the back of the student ID card. Counseling appointments are scheduled from the same
+      office. For a safety emergency, call <a href={site.safetyHref}>{site.safetyPhone}</a>.
+    </p>
+  </article>
+</Base>

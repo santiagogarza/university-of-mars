@@ -1,0 +1,41 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+---
+
+<Base title="Parents and families" description="Billing, privacy, and family visits for parents of University of Mars students.">
+  <PageHero
+    eyebrow="Families"
+    title="Parents &amp; families"
+    lede="Students control their education records. Families can still reach the offices that send the bill and run the halls."
+    crumbs={[{ href: '/parents/', label: 'Parents & families' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={`mailto:${site.parentsEmail}`}>Contact the parent desk</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <h2>Records</h2>
+    <p>
+      Under FERPA, the university does not discuss grades, conduct, or most aid details with a parent unless the student
+      has filed a consent in MyUM or the student is a dependent for tax purposes and the question is one the law allows.
+      Directory information is described on the <a href={u('/privacy/')}>privacy page</a>.
+    </p>
+    <h2>The bill</h2>
+    <p>
+      A parent may be added as an authorized payer without receiving academic access. That setup is on the student’s
+      billing page. Questions about a charge start with the <a href={u('/support/articles/billing/')}>billing article</a>.
+    </p>
+    <h2>Visits</h2>
+    <p>
+      Family Weekend was October 16–18, 2026. The next family visit day is Saturday, April 10, 2027, during Spring
+      Semester 2027. Registration for that day opens in February.
+    </p>
+    <p>
+      Parent desk: <a href={`mailto:${site.parentsEmail}`}>{site.parentsEmail}</a>,
+      <a href={site.phoneHref}>{site.phone}</a>.
+    </p>
+  </article>
+</Base>

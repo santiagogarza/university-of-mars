@@ -1,0 +1,37 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { site } from '../../../data/site';
+import { u } from '../../../lib/paths';
+---
+
+<Base title="Request a disability accommodation" description="How students request academic or housing accommodations at the University of Mars.">
+  <PageHero
+    eyebrow="Accessibility"
+    title="Request a disability accommodation"
+    lede="The access office arranges academic and housing accommodations. Start as soon as you know you need one for Spring Semester 2027."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/articles/accommodations/', label: 'Accommodations' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      Send a short description of the barrier and any documentation you already have. The office will tell you if more
+      is needed. You do not have to name a diagnosis in the first message.
+    </p>
+    <ul>
+      <li>Exam adjustments are arranged with the instructor after the office approves the plan.</li>
+      <li>Housing accommodations are separate from a room-change request and should be filed before spring assignments are final in December.</li>
+      <li>A barrier in a building, a website, or a form can be reported without opening an accommodation file.</li>
+    </ul>
+    <p>
+      Office: <a href={site.accessHref}>{site.accessPhone}</a>,
+      <a href={`mailto:${site.accessEmail}`}>{site.accessEmail}</a>.
+    </p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=accessibility#request')}>Start an access request</a>
+    </p>
+    <p><a href={u('/accessibility/')}>Accessibility statement</a></p>
+  </article>
+</Base>

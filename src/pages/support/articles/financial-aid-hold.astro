@@ -1,0 +1,38 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { site } from '../../../data/site';
+import { u } from '../../../lib/paths';
+---
+
+<Base title="Clear a financial aid hold" description="What a financial aid hold means in aid year 2026-27 and how to send the missing packet.">
+  <PageHero
+    eyebrow="Financial aid"
+    title="Clear a financial aid hold"
+    lede="A financial aid hold stops 2026–27 aid from paying. The comment on the hold says what is missing."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/articles/financial-aid-hold/', label: 'Financial aid hold' },
+    ]}
+  />
+  <article class="prose wrap narrow">
+    <p>
+      Open MyUM, then Financial Aid, then the task list. If the task says verification, follow the instructions on the
+      Financial Aid page and send the packet the office asked for. Do not email loose photos of tax forms to a staff
+      member.
+    </p>
+    <ol>
+      <li>Read the hold comment so you know which year and which document the office is waiting on.</li>
+      <li>Gather the signed pages and the tax transcript before you start the request.</li>
+      <li>Submit one Help Center request, category Financial aid hold, and attach the whole packet.</li>
+    </ol>
+    <p>
+      The counter at Enrollment Services, 140 Olympus Way, accepts paper packets on weekdays from 9 a.m. to 4 p.m.
+      Questions: <a href={site.aidHref}>{site.aidPhone}</a>.
+    </p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/?category=financial-aid-hold#request')}>Submit an aid hold request</a>
+    </p>
+    <p><a href={u('/financial-aid/#verification')}>Verification instructions</a></p>
+  </article>
+</Base>

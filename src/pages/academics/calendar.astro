@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base
+  title="Academic calendar"
+  description="Fall Semester 2026, Spring Semester 2027, and Summer Session 2027 dates for the University of Mars."
+>
+  <PageHero
+    eyebrow="Registrar"
+    title="Academic calendar"
+    lede="The 2026–27 year is a semester calendar. Fall Semester 2026 is underway. Spring Semester 2027 begins in January."
+    crumbs={[
+      { href: '/academics/', label: 'Academics' },
+      { href: '/academics/calendar/', label: 'Academic calendar' },
+    ]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/support/articles/registration/')}>Registration help</a>
+    </p>
+  </PageHero>
+
+  <article class="prose wrap">
+    <p>
+      Dates on this page are civil calendar dates. The registrar does not schedule classes by sol.
+    </p>
+
+    <h2>Fall Semester 2026</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Fall Semester 2026 dates</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Item</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Monday, August 24, 2026</th>
+            <td>Instruction begins.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, September 7, 2026</th>
+            <td>Labor Day. Campus closed.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, September 11, 2026</th>
+            <td>Fall add/drop deadline.</td>
+          </tr>
+          <tr>
+            <th scope="row">October 12–16, 2026</th>
+            <td>Midterm week.</td>
+          </tr>
+          <tr>
+            <th scope="row">Wednesday, November 25 – Friday, November 27, 2026</th>
+            <td>Thanksgiving recess. Classes do not meet.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, December 4, 2026</th>
+            <td>Last day of instruction.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, December 7 – Friday, December 11, 2026</th>
+            <td>Final examinations.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, December 18, 2026</th>
+            <td>Fall grades due.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Spring Semester 2027</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Spring Semester 2027 dates</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Item</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Saturday, January 2 and Sunday, January 3, 2027</th>
+            <td>Spring move-in for new spring assignments.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, January 4, 2027</th>
+            <td>Instruction begins.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, January 15, 2027</th>
+            <td>Spring Semester 2027 add/drop deadline.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, February 15, 2027</th>
+            <td>Presidents Day. Campus closed.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, March 22 – Friday, March 26, 2027</th>
+            <td>Spring recess.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, April 30, 2027</th>
+            <td>Last day of instruction.</td>
+          </tr>
+          <tr>
+            <th scope="row">Monday, May 3 – Friday, May 7, 2027</th>
+            <td>Final examinations.</td>
+          </tr>
+          <tr>
+            <th scope="row">Saturday, May 15, 2027</th>
+            <td>Commencement.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Summer Session 2027</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="sr-only">Summer Session 2027 dates</caption>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Item</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Wednesday, May 26, 2027</th>
+            <td>Summer session begins.</td>
+          </tr>
+          <tr>
+            <th scope="row">Friday, August 13, 2027</th>
+            <td>Summer session ends.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Enrollment questions belong with the registrar through the
+      <a href={u('/support/articles/registration/')}>registration article</a>.
+    </p>
+  </article>
+</Base>

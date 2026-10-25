@@ -1,0 +1,97 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="Give" description="Make a gift to the University of Mars, including the Red Planet Scholars fund.">
+  <PageHero
+    eyebrow="Giving"
+    title="Give"
+    lede="Gifts to Red Planet Scholars are added to need-based grants. The 2026–27 awards have already been made. A gift today supports the next student on the list or the 2027–28 cycle, as you choose."
+    crumbs={[{ href: '/give/', label: 'Give' }]}
+  />
+  <div class="wrap prose">
+    <form class="form-card" id="gift-form" novalidate>
+      <h2>Make a gift commitment</h2>
+      <div id="gift-errors" class="error-summary" tabindex="-1" hidden></div>
+      <div class="form-grid">
+        <fieldset class="field full choices">
+          <legend>Amount</legend>
+          <label><input type="radio" name="amount" value="50" /> $50</label>
+          <label><input type="radio" name="amount" value="100" checked /> $100</label>
+          <label><input type="radio" name="amount" value="250" /> $250</label>
+          <label><input type="radio" name="amount" value="500" /> $500</label>
+        </fieldset>
+        <div class="field full">
+          <label for="designation">Designation</label>
+          <select id="designation" name="designation">
+            <option>Red Planet Scholars Fund</option>
+            <option>University Library</option>
+            <option>Student emergency fund</option>
+            <option>Where the need is greatest</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="donor-name">Name</label>
+          <input id="donor-name" name="name" type="text" autocomplete="name" />
+          <p class="field-error" id="donor-name-error" hidden></p>
+        </div>
+        <div class="field">
+          <label for="donor-email">Email</label>
+          <input id="donor-email" name="email" type="email" autocomplete="email" />
+          <p class="field-error" id="donor-email-error" hidden></p>
+        </div>
+      </div>
+      <p class="page-actions"><button class="btn" type="submit">Continue</button></p>
+    </form>
+    <div class="confirmation" id="gift-success" hidden>
+      <p class="eyebrow">Thank you</p>
+      <h2 id="gift-heading" tabindex="-1">The giving office will email you a link to finish this gift.</h2>
+      <p>Nothing has been charged. The message comes from giving@umars.edu and expires in seven days.</p>
+      <p><a href={u('/')}>Return to the home page</a></p>
+    </div>
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#gift-form');
+    const success = document.querySelector<HTMLElement>('#gift-success');
+    const summary = document.querySelector<HTMLElement>('#gift-errors');
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = form.querySelector<HTMLInputElement>('#donor-name');
+      const email = form.querySelector<HTMLInputElement>('#donor-email');
+      const problems: string[] = [];
+      const nameError = form.querySelector<HTMLElement>('#donor-name-error');
+      const emailError = form.querySelector<HTMLElement>('#donor-email-error');
+      const badName = !name || name.value.trim().length < 2;
+      const badEmail = !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      if (nameError) {
+        nameError.hidden = !badName;
+        nameError.textContent = badName ? 'Enter the name for the receipt.' : '';
+      }
+      if (emailError) {
+        emailError.hidden = !badEmail;
+        emailError.textContent = badEmail ? 'Enter an email address for the receipt.' : '';
+      }
+      name?.closest('.field')?.classList.toggle('is-invalid', badName);
+      email?.closest('.field')?.classList.toggle('is-invalid', badEmail);
+      if (badName) problems.push('Enter the name for the receipt.');
+      if (badEmail) problems.push('Enter an email address for the receipt.');
+      if (!summary) return;
+      summary.hidden = problems.length === 0;
+      summary.replaceChildren();
+      if (problems.length) {
+        const p = document.createElement('p');
+        p.textContent = 'The gift form still needs a name and an email.';
+        summary.append(p);
+        summary.focus();
+        return;
+      }
+      form.hidden = true;
+      if (success) {
+        success.hidden = false;
+        document.querySelector<HTMLElement>('#gift-heading')?.focus();
+      }
+    });
+  </script>
+</Base>

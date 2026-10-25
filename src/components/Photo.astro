@@ -1,0 +1,38 @@
+---
+import { u } from '../lib/paths';
+
+interface Props {
+  name: string;
+  alt: string;
+  sizes?: string;
+  class?: string;
+  loading?: 'eager' | 'lazy';
+  width?: number;
+  height?: number;
+}
+
+const {
+  name,
+  alt,
+  sizes = '(min-width: 900px) 40rem, 100vw',
+  class: className,
+  loading = 'lazy',
+  width = 1920,
+  height = 1280,
+} = Astro.props;
+
+const widths = [640, 960, 1280, 1920];
+const srcset = widths.map((w) => `${u(`/images/${name}-${w}.webp`)} ${w}w`).join(', ');
+---
+
+<picture class={className}>
+  <source type="image/webp" srcset={srcset} sizes={sizes} />
+  <img
+    src={u(`/images/${name}.jpg`)}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding="async"
+  />
+</picture>

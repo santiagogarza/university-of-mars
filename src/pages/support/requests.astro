@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base title="My requests" description="Ticket numbers for requests submitted from this browser.">
+  <PageHero
+    eyebrow="Help Center"
+    title="My requests"
+    lede="Tickets you submit from this browser are listed here, with the number to quote if you call."
+    crumbs={[
+      { href: '/support/', label: 'Student Support' },
+      { href: '/support/requests/', label: 'My requests' },
+    ]}
+  />
+  <div class="wrap prose">
+    <div id="request-empty" class="empty">
+      <h2>No requests yet</h2>
+      <p>When you submit a request, the ticket number shows up here. Nothing is waiting in this browser.</p>
+      <p class="page-actions"><a class="btn" href={u('/support/#request')}>Submit a request</a></p>
+    </div>
+    <ul id="request-list" class="request-list" hidden></ul>
+  </div>
+  <script>
+    import '../../scripts/requests.ts';
+  </script>
+</Base>

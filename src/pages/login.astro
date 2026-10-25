@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+---
+
+<Base title="MyUM" description="Sign in to MyUM, the University of Mars student and employee portal.">
+  <PageHero
+    eyebrow="MyUM"
+    title="Sign in"
+    lede="Registration, financial aid, the bill, and grades use one account. The email ends in @umars.edu."
+    crumbs={[{ href: '/login/', label: 'MyUM' }]}
+  />
+  <div class="wrap prose narrow">
+    <form class="form-card" id="login-form" novalidate>
+      <div id="login-error" class="login-error" role="alert" tabindex="-1" hidden>
+        <p>
+          MyUM didn’t recognize that email or password. Try again, or
+          <a href={u('/support/articles/password/')}>reset the password</a>.
+        </p>
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="login-email">UM email</label>
+          <input id="login-email" name="email" type="email" autocomplete="username" />
+          <p class="field-error" id="login-email-error" hidden></p>
+        </div>
+        <div class="field full">
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" />
+          <p class="field-error" id="login-password-error" hidden></p>
+        </div>
+      </div>
+      <p class="page-actions"><button class="btn" type="submit">Sign in</button></p>
+      <p><a href={u('/support/articles/password/')}>Forgot password</a></p>
+    </form>
+  </div>
+  <script>
+    const form = document.querySelector<HTMLFormElement>('#login-form');
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const email = form.querySelector<HTMLInputElement>('#login-email');
+      const password = form.querySelector<HTMLInputElement>('#login-password');
+      const emailError = form.querySelector<HTMLElement>('#login-email-error');
+      const passwordError = form.querySelector<HTMLElement>('#login-password-error');
+      const alert = document.querySelector<HTMLElement>('#login-error');
+      const badEmail = !email || !/^[^\s@]+@umars\.edu$/i.test(email.value.trim());
+      const badPassword = !password || password.value.length < 8;
+      if (emailError) {
+        emailError.hidden = !badEmail;
+        emailError.textContent = badEmail ? 'Enter your UM email.' : '';
+      }
+      if (passwordError) {
+        passwordError.hidden = !badPassword;
+        passwordError.textContent = badPassword ? 'Enter your password.' : '';
+      }
+      email?.setAttribute('aria-invalid', badEmail ? 'true' : 'false');
+      password?.setAttribute('aria-invalid', badPassword ? 'true' : 'false');
+      if (badEmail || badPassword) {
+        if (alert) alert.hidden = true;
+        (badEmail ? email : password)?.focus();
+        return;
+      }
+      if (password) password.value = '';
+      if (alert) {
+        alert.hidden = false;
+        alert.focus();
+      }
+    });
+  </script>
+</Base>

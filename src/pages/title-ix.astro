@@ -1,0 +1,48 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+---
+
+<Base
+  title="Title IX and civil rights"
+  description="How to reach the University of Mars Title IX coordinator and what happens after a report."
+>
+  <PageHero
+    eyebrow="Office for Civil Rights"
+    title="Title IX &amp; civil rights"
+    lede="The university prohibits sexual harassment, sexual violence, and discrimination in its programs. You can report without deciding what should happen next."
+    crumbs={[{ href: '/title-ix/', label: 'Title IX' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={`mailto:${site.titleEmail}`}>Contact the Title IX coordinator</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap narrow">
+    <h2>How to report</h2>
+    <p>
+      Write or call the Title IX coordinator. If you are in immediate danger, call campus safety at
+      <a href={site.safetyHref}>{site.safetyPhone}</a> or local emergency services first.
+    </p>
+    <ul>
+      <li>Email: <a href={`mailto:${site.titleEmail}`}>{site.titleEmail}</a></li>
+      <li>Phone: <a href={site.titleHref}>{site.titlePhone}</a>, weekdays 9 a.m. to 5 p.m.</li>
+      <li>Office: Enrollment Services, Room 210, {site.street}</li>
+    </ul>
+    <h2>What happens next</h2>
+    <p>
+      A coordinator will respond within one business day. They will explain confidential resources, supportive measures
+      such as a housing or class change, and the choice to request an investigation. You may bring a support person to
+      any meeting. Retaliation for reporting is prohibited.
+    </p>
+    <h2>Confidential help</h2>
+    <p>
+      Counseling at University Health Services and the campus advocacy office can talk with you without filing a Title IX
+      report. They will explain the limits of that confidentiality, including a duty to act if a minor is at risk.
+    </p>
+    <p>
+      The university does not discriminate in education or employment. A longer statement is in the footer of every page.
+      Employment complaints may also go to human resources.
+    </p>
+  </article>
+</Base>

@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Photo from '../../components/Photo.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base
+  title="Academics"
+  description="Colleges, majors, graduate study, and the University Library at the University of Mars."
+>
+  <PageHero
+    eyebrow="Academics"
+    title="Academics"
+    lede="Eight colleges and a graduate division share the Jezero campus. Fall Semester 2026 classes run through December 11."
+    crumbs={[{ href: '/academics/', label: 'Academics' }]}
+  >
+    <p class="page-actions">
+      <a class="btn" href={u('/academics/calendar/')}>See the academic calendar</a>
+    </p>
+  </PageHero>
+  <article class="prose wrap">
+    <div class="media-block">
+      <div class="frame">
+        <Photo
+          name="lecture-hall"
+          alt="A tiered lecture hall with empty seats before a class."
+          sizes="(min-width: 800px) 36rem, 100vw"
+        />
+      </div>
+      <div>
+        <h2>Programs</h2>
+        <p>
+          Undergraduates declare a major by the end of the second year. Most degrees are 180 units. The first-year
+          writing course and a quantitative reasoning course are required in every college.
+        </p>
+      </div>
+    </div>
+
+    <h2 id="colleges">Colleges and schools</h2>
+    <div class="card-grid">
+      <article class="card" id="college-arts">
+        <h3>College of Arts &amp; Letters</h3>
+        <p>English, history, philosophy, languages, and studio art. The writing center is on the second floor of the library.</p>
+      </article>
+      <article class="card" id="college-science">
+        <h3>College of Science</h3>
+        <p>Biology, chemistry, physics, mathematics, geology, and planetary science. Introductory labs meet in the science pavilion.</p>
+      </article>
+      <article class="card" id="college-engineering">
+        <h3>College of Engineering</h3>
+        <p>Civil, mechanical, electrical, and environmental engineering. The senior design sequence runs all of Spring Semester 2027.</p>
+      </article>
+      <article class="card" id="college-education">
+        <h3>School of Education</h3>
+        <p>Teacher preparation and graduate study in learning. Classroom placements are in Jezero public schools.</p>
+      </article>
+      <article class="card" id="college-health">
+        <h3>College of Health</h3>
+        <p>Nursing and public health. Clinical hours are arranged with the college, not by the student alone.</p>
+      </article>
+      <article class="card" id="college-policy">
+        <h3>School of Public Policy</h3>
+        <p>Public policy and economics. The undergraduate major includes a spring policy workshop.</p>
+      </article>
+    </div>
+
+    <h2 id="graduate">Graduate study</h2>
+    <p>
+      The Graduate Division oversees master’s and doctoral programs. Applications for Fall 2027 open in September 2026
+      and most close in December 2026 or January 2027, depending on the program. Funding offers, when they are made,
+      arrive with admission.
+    </p>
+
+    <h2 id="libraries">University Library</h2>
+    <div class="media-block reverse">
+      <div class="frame">
+        <Photo
+          name="library"
+          alt="Reading room of the University Library with long tables and tall windows."
+          sizes="(min-width: 800px) 36rem, 100vw"
+        />
+      </div>
+      <div>
+        <p>
+          The main library is open 8 a.m. to midnight on class days. From November 30 through December 11, 2026, the
+          reading rooms stay open until 2 a.m. Course reserves are listed in the catalog under the course number.
+        </p>
+        <p><a href={u('/news/library-hours/')}>Late hours through finals</a></p>
+      </div>
+    </div>
+  </article>
+</Base>

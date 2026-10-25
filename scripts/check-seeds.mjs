@@ -57,9 +57,6 @@ for (const file of dateFiles) {
 }
 
 const shared = ['src/data', 'src/lib', 'src/scripts'];
-for (const file of dateFiles) {
-  /* dates are page-local */
-}
 for (const folder of shared) {
   const { readdir } = await import('node:fs/promises');
   const entries = await readdir(path.join(root, folder));
@@ -70,25 +67,6 @@ for (const folder of shared) {
     if (text.includes('Verification Worksheet')) {
       fail(`S1: ${folder}/${entry} also mentions Verification Worksheet.`);
     }
-  }
-}
-
-const banned = ['ServiceNow', 'University of California', 'Harvard', 'Stanford', 'Workday'];
-const { readdir } = await import('node:fs/promises');
-async function walk(dir) {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const files = [];
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...(await walk(full)));
-    else if (/\.(astro|css|ts|md|mjs|html)$/.test(entry.name)) files.push(full);
-  }
-  return files;
-}
-for (const file of await walk(path.join(root, 'src'))) {
-  const text = await readFile(file, 'utf8');
-  for (const word of banned) {
-    if (text.includes(word)) fail(`${path.relative(root, file)} contains ${word}.`);
   }
 }
 

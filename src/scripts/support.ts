@@ -38,9 +38,12 @@ if (form) {
   const confirmEmail = document.querySelector<HTMLElement>('#confirm-email');
   const confirmHeading = document.querySelector<HTMLElement>('#confirm-heading');
 
-  function fillSubcategories(preserve = '') {
+  function fillSubcategories(...preserve: string[]) {
     if (!category || !subcategory) return;
     const options = SUBCATEGORIES[category.value] ?? [];
+    const selected = preserve
+      .map((value) => options.find((label) => label.toLowerCase() === value.trim().toLowerCase()))
+      .find(Boolean);
     subcategory.replaceChildren();
     const placeholder = document.createElement('option');
     placeholder.value = '';
@@ -50,15 +53,21 @@ if (form) {
       const option = document.createElement('option');
       option.value = label;
       option.textContent = label;
-      if (label === preserve) option.selected = true;
+      if (label === selected) option.selected = true;
       subcategory.append(option);
     }
   }
 
   category?.addEventListener('change', () => {
     const pending = subcategory?.dataset.pending ?? '';
-    fillSubcategories(pending || subcategory?.value || '');
-    if (pending && subcategory) delete subcategory.dataset.pending;
+    const current = subcategory?.value ?? '';
+    fillSubcategories(pending, current);
+    if (pending && subcategory?.value.toLowerCase() === pending.trim().toLowerCase()) {
+      delete subcategory.dataset.pending;
+    }
+  });
+  subcategory?.addEventListener('change', () => {
+    if (subcategory) delete subcategory.dataset.pending;
   });
 
   const grid = form.querySelector('.form-grid');

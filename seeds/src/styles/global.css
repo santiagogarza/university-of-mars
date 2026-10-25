@@ -89,6 +89,10 @@ a {
   color: var(--navy);
 }
 
+a[href^='tel:'] {
+  white-space: nowrap;
+}
+
 a:hover {
   color: var(--oxblood);
 }
@@ -1009,8 +1013,9 @@ th {
 }
 
 #request,
-#confirmation {
-  scroll-margin-top: 5.5rem;
+#confirmation,
+#confirm-heading {
+  scroll-margin-top: 6.5rem;
 }
 
 .confirmation {

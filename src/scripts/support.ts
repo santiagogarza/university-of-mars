@@ -156,7 +156,7 @@ if (form) {
     if (confirmation) {
       confirmation.hidden = false;
       confirmation.scrollIntoView({ block: 'start' });
-      confirmHeading?.focus();
+      confirmHeading?.focus({ preventScroll: true });
     }
   });
 

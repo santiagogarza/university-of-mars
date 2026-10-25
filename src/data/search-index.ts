@@ -1,3 +1,5 @@
+import { site } from './site';
+
 export type SearchItem = {
   title: string;
   href: string;
@@ -100,7 +102,7 @@ export const searchIndex: SearchItem[] = [
     title: 'About the university',
     href: '/about/',
     group: 'About',
-    text: 'founded 1894 leadership jezero chancellor contact',
+    text: `founded ${site.founded} leadership jezero chancellor contact`,
   },
   {
     title: 'Title IX and civil rights',

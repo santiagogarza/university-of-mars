@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Photo from '../components/Photo.astro';
+import { site } from '../data/site';
 import { u } from '../lib/paths';
 
 const widths = [640, 960, 1280];
@@ -9,7 +10,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
 
 <Base
   title="University of Mars"
-  description="The University of Mars is a public research university on the Jezero campus. Fall Semester 2026 is in session."
+  description="The University of Mars is a public research university on the Jezero campus. Spring Semester 2027 is in session."
 >
   <section class="hero">
     <picture class="hero-picture">
@@ -24,16 +25,18 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
       />
     </picture>
     <div class="hero-shade" aria-hidden="true"></div>
-    <div class="wrap hero-copy">
-      <p class="eyebrow">Jezero campus</p>
-      <h1>The public research university of Jezero.</h1>
-      <p class="hero-deck">
-        Fall Semester 2026 is in session. Eight colleges share one residential campus, from the main quad to the observatory.
-      </p>
-      <p class="hero-actions">
-        <a class="btn" href={u('/admissions/')}>Apply for Fall 2027</a>
-        <a class="text-link" href={u('/academics/calendar/')}>Academic calendar</a>
-      </p>
+    <div class="wrap">
+      <div class="hero-copy">
+        <p class="eyebrow">Jezero campus</p>
+        <h1>The public research university of Jezero.</h1>
+        <p class="hero-deck">
+          Spring Semester 2027 is in session. Eight colleges share one residential campus, from the main quad to the observatory.
+        </p>
+        <p class="hero-actions">
+          <a class="btn" href={u('/admissions/')}>Apply for Fall 2027</a>
+          <a class="text-link" href={u('/academics/calendar/')}>Academic calendar</a>
+        </p>
+      </div>
     </div>
   </section>
 
@@ -41,7 +44,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
     <div class="wrap stats-grid">
       <p><strong>28,400</strong><span>students in 2026–27</span></p>
       <p><strong>8</strong><span>colleges and schools</span></p>
-      <p><strong>1894</strong><span>year chartered</span></p>
+      <p><strong>{site.founded}</strong><span>year chartered</span></p>
       <p><strong>94%</strong><span>of first-years live on campus</span></p>
     </div>
   </section>
@@ -61,9 +64,9 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
             />
           </div>
           <div class="news-card-body">
-            <p class="news-meta">October 21, 2026 · Library</p>
-            <h3><a href={u('/news/library-hours/')}>Reading rooms stay open until 2 a.m. through finals</a></h3>
-            <p>Extended hours begin November 30 and run through the last Fall Semester exam.</p>
+            <p class="news-meta">January 4, 2027 · Library</p>
+            <h3><a href={u('/news/library-hours/')}>Reading rooms return to a midnight close</a></h3>
+            <p>Fall finals late hours have ended. Spring Semester rooms close at midnight on class days.</p>
           </div>
         </article>
         <article class="news-card">
@@ -107,38 +110,38 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
         </div>
         <ol class="event-list">
           <li>
-            <p class="event-date"><b>12</b><span>Nov</span></p>
-            <div>
-              <h3>Fall preview day</h3>
-              <p>Thursday, November 12, 2026. Campus tours for Fall 2027 applicants.</p>
-            </div>
-          </li>
-          <li>
-            <p class="event-date"><b>25</b><span>Nov</span></p>
-            <div>
-              <h3>Thanksgiving recess</h3>
-              <p>Wednesday, November 25 through Friday, November 27, 2026. Classes do not meet.</p>
-            </div>
-          </li>
-          <li>
-            <p class="event-date"><b>7</b><span>Dec</span></p>
-            <div>
-              <h3>Fall final examinations</h3>
-              <p>Monday, December 7 through Friday, December 11, 2026.</p>
-            </div>
-          </li>
-          <li>
-            <p class="event-date"><b>4</b><span>Jan</span></p>
-            <div>
-              <h3>Spring Semester 2027 begins</h3>
-              <p>Monday, January 4, 2027. Instruction starts for the spring term.</p>
-            </div>
-          </li>
-          <li>
             <p class="event-date"><b>15</b><span>Jan</span></p>
             <div>
               <h3>Spring Semester 2027 add/drop deadline</h3>
               <p>Friday, January 15, 2027. Last day to add or drop without a petition.</p>
+            </div>
+          </li>
+          <li>
+            <p class="event-date"><b>15</b><span>Feb</span></p>
+            <div>
+              <h3>Presidents Day</h3>
+              <p>Monday, February 15, 2027. Campus closed.</p>
+            </div>
+          </li>
+          <li>
+            <p class="event-date"><b>22</b><span>Mar</span></p>
+            <div>
+              <h3>Spring recess</h3>
+              <p>Monday, March 22 through Friday, March 26, 2027. Classes do not meet.</p>
+            </div>
+          </li>
+          <li>
+            <p class="event-date"><b>30</b><span>Apr</span></p>
+            <div>
+              <h3>Last day of instruction</h3>
+              <p>Friday, April 30, 2027. Spring Semester classes end.</p>
+            </div>
+          </li>
+          <li>
+            <p class="event-date"><b>3</b><span>May</span></p>
+            <div>
+              <h3>Spring final examinations</h3>
+              <p>Monday, May 3 through Friday, May 7, 2027.</p>
             </div>
           </li>
           <li>
@@ -160,7 +163,7 @@ const heroSrcset = widths.map((w) => `${u(`/images/hero-quad-${w}.webp`)} ${w}w`
           <a class="tile" href={u('/housing/')}><strong>Housing</strong><span>Halls, spring move-in, and repairs.</span></a>
           <a class="tile" href={u('/academics/calendar/')}><strong>Academic calendar</strong><span>Fall 2026 and Spring 2027 dates.</span></a>
           <a class="tile" href={u('/support/articles/billing/')}><strong>Pay a bill</strong><span>Charges, refunds, and payment plans.</span></a>
-          <a class="tile" href={u('/news/library-hours/')}><strong>Library hours</strong><span>Late reading rooms through finals.</span></a>
+          <a class="tile" href={u('/news/library-hours/')}><strong>Library hours</strong><span>Midnight close on class days this spring.</span></a>
         </div>
       </div>
     </div>

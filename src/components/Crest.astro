@@ -1,4 +1,6 @@
 ---
+import { site } from '../data/site';
+
 interface Props {
   class?: string;
 }
@@ -36,5 +38,5 @@ const { class: className = 'crest' } = Astro.props;
     fill="#F4EFE6"
     font-size="7.5"
     font-family="Source Sans 3, sans-serif"
-    font-weight="600">1894</text>
+    font-weight="600">{site.founded}</text>
 </svg>

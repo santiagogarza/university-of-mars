@@ -3,7 +3,7 @@ export const site = {
   short: 'UM',
   motto: 'Lux ultra horizontem',
   mottoEn: 'Light beyond the horizon',
-  founded: '1894',
+  founded: '2004',
   street: '1 Olympus Way',
   locality: 'Jezero, Mars 44001',
   phone: '(628) 555-0100',

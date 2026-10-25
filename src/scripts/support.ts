@@ -162,7 +162,29 @@ if (form) {
 
   document.querySelector('#another-request')?.addEventListener('click', (event) => {
     event.preventDefault();
-    history.replaceState(null, '', `${window.location.pathname}#request`);
-    window.location.reload();
+    form.reset();
+    if (category) category.value = '';
+    fillSubcategories();
+    form.querySelectorAll('.field').forEach((box) => {
+      box.classList.remove('is-invalid');
+      const error = box.querySelector<HTMLElement>('.field-error');
+      if (error) {
+        error.hidden = true;
+        error.textContent = '';
+      }
+    });
+    form.querySelectorAll<HTMLElement>('[aria-invalid]').forEach((input) => {
+      if (input.id !== 'student-id') input.setAttribute('aria-invalid', 'false');
+    });
+    if (summary) {
+      summary.hidden = true;
+      summary.replaceChildren();
+    }
+    if (confirmation) confirmation.hidden = true;
+    if (panel) panel.hidden = false;
+    else form.hidden = false;
+    const heading = document.querySelector<HTMLElement>('#request-heading');
+    heading?.scrollIntoView({ block: 'start' });
+    heading?.focus({ preventScroll: true });
   });
 }

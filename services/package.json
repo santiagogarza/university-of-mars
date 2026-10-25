@@ -1,0 +1,11 @@
+{
+  "name": "uom-services",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.3.3"
+  }
+}

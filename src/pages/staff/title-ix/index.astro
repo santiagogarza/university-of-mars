@@ -1,0 +1,77 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { u } from '../../../lib/paths';
+---
+
+<Base title="Case log" description="Staff list of Title IX case logs." robots="noindex, nofollow">
+  <div class="wrap staff-page">
+    <p class="eyebrow">Title IX office</p>
+    <h1>Case log</h1>
+    <div id="staff-gate">
+      <form id="staff-gate-form">
+        <div class="field">
+          <label for="staff-passcode">Staff passcode</label>
+          <input id="staff-passcode" name="passcode" type="password" autocomplete="current-password" required />
+          <p id="staff-gate-error" class="field-error" hidden></p>
+        </div>
+        <p class="page-actions"><button class="btn" type="submit">Continue</button></p>
+      </form>
+    </div>
+    <div id="staff-app" hidden>
+      <p class="page-actions"><a class="btn" href={u('/staff/title-ix/new/')}>File a case</a></p>
+      <p id="case-status" role="status"></p>
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>Case</th>
+            <th>Received</th>
+            <th>Allegation</th>
+            <th>Next step</th>
+          </tr>
+        </thead>
+        <tbody id="case-rows"></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    import { LOCAL_CASES_KEY } from '../../../data/title-ix';
+    import { setupStaffGate, staffFetch } from '../../../scripts/staff';
+
+    type CaseRow = {
+      caseNumber?: string;
+      dateReceived?: string;
+      allegationType?: string;
+      nextStep?: string;
+    };
+
+    function paint(cases: CaseRow[]) {
+      const rows = document.querySelector<HTMLElement>('#case-rows');
+      const status = document.querySelector<HTMLElement>('#case-status');
+      if (!rows || !status) return;
+      rows.replaceChildren();
+      for (const item of cases) {
+        const tr = document.createElement('tr');
+        for (const value of [item.caseNumber, item.dateReceived, item.allegationType, item.nextStep]) {
+          const td = document.createElement('td');
+          td.textContent = value ?? '';
+          tr.append(td);
+        }
+        rows.append(tr);
+      }
+      const filed = new URLSearchParams(window.location.search).get('filed');
+      status.textContent = filed ? `${filed} is on the log.` : `${cases.length} cases.`;
+    }
+
+    setupStaffGate(async (session) => {
+      if (session.mode === 'local') {
+        const raw = localStorage.getItem(LOCAL_CASES_KEY);
+        const cases = raw ? (JSON.parse(raw) as CaseRow[]) : [];
+        paint(cases);
+        return;
+      }
+      const response = await staffFetch('/api/title-ix/cases', session.token);
+      const payload = (await response.json().catch(() => ({}))) as { cases?: CaseRow[] };
+      paint(payload.cases ?? []);
+    });
+  </script>
+</Base>

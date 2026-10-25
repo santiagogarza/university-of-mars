@@ -66,7 +66,13 @@ export const searchIndex: SearchItem[] = [
     title: 'Housing and Residential Life',
     href: '/housing/',
     group: 'Offices',
-    text: 'Olympus Mons Hall Isidis Syrtis Elysium move-in maintenance',
+    text: 'Olympus Mons Hall Isidis Syrtis Elysium move-in maintenance call housing support',
+  },
+  {
+    title: 'Housing work orders',
+    href: '/housing/work-orders/',
+    group: 'Offices',
+    text: 'facilities schedule booked repairs confirmation number',
   },
   {
     title: 'Accessibility',

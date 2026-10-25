@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Case log · Title IX · University of Mars</title>
+    <link rel="stylesheet" href="/staff/staff.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <p class="eyebrow">Title IX office</p>
+      <h1>Case log</h1>
+      <div id="gate" hidden>
+        <form id="gate-form">
+          <label for="staff-passcode">Staff passcode</label>
+          <input id="staff-passcode" name="passcode" type="password" autocomplete="current-password" required />
+          <p id="gate-error" class="error" hidden></p>
+          <button type="submit">Continue</button>
+        </form>
+      </div>
+      <div id="app" hidden>
+        <p class="actions"><a href="/staff/title-ix/new">File a case</a></p>
+        <p id="out" role="status"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Case</th>
+              <th>Received</th>
+              <th>Allegation</th>
+              <th>Next step</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </main>
+    <script type="module">
+      import { api, gate } from '/staff/staff.js';
+      const app = document.getElementById('app');
+      async function load() {
+        const response = await api('/api/title-ix/cases');
+        const payload = await response.json();
+        const rows = document.getElementById('rows');
+        rows.replaceChildren();
+        for (const item of payload.cases ?? []) {
+          const tr = document.createElement('tr');
+          for (const value of [item.caseNumber, item.dateReceived, item.allegationType, item.nextStep]) {
+            const td = document.createElement('td');
+            td.textContent = value;
+            tr.append(td);
+          }
+          rows.append(tr);
+        }
+        const filed = new URLSearchParams(location.search).get('filed');
+        const out = document.getElementById('out');
+        out.textContent = filed ? `${filed} is on the log.` : `${payload.count ?? 0} cases.`;
+      }
+      const token = await gate(app);
+      if (token) load();
+      app.addEventListener('staff-ready', load);
+    </script>
+  </body>
+</html>

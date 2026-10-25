@@ -1,4 +1,14 @@
-import { addTicket, loadTickets, newTicketId, type Ticket } from './store';
+import { clearDemoStorage, statusPillClass, type Ticket } from './store';
+import { submitTicket } from './services-client';
+import { inputField, mountVoiceCall, radioField } from './voice-call';
+
+const resetParams = new URLSearchParams(window.location.search);
+if (resetParams.get('reset') === '1') {
+  clearDemoStorage();
+  resetParams.delete('reset');
+  const query = resetParams.toString();
+  window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`);
+}
 
 const SUBCATEGORIES: Record<string, string[]> = {
   'financial-aid': ['Award offer', 'Document status', 'Scholarship', 'Disbursement', 'Work-study'],
@@ -47,6 +57,50 @@ if (form) {
 
   category?.addEventListener('change', () => fillSubcategories());
 
+  const grid = form.querySelector('.form-grid');
+  const nameInput = document.createElement('input');
+  nameInput.id = 'caller-name';
+  nameInput.name = 'name';
+  nameInput.type = 'text';
+  nameInput.autocomplete = 'name';
+  const nameLabel = document.createElement('label');
+  nameLabel.htmlFor = 'caller-name';
+  nameLabel.textContent = 'Name';
+  const nameError = document.createElement('p');
+  nameError.className = 'field-error';
+  nameError.id = 'caller-name-error';
+  nameError.hidden = true;
+  const nameField = document.createElement('div');
+  nameField.className = 'field';
+  nameField.append(nameLabel, nameInput, nameError);
+  grid?.prepend(nameField);
+
+  const launch = document.createElement('button');
+  launch.type = 'button';
+  launch.className = 'btn call-launch';
+  launch.textContent = 'Talk to Student Support';
+  form.before(launch);
+
+  if (category && subcategory && studentId && email && subject && description) {
+    mountVoiceCall({
+      mode: 'support',
+      form,
+      launchers: [launch],
+      title: 'Student support',
+      greeting: 'Student support, this is the University of Mars. How can I help?',
+      fields: [
+        inputField('name', 'Name', nameInput, false),
+        inputField('category', 'Category', category),
+        inputField('subcategory', 'Subcategory', subcategory),
+        inputField('studentId', 'Student ID', studentId),
+        inputField('email', 'UM email', email),
+        inputField('subject', 'Subject', subject),
+        inputField('description', 'Description', description),
+        radioField('priority', 'Priority', form, 'priority'),
+      ],
+    });
+  }
+
   const preset = new URLSearchParams(window.location.search).get('category');
   if (preset && category?.querySelector(`option[value="${CSS.escape(preset)}"]`)) {
     category.value = preset;
@@ -74,7 +128,7 @@ if (form) {
     return message;
   }
 
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!category || !subcategory || !studentId || !email || !subject || !description) return;
 
@@ -132,24 +186,44 @@ if (form) {
       return;
     }
 
-    const option = category.selectedOptions[0];
-    const ticket: Ticket = {
-      id: newTicketId(loadTickets().map((item) => item.id)),
-      category: category.value,
-      categoryLabel: option?.textContent?.trim() || category.value,
-      subcategory: subcategory.value,
-      studentId: studentId.value.trim(),
-      email: email.value.trim(),
-      subject: subject.value.trim(),
-      description: description.value.trim(),
-      priority: priority?.value || 'Normal',
-      attachmentName: file?.name ?? null,
-      createdAt: new Date().toISOString(),
-      status: 'Submitted',
-    };
-    addTicket(ticket);
+    let ticket: Ticket;
+    try {
+      ticket = await submitTicket({
+        category: category.value,
+        subcategory: subcategory.value,
+        studentId: studentId.value.trim(),
+        email: email.value.trim(),
+        subject: subject.value.trim(),
+        description: description.value.trim(),
+        priority: priority?.value || 'Normal',
+        attachmentName: file?.name ?? null,
+        ...(nameInput.value.trim() ? { name: nameInput.value.trim() } : {}),
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The request could not be sent.';
+      summary.hidden = false;
+      summary.replaceChildren();
+      const lead = document.createElement('p');
+      lead.textContent = message;
+      summary.append(lead);
+      summary.focus();
+      return;
+    }
+
+    const callPanel = document.querySelector<HTMLElement>('.call-panel');
+    if (callPanel?.dataset.callState === 'live' || callPanel?.dataset.callState === 'connecting') {
+      document.querySelector<HTMLButtonElement>('.call-hangup')?.click();
+    }
 
     if (ticketEl) ticketEl.textContent = ticket.id;
+    confirmation?.querySelectorAll('.confirm-status').forEach((node) => node.remove());
+    const pill = document.createElement('p');
+    pill.className = 'confirm-status';
+    const badge = document.createElement('span');
+    badge.className = statusPillClass(ticket.status);
+    badge.textContent = ticket.status;
+    pill.append(badge);
+    ticketEl?.insertAdjacentElement('afterend', pill);
     if (confirmEmail) confirmEmail.textContent = ticket.email;
     if (panel) panel.hidden = true;
     else form.hidden = true;

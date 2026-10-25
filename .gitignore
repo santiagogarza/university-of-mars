@@ -4,3 +4,7 @@ dist/
 *.log
 .DS_Store
 public/images/*-*.webp
+.env
+.env.*
+scripts/demo-caller.wav
+scripts/demo-recordings/

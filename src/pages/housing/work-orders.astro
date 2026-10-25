@@ -1,0 +1,133 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { u } from '../../lib/paths';
+---
+
+<Base
+  title="Housing work orders"
+  description="Facilities schedule of booked residence-hall repairs."
+  robots="noindex, nofollow"
+>
+  <PageHero
+    eyebrow="Facilities"
+    title="Housing work orders"
+    lede="Booked repairs for the residence halls. This schedule is for the facilities desk."
+    crumbs={[
+      { href: '/housing/', label: 'Housing' },
+      { href: '/housing/work-orders/', label: 'Work orders' },
+    ]}
+  />
+  <div class="wrap staff-page">
+    <form id="lookup" class="portal-search" role="search">
+      <div class="search-field">
+        <label for="confirmation">Confirmation number</label>
+        <input id="confirmation" name="confirmation" type="search" placeholder="HWO-2027-1001" autocomplete="off" />
+      </div>
+      <button class="btn btn-navy" type="submit">Look up</button>
+    </form>
+    <p id="schedule-status" role="status"></p>
+    <div class="table-scroll">
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>Confirmation</th>
+            <th>When</th>
+            <th>Hall and room</th>
+            <th>Problem</th>
+            <th>Window</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="schedule-rows"></tbody>
+      </table>
+    </div>
+    <p><a href={u('/housing/')}>Back to housing</a></p>
+  </div>
+  <script>
+    import { servicesUrl } from '../../scripts/services-client';
+
+    type Order = {
+      confirmation?: string;
+      createdAt?: string;
+      hall?: string;
+      room?: string;
+      category?: string;
+      description?: string;
+      window?: string;
+      status?: string;
+      shop?: string;
+      studentName?: string;
+    };
+
+    const status = document.querySelector<HTMLElement>('#schedule-status');
+    const rows = document.querySelector<HTMLElement>('#schedule-rows');
+    const form = document.querySelector<HTMLFormElement>('#lookup');
+    let orders: Order[] = [];
+
+    function paint(list: Order[], note: string) {
+      if (!rows || !status) return;
+      rows.replaceChildren();
+      status.textContent = note;
+      if (list.length === 0) {
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 6;
+        td.textContent = 'No work orders to show.';
+        tr.append(td);
+        rows.append(tr);
+        return;
+      }
+      for (const order of list) {
+        const tr = document.createElement('tr');
+        const when = order.createdAt ? new Date(order.createdAt) : null;
+        const values = [
+          order.confirmation ?? '',
+          when && !Number.isNaN(when.getTime())
+            ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+            : '',
+          [order.hall, order.room].filter(Boolean).join(' '),
+          [order.category, order.description].filter(Boolean).join(' — '),
+          [order.window, order.shop].filter(Boolean).join(' · '),
+          order.status ?? '',
+        ];
+        for (const value of values) {
+          const td = document.createElement('td');
+          td.textContent = value;
+          tr.append(td);
+        }
+        rows.append(tr);
+      }
+    }
+
+    async function load() {
+      const base = servicesUrl();
+      if (!base) {
+        paint([], 'The facilities schedule is not connected on this build.');
+        return;
+      }
+      try {
+        const response = await fetch(`${base}/api/work-orders`);
+        const payload = (await response.json()) as { workOrders?: Order[]; count?: number };
+        orders = payload.workOrders ?? [];
+        paint(orders, `${payload.count ?? orders.length} booked repairs.`);
+      } catch {
+        paint([], 'The facilities schedule could not be loaded.');
+      }
+    }
+
+    form?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const query = new FormData(form).get('confirmation');
+      const needle = String(query ?? '').trim().toLowerCase();
+      if (!needle) {
+        paint(orders, `${orders.length} booked repairs.`);
+        return;
+      }
+      const found = orders.filter((order) => (order.confirmation ?? '').toLowerCase() === needle);
+      paint(found, found.length ? `Found ${found[0]?.confirmation}.` : `No work order matches ${String(query).trim()}.`);
+    });
+
+    void load();
+  </script>
+</Base>

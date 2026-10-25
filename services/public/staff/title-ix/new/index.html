@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>New case log · Title IX · University of Mars</title>
+    <link rel="stylesheet" href="/staff/staff.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <p class="eyebrow">Title IX office</p>
+      <h1>New case log</h1>
+      <p>Initials only. Do not type a full name or a student ID. Leave the case number blank to take the next number.</p>
+      <div id="gate" hidden>
+        <form id="gate-form">
+          <label for="staff-passcode">Staff passcode</label>
+          <input id="staff-passcode" name="passcode" type="password" autocomplete="current-password" required />
+          <p id="gate-error" class="error" hidden></p>
+          <button type="submit">Continue</button>
+        </form>
+      </div>
+      <div id="app" hidden>
+        <p id="out" class="error" role="status"></p>
+        <form id="case-form">
+          <label for="caseNumber">1. Case number</label>
+          <input id="caseNumber" name="caseNumber" placeholder="TIX-2026-0042" pattern="TIX-2026-\d{4}" />
+          <label for="dateReceived">2. Date report received</label>
+          <input id="dateReceived" name="dateReceived" type="date" required />
+          <label for="howReceived">3. How received</label>
+          <select id="howReceived" name="howReceived" required></select>
+          <label for="reporterRole">4. Reporter role</label>
+          <select id="reporterRole" name="reporterRole" required></select>
+          <label for="complainant">5. Complainant (initials only)</label>
+          <input id="complainant" name="complainant" required placeholder="A.R." autocomplete="off" />
+          <label for="respondent">6. Respondent (initials or Unknown)</label>
+          <input id="respondent" name="respondent" required placeholder="J.T." autocomplete="off" />
+          <label for="respondentAffiliation">7. Respondent affiliation</label>
+          <select id="respondentAffiliation" name="respondentAffiliation" required></select>
+          <label for="incidentDate">8. Incident date</label>
+          <input id="incidentDate" name="incidentDate" type="date" required />
+          <label for="incidentLocation">9. Incident location</label>
+          <input id="incidentLocation" name="incidentLocation" required autocomplete="off" />
+          <label for="allegationType">10. Allegation type</label>
+          <select id="allegationType" name="allegationType" required></select>
+          <label for="summary">11. Summary (facts only)</label>
+          <textarea id="summary" name="summary" rows="5" required></textarea>
+          <fieldset>
+            <legend>12. Supportive measures offered</legend>
+            <label><input type="checkbox" name="supportiveMeasures" value="No-contact directive" /> No-contact directive</label>
+            <label><input type="checkbox" name="supportiveMeasures" value="Class schedule change" /> Class schedule change</label>
+            <label><input type="checkbox" name="supportiveMeasures" value="Housing change" /> Housing change</label>
+            <label><input type="checkbox" name="supportiveMeasures" value="Counseling referral" /> Counseling referral</label>
+            <label><input type="checkbox" name="supportiveMeasures" value="Academic extension" /> Academic extension</label>
+            <label><input type="checkbox" name="supportiveMeasures" value="None requested" /> None requested</label>
+          </fieldset>
+          <label for="outreachDate">13. Outreach sent to complainant</label>
+          <input id="outreachDate" name="outreachDate" type="date" required />
+          <label for="nextStep">14. Next step</label>
+          <select id="nextStep" name="nextStep" required></select>
+          <label for="assignedInvestigator">15. Assigned investigator</label>
+          <select id="assignedInvestigator" name="assignedInvestigator" required></select>
+          <button type="submit">File case log</button>
+        </form>
+        <p><a href="/staff/title-ix">Back to the case list</a></p>
+      </div>
+    </main>
+    <script type="module">
+      import { api, gate } from '/staff/staff.js';
+      const options = {
+        howReceived: ['Online form', 'Email', 'In person', 'Phone', 'Third party'],
+        reporterRole: ['Complainant', 'Witness', 'Employee (mandatory reporter)', 'Anonymous'],
+        respondentAffiliation: ['Student', 'Employee', 'Third party', 'Unknown'],
+        allegationType: ['Sexual harassment', 'Sexual assault', 'Dating violence', 'Domestic violence', 'Stalking', 'Retaliation', 'Other sex discrimination'],
+        nextStep: ['Intake meeting scheduled', 'Awaiting complainant response', 'Formal complaint filed', 'Informal resolution', 'Closed: no further action'],
+        assignedInvestigator: ['Coordinator (Title IX office)', 'Deputy coordinator A', 'Deputy coordinator B'],
+      };
+      for (const [id, values] of Object.entries(options)) {
+        const select = document.getElementById(id);
+        for (const value of values) {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = value;
+          select.append(option);
+        }
+      }
+      const app = document.getElementById('app');
+      const out = document.getElementById('out');
+      function ready() {
+        document.getElementById('dateReceived').focus();
+      }
+      const token = await gate(app);
+      if (token) ready();
+      app.addEventListener('staff-ready', ready);
+      document.getElementById('case-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        out.textContent = '';
+        const data = new FormData(event.target);
+        const body = {};
+        for (const [key, value] of data.entries()) {
+          if (key === 'supportiveMeasures') (body[key] ??= []).push(value);
+          else if (String(value).trim()) body[key] = String(value).trim();
+        }
+        const response = await api('/api/title-ix/cases', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          out.textContent = payload.error || 'The case was not filed.';
+          return;
+        }
+        location.href = '/staff/title-ix?filed=' + encodeURIComponent(payload.caseNumber);
+      });
+    </script>
+  </body>
+</html>

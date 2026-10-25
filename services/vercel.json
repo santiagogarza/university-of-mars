@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "api/**/*.js": {
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    { "source": "/staff/title-ix/new", "destination": "/staff/title-ix/new/index.html" },
+    { "source": "/staff/title-ix", "destination": "/staff/title-ix/index.html" }
+  ]
+}

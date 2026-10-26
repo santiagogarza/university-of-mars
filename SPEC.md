@@ -7,7 +7,7 @@ A fictional public university website for demos. Every name, phone number, addre
 **Stack and deploy**
 - Astro 5, static output, with `base: /university-of-mars`, `trailingSlash: 'always'` and `build.format: 'directory'`.
 - Deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`.
-- `ci.yml` runs lint, the services tests, seed checks, and `astro build` on every PR.
+- `ci.yml` runs lint, the services tests, and `astro build` on every PR. It does not check seeds. A pull request that fixes S1–S5 stays as the fix; putting the planted text back is not required for a green check. Before a session, run the **Check seeds** workflow (`.github/workflows/check-seeds.yml`, `workflow_dispatch`), which runs `npm run check-seeds`.
 - Dependencies: astro, `@fontsource` Newsreader and Source Sans 3, sharp, and `@astrojs/check`.
 - Live at https://santiagogarza.github.io/university-of-mars/.
 - The queue, voice token, work orders, case log, and aid-hold releases live in `services/` and deploy as a separate project. See `services/README.md` and `services/API.md`.
@@ -53,11 +53,11 @@ A fictional public university website for demos. Every name, phone number, addre
   - S3: low-contrast news meta text.
   - S4: the Student ID field has no label.
   - S5: the add/drop date is hand-copied into 5 pages.
-- `npm run check-seeds` verifies them. `npm run reset-demo [-- --push]` restores the 6 files in `seeds/MANIFEST`. When `SERVICES_URL` and `DEMO_BOT_KEY` are set, it also restores the services seed. `/support/?reset=1` clears this browser's ticket keys.
-- Don't fix the seeds outside a demo run.
+- `npm run check-seeds` verifies them. It is a manual Actions workflow, not a pull-request check. `npm run reset-demo [-- --push]` restores the 6 files in `seeds/MANIFEST` and runs `check-seeds` at the end. When `SERVICES_URL` and `DEMO_BOT_KEY` are set, it also restores the services seed. `/support/?reset=1` clears this browser's ticket keys.
+- Don't fix the seeds outside a demo run. A demo pull request that fixes a seed should keep that fix.
 
 **Checks**
-- Every PR: lint, services tests, seed check, and build (`ci.yml`), plus automated review.
+- Every PR: lint, services tests, and build (`ci.yml`), plus automated review. Seed presence is not a CI requirement.
 - Nightly: an accessibility scan of the live site.
 - Weekly: a dependency update check. Both run as automations.
 - A copy-only PR, meaning visible text changes only, with CI and review green, may auto-merge. Anything else waits for a person to review. This phase waits for review before the services project and the site variables are in place.

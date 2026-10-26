@@ -370,10 +370,11 @@ function sessionConfig(options: MountOptions) {
       'Never mention software vendors, models, or that you are automated.',
       'Reply in the language the caller is using right now. If they switch languages, switch with them for those sentences, then follow them back.',
       'Write every form field in English. Translate before you save a field.',
-      'Record only what the caller actually said. Never guess a name, ID, room, email, time, category, or urgency. Leave unknown fields empty.',
+      'Record only what the caller actually said. Never guess a name, ID, room, email, time, category, or urgency. Leave unknown fields empty. The one line you may add yourself is the Caller language line on the description, and only as specified below.',
       'Never infer urgency. Do not announce it, and do not call set_field for urgency or priority, until the caller states how urgent it is. If they have not said, ask.',
       'As soon as you know one field, call set_field for that field. Do not wait until the end.',
       'Description is cumulative. Whenever the caller adds a detail about the problem, in any language, call set_field for description again with the full English description so far, keeping every earlier detail.',
+      'If the caller speaks any language other than English at any point in the call, the description must end with exactly one line on its own line: Caller language: Spanish, using the English name of the language they spoke. The first time you hear it, call set_field for description with the full English description, a newline, and that one line. If there is no problem text yet, the value is only that line, and the next description update puts the English problem first and keeps the same line at the end. If a line starting with "Caller language:" is already there, do not add another. When they use more than one non-English language, change that same line so it names each language once, separated by commas, for example Caller language: Spanish, French. Never put this note in any other field.',
       `Fields: ${options.fields.map((field) => field.label).join(', ')}.`,
       'When the required fields are filled, read them back briefly and ask the caller to press Submit. You cannot submit the form.',
       options.mode === 'housing'
@@ -400,7 +401,8 @@ function sessionConfig(options: MountOptions) {
       {
         type: 'function',
         name: 'set_field',
-        description: 'Save one English form field the caller has actually provided.',
+        description:
+          'Save one English form field the caller has actually provided. On description, also keep the single Caller language line when the caller has used a language other than English.',
         parameters: {
           type: 'object',
           properties: {
@@ -408,7 +410,7 @@ function sessionConfig(options: MountOptions) {
             value: {
               type: 'string',
               description:
-                'English text. Do not send a guess. For urgency or priority, send a value only after the caller has stated it. For description, send the complete updated description, not only the newest detail.',
+                'English text. Do not send a guess. For urgency or priority, send a value only after the caller has stated it. For description, send the complete updated English description, not only the newest detail. If the caller has spoken a language other than English, end it with a newline and exactly one line of the form "Caller language: Spanish" (English name of each such language, once). Do not repeat that line.',
             },
           },
           required: ['name', 'value'],

@@ -1,0 +1,77 @@
+name: Weekly dependency check
+
+on:
+  schedule:
+    # Mondays at 16:00 UTC (about 9:00 AM Pacific during daylight time).
+    - cron: '0 16 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            services/package-lock.json
+      - run: npm ci
+      - run: npm ci --prefix services
+      - name: Report outdated packages and audit
+        run: |
+          set +e
+          set +o pipefail
+          export NO_COLOR=1
+          export npm_config_color=false
+          {
+            echo "## Weekly dependency check"
+            echo
+            echo "Outdated packages and advisories are listed below. This job does not fail because of them. \`npm outdated\` exits 1 when anything is outdated, and \`npm audit\` exits 1 when it reports an advisory."
+            echo
+            report_dir() {
+              dir="$1"
+              label="$2"
+              echo "### $label"
+              echo
+              echo "#### npm outdated"
+              echo
+              echo '```text'
+              npm --prefix "$dir" outdated
+              outdated_code=$?
+              echo '```'
+              echo
+              if [ "$outdated_code" -eq 0 ]; then
+                echo "Nothing is outdated."
+              elif [ "$outdated_code" -eq 1 ]; then
+                echo "Exit 1 means at least one package is outdated."
+              else
+                echo "npm outdated could not finish (exit $outdated_code). The report above is what it printed."
+              fi
+              echo
+              echo "#### npm audit"
+              echo
+              echo '```text'
+              npm --prefix "$dir" audit
+              audit_code=$?
+              echo '```'
+              echo
+              if [ "$audit_code" -eq 0 ]; then
+                echo "No advisories reported."
+              elif [ "$audit_code" -eq 1 ]; then
+                echo "Exit 1 means npm reported an advisory."
+              else
+                echo "npm audit could not finish (exit $audit_code). The report above is what it printed."
+              fi
+              echo
+            }
+            report_dir "." "Site"
+            report_dir "services" "Services"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0

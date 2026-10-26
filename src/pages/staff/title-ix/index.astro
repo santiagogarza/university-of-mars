@@ -35,12 +35,13 @@ import { u } from '../../../lib/paths';
   </div>
   <script>
     import { LOCAL_CASES_KEY } from '../../../data/title-ix';
-    import { formatCampusWhen } from '../../../lib/campus-time';
+    import { formatCampusReceived } from '../../../lib/campus-time';
     import { setupStaffGate, staffFetch } from '../../../scripts/staff';
 
     type CaseRow = {
       caseNumber?: string;
       dateReceived?: string;
+      createdAt?: string;
       allegationType?: string;
       nextStep?: string;
     };
@@ -52,7 +53,7 @@ import { u } from '../../../lib/paths';
       rows.replaceChildren();
       for (const item of cases) {
         const tr = document.createElement('tr');
-        for (const value of [item.caseNumber, formatCampusWhen(item.dateReceived), item.allegationType, item.nextStep]) {
+        for (const value of [item.caseNumber, formatCampusReceived(item.dateReceived, item.createdAt), item.allegationType, item.nextStep]) {
           const td = document.createElement('td');
           td.textContent = value ?? '';
           tr.append(td);

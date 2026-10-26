@@ -172,7 +172,7 @@ import { u } from '../../../lib/paths';
         const raw = localStorage.getItem(LOCAL_CASES_KEY);
         const cases = raw ? (JSON.parse(raw) as unknown[]) : [];
         const number = String(body.caseNumber ?? '') || 'TIX-2026-local';
-        cases.unshift({ ...body, caseNumber: number });
+        cases.unshift({ ...body, caseNumber: number, createdAt: new Date().toISOString() });
         localStorage.setItem(LOCAL_CASES_KEY, JSON.stringify(cases));
         window.location.href = u(`/staff/title-ix/?filed=${encodeURIComponent(number)}`);
         return;

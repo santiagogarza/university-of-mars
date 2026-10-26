@@ -234,4 +234,19 @@
   body:has(.call-panel[data-call-state='connecting']) {
     padding-bottom: 48vh;
   }
+
+  .call-panel[data-call-state='connecting'] .call-actions,
+  .call-panel[data-call-state='live'] .call-actions {
+    position: sticky;
+    bottom: calc(-1 * var(--space-md));
+    margin: 0 calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+    padding: var(--space-sm) var(--space-md);
+    background: var(--sand);
+    border-top: 1px solid var(--line);
+  }
+
+  .call-panel[data-call-state='connecting'] .transcript,
+  .call-panel[data-call-state='live'] .transcript {
+    max-height: 10rem;
+  }
 }

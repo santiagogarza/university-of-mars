@@ -15,6 +15,7 @@ import { u } from '../lib/paths';
     <form class="form-card" id="gift-form" novalidate>
       <h2>Make a gift commitment</h2>
       <div id="gift-errors" class="error-summary" tabindex="-1" hidden></div>
+      <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
       <div class="form-grid">
         <fieldset class="field full choices">
           <legend>Amount</legend>
@@ -34,12 +35,12 @@ import { u } from '../lib/paths';
         </div>
         <div class="field">
           <label for="donor-name">Name</label>
-          <input id="donor-name" name="name" type="text" autocomplete="name" />
+          <input id="donor-name" name="name" type="text" autocomplete="name" required aria-required="true" />
           <p class="field-error" id="donor-name-error" hidden></p>
         </div>
         <div class="field">
           <label for="donor-email">Email</label>
-          <input id="donor-email" name="email" type="email" autocomplete="email" />
+          <input id="donor-email" name="email" type="email" autocomplete="email" required aria-required="true" />
           <p class="field-error" id="donor-email-error" hidden></p>
         </div>
       </div>

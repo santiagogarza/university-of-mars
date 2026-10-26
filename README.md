@@ -44,11 +44,13 @@ Pushing to `main` runs `.github/workflows/pages.yml`, which builds the site and 
 
 Published URL: [https://santiagogarza.github.io/university-of-mars/](https://santiagogarza.github.io/university-of-mars/)
 
-In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. Pull requests run `.github/workflows/ci.yml` (`npm run lint` and `npm run build`). A missing URL is handled by `src/pages/404.astro`.
+In the repository settings, set **Pages → Build and deployment → Source** to **GitHub Actions**. Pull requests run `.github/workflows/ci.yml` (`npm run lint`, `npm test`, and `npm run build`). That job does not run `npm run check-seeds`. A missing URL is handled by `src/pages/404.astro`.
 
 ## Demo seeds
 
-These five issues are intentional. Do not clean them up before the workshop. `npm run check-seeds` confirms they are still present. The `demo-baseline` tag and the `seeds/` snapshot match the seeded files.
+These five issues are intentional. Leave them on `main` until a workshop session. A session opens pull requests that fix them, and those fixes should stay in the pull request. Restoring the planted text to chase a green check undoes the demo.
+
+`npm run check-seeds` confirms the five issues are still present. It is not a pull-request check. Before a session, run the **Check seeds** workflow from the Actions tab (`.github/workflows/check-seeds.yml`, manual `workflow_dispatch`). The `demo-baseline` tag and the `seeds/` snapshot match the seeded files.
 
 ### S1 — Wrong aid-year document
 
@@ -104,7 +106,7 @@ From a clean working tree:
 npm run reset-demo
 ```
 
-The script checks out `main`, copies the seeded files back, and creates a normal commit. It does not rewrite history and it does not force-push.
+The script checks out `main`, copies the seeded files back, and creates a normal commit. It does not rewrite history and it does not force-push. After the restore it runs `npm run check-seeds` and exits non-zero if a planted issue is missing.
 
 ```bash
 npm run reset-demo -- --push

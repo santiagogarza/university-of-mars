@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Restore planted demo files from seeds/ onto main as a normal commit.
 # Never force-pushes. Pass --push to update origin/main with a fast-forward push.
+# Runs npm run check-seeds after the restore.
 #
 # Usage:
 #   npm run reset-demo
@@ -91,3 +92,5 @@ fi
 
 echo "To clear tickets saved in a browser, open:"
 echo "  https://santiagogarza.github.io/university-of-mars/support/?reset=1"
+
+npm run check-seeds

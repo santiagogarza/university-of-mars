@@ -68,12 +68,15 @@ async function readBlob(token) {
 }
 
 async function readBlobRecord(token) {
-  const { get } = await import('@vercel/blob');
+  const { get, head } = await import('@vercel/blob');
   try {
+    // The etag from head() is the one put({ ifMatch }) compares against. The
+    // download response's etag header can differ, so read it first, then the body.
+    const meta = await head(BLOB_PATH, { token });
     const result = await get(BLOB_PATH, { access: 'private', token, useCache: false });
     if (!result || result.statusCode === 304 || result.statusCode === 404 || !result.stream) return null;
     const text = await new Response(result.stream).text();
-    return { state: JSON.parse(text), etag: result.blob?.etag ?? null };
+    return { state: JSON.parse(text), etag: meta?.etag ?? result.blob?.etag ?? null };
   } catch (error) {
     const status = error?.status ?? error?.statusCode;
     if (status === 404 || error?.name === 'BlobNotFoundError') return null;

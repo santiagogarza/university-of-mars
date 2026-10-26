@@ -534,14 +534,14 @@ async function forwardTicket(ticket, ctx) {
       const extra = JSON.parse(ctx.env.INTAKE_WEBHOOK_HEADERS);
       if (extra && typeof extra === 'object' && !Array.isArray(extra)) {
         for (const [key, value] of Object.entries(extra)) {
-          if (typeof value === 'string') headers[key] = value;
+          if (typeof value === 'string') headers[key.toLowerCase()] = value;
         }
       }
     } catch {
       ctx.log('intake webhook headers were not valid JSON; forwarding without them');
     }
   }
-  const body = JSON.stringify({ event: 'ticket.created', ticket });
+  const body = JSON.stringify({ event: 'ticket.created', id: ticket.id, ticket });
   try {
     const response = await ctx.fetchImpl(url, { method: 'POST', headers, body, signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS) });
     ctx.log('intake webhook', response.ok ? 'delivered' : `status ${response.status}`, ticket.id);

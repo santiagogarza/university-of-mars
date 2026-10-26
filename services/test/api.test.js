@@ -164,7 +164,7 @@ test('ticket create, patch auth, comments, and duplicate linking', async () => {
   const { api, calls } = app({
     env: {
       INTAKE_WEBHOOK_URL: 'https://intake.example.test/hook',
-      INTAKE_WEBHOOK_HEADERS: JSON.stringify({ 'x-intake-key': 'hook-secret' }),
+      INTAKE_WEBHOOK_HEADERS: JSON.stringify({ 'x-intake-key': 'hook-secret', 'Content-Type': 'application/json' }),
     },
   });
 
@@ -177,8 +177,10 @@ test('ticket create, patch auth, comments, and duplicate linking', async () => {
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, 'https://intake.example.test/hook');
   assert.equal(calls[0].init.headers['x-intake-key'], 'hook-secret');
+  assert.equal(new Headers(calls[0].init.headers).get('content-type'), 'application/json');
   const forwarded = JSON.parse(calls[0].init.body);
   assert.equal(forwarded.event, 'ticket.created');
+  assert.equal(forwarded.id, forwarded.ticket.id);
   assert.equal(forwarded.ticket.id, created.json.id);
   assert.equal(forwarded.ticket.email, 'lucia.mendoza@umars.edu');
 

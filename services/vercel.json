@@ -7,7 +7,17 @@
     }
   },
   "rewrites": [
-    { "source": "/staff/title-ix/new", "destination": "/staff/title-ix/new/index.html" },
-    { "source": "/staff/title-ix", "destination": "/staff/title-ix/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "/api/[...path]"
+    },
+    {
+      "source": "/staff/title-ix/new",
+      "destination": "/staff/title-ix/new/index.html"
+    },
+    {
+      "source": "/staff/title-ix",
+      "destination": "/staff/title-ix/index.html"
+    }
   ]
 }

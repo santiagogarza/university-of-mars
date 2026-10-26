@@ -142,11 +142,12 @@ When `INTAKE_WEBHOOK_URL` is set, the server POSTs the new ticket before it answ
 
 Headers are `content-type: application/json` plus every string value in `INTAKE_WEBHOOK_HEADERS`.
 
-Body, exactly:
+Body, exactly. The top-level `id` is the same as `ticket.id`:
 
 ```json
 {
   "event": "ticket.created",
+  "id": "UMS0123456",
   "ticket": {
     "id": "UMS0123456",
     "category": "housing-repair",

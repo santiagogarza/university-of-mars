@@ -65,11 +65,11 @@ import { u } from '../lib/paths';
         <p class="hint">Days and times you can be there.</p>
         <p class="field-error" id="housing-availability-error" hidden></p>
       </div>
-      <fieldset class="field full choices" aria-required="true">
+      <fieldset class="field full choices">
         <legend>Urgency</legend>
-        <label><input type="radio" name="urgency" value="Low" required /> Low</label>
-        <label><input type="radio" name="urgency" value="Normal" required /> Normal</label>
-        <label><input type="radio" name="urgency" value="Urgent" required /> Urgent — no heat, an active leak, or a door that will not lock</label>
+        <label><input type="radio" name="urgency" value="Low" required aria-required="true" /> Low</label>
+        <label><input type="radio" name="urgency" value="Normal" required aria-required="true" /> Normal</label>
+        <label><input type="radio" name="urgency" value="Urgent" required aria-required="true" /> Urgent — no heat, an active leak, or a door that will not lock</label>
         <p class="field-error" id="housing-urgency-error" hidden></p>
       </fieldset>
     </div>

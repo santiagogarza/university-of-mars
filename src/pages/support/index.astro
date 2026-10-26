@@ -181,11 +181,11 @@ import { u } from '../../lib/paths';
               <p class="hint">PDF, PNG, or JPG. 5 MB or smaller.</p>
               <p class="field-error" id="attachment-error" hidden></p>
             </div>
-            <fieldset class="field full choices" aria-required="true">
+            <fieldset class="field full choices">
               <legend>Priority</legend>
-              <label><input type="radio" name="priority" value="Low" required /> Low</label>
-              <label><input id="priority-normal" type="radio" name="priority" value="Normal" checked required /> Normal</label>
-              <label><input type="radio" name="priority" value="Urgent" required /> Urgent — blocks enrollment, housing safety, or aid this week</label>
+              <label><input type="radio" name="priority" value="Low" required aria-required="true" /> Low</label>
+              <label><input id="priority-normal" type="radio" name="priority" value="Normal" checked required aria-required="true" /> Normal</label>
+              <label><input type="radio" name="priority" value="Urgent" required aria-required="true" /> Urgent — blocks enrollment, housing safety, or aid this week</label>
             </fieldset>
           </div>
           <p class="page-actions">

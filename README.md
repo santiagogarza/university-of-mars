@@ -120,7 +120,7 @@ Open [https://santiagogarza.github.io/university-of-mars/support/?reset=1](https
 
 ## Voice calls
 
-Housing has a **Call Housing Support** button. The Help Center form has **Talk to Student Support**. Each opens an in-browser call. A server route mints a short-lived token; the API key stays on the server. The transcript shows both sides in body-sized type. The form fills one field at a time, highlights the field, and leaves unknown fields empty. The caller can switch to Spanish and back. Replies follow the caller’s language. Saved fields are English. The person presses Submit. Hang up is the only primary action while the call is live. If the microphone is blocked or the call drops, the typed form is still there.
+Housing has a **Call Housing Support** button. The Help Center form has **Talk to Student Support**. Each opens an in-browser call. A server route mints a short-lived token; the API key stays on the server. The transcript shows both sides in body-sized type. The form fills one field at a time, highlights the field, and leaves unknown fields empty. The caller can switch to Spanish and back. Replies follow the caller’s language. Saved fields are English. If the caller speaks a language other than English at any point, the description gains one line, `Caller language: Spanish` (or that language), and that line is not repeated. The person presses Submit. Hang up is the only primary action while the call is live. If the microphone is blocked or the call drops, the typed form is still there.
 
 `PUBLIC_SERVICES_URL` must be set at build time or the buttons explain that calls are not connected and the form still works offline, saved in this browser as before.
 

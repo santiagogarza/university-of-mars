@@ -45,6 +45,7 @@ import { u } from '../../lib/paths';
     <p><a href={u('/housing/')}>Back to housing</a></p>
   </div>
   <script>
+    import { formatCampusWhen } from '../../lib/campus-time';
     import { servicesUrl } from '../../scripts/services-client';
 
     type Order = {
@@ -80,12 +81,9 @@ import { u } from '../../lib/paths';
       }
       for (const order of list) {
         const tr = document.createElement('tr');
-        const when = order.createdAt ? new Date(order.createdAt) : null;
         const values = [
           order.confirmation ?? '',
-          when && !Number.isNaN(when.getTime())
-            ? when.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
-            : '',
+          formatCampusWhen(order.createdAt),
           [order.hall, order.room].filter(Boolean).join(' '),
           [order.category, order.description].filter(Boolean).join(' — '),
           [order.window, order.shop].filter(Boolean).join(' · '),

@@ -1,5 +1,6 @@
 import { clearDemoStorage, loadTickets, publicComments, removeTicket, statusPillClass } from './store';
 import { refreshTickets } from './services-client';
+import { formatCampusWhen } from '../lib/campus-time';
 import { u } from '../lib/paths';
 
 const resetParams = new URLSearchParams(window.location.search);
@@ -35,10 +36,7 @@ if (list && empty) {
       title.textContent = ticket.subject;
 
       const meta = document.createElement('p');
-      const when = new Date(ticket.updatedAt || ticket.createdAt);
-      const date = Number.isNaN(when.getTime())
-        ? ''
-        : when.toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+      const date = formatCampusWhen(ticket.updatedAt || ticket.createdAt);
       meta.textContent = `${ticket.categoryLabel} · ${ticket.subcategory} · ${ticket.priority} · ${date}`;
 
       item.append(header, title, meta);

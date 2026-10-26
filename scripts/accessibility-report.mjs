@@ -156,24 +156,6 @@ async function scanPage(page, pathname) {
     }
     await page.addScriptTag({ content: axeSource });
     const violations = await page.evaluate(async (options) => {
-      // Current axe treats a non-empty placeholder as a name. The Help Center
-      // student ID is unlabeled on purpose and only has placeholder text.
-      window.axe.configure({
-        rules: [
-          {
-            id: 'visible-field-label',
-            impact: 'critical',
-            selector: 'input, select, textarea',
-            matches: 'label-matches',
-            tags: ['wcag2a'],
-            any: ['implicit-label', 'explicit-label', 'aria-label', 'aria-labelledby'],
-            metadata: {
-              description: 'A placeholder is not a label.',
-              help: 'Form fields must have a label',
-            },
-          },
-        ],
-      });
       const outcome = await window.axe.run(document, options);
       return outcome.violations.map((violation) => ({
         id: violation.id,

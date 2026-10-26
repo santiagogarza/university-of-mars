@@ -80,7 +80,7 @@ Fix: change that color to one that meets 4.5:1 on white, such as `#44403c`.
 
 `src/pages/support/index.astro`
 
-The Student ID input (`#student-id`) uses a placeholder only. It has no `<label>`, `aria-label`, or `aria-labelledby`.
+The Student ID input (`#student-id`) shows the words “Student ID” above the field, but that text is not a label. It has no `<label>`, `aria-label`, `aria-labelledby`, `title`, or placeholder.
 
 Fix: add `<label for="student-id">Student ID</label>` (and keep the validation message).
 

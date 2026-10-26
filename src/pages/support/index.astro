@@ -145,14 +145,13 @@ import { u } from '../../lib/paths';
               <p class="field-error" id="subcategory-error" hidden></p>
             </div>
             <div class="field">
-              <span class="req req-unlabeled" aria-hidden="true">*</span>
+              <span class="field-title">Student ID<span class="req" aria-hidden="true"> *</span></span>
               <input
                 id="student-id"
                 name="studentId"
                 type="text"
                 inputmode="numeric"
                 maxlength="9"
-                placeholder="Student ID"
                 autocomplete="off"
                 spellcheck="false"
                 required
@@ -217,3 +216,16 @@ import { u } from '../../lib/paths';
     import '../../scripts/support.ts';
   </script>
 </Base>
+
+<style>
+  .field-title {
+    display: block;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 0.3rem;
+  }
+
+  .field:has(#student-id) input#student-id {
+    padding-right: 0.65rem;
+  }
+</style>

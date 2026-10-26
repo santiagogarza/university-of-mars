@@ -19,6 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ASTRO_TELEMETRY_DISABLED: 1
+      PUBLIC_SERVICES_URL: ${{ vars.PUBLIC_SERVICES_URL }}
+      PUBLIC_STAFF_PASSCODE: ${{ vars.PUBLIC_STAFF_PASSCODE }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

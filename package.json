@@ -12,7 +12,11 @@
     "lint": "astro check",
     "optimize-images": "node scripts/optimize-images.mjs",
     "check-seeds": "node scripts/check-seeds.mjs",
-    "reset-demo": "bash scripts/reset-demo-seeds.sh"
+    "reset-demo": "bash scripts/reset-demo-seeds.sh",
+    "test": "node --test services/test/api.test.js",
+    "services": "node services/src/local.mjs",
+    "make-demo-audio": "node scripts/make-demo-audio.mjs",
+    "record-demo": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@fontsource/newsreader": "^5.2.8",
@@ -21,6 +25,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
+    "playwright-core": "^1.56.1",
     "sharp": "^0.34.4",
     "typescript": "^5.9.3"
   }

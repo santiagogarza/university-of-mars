@@ -1,0 +1,230 @@
+---
+import { u } from '../lib/paths';
+---
+
+<section id="housing-request" class="form-card" aria-labelledby="housing-request-heading">
+  <h2 id="housing-request-heading" tabindex="-1">Request a repair by call or form</h2>
+  <p>
+    Call housing support in this browser, or type the request. The form fills in while you talk. Unknown details stay
+    blank. You can correct any field. Nothing is sent until you press Submit.
+  </p>
+  <p class="page-actions">
+    <button class="btn call-launch" type="button" data-call-launch="housing">Call Housing Support</button>
+  </p>
+  <div id="housing-errors" class="error-summary" tabindex="-1" hidden></div>
+  <form id="housing-form" novalidate>
+    <div class="form-grid">
+      <div class="field">
+        <label for="housing-name">Name</label>
+        <input id="housing-name" name="name" type="text" autocomplete="name" />
+        <p class="field-error" id="housing-name-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="housing-student-id">Student ID</label>
+        <input id="housing-student-id" name="studentId" type="text" inputmode="numeric" maxlength="9" autocomplete="off" spellcheck="false" />
+        <p class="field-error" id="housing-student-id-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="housing-email">UM email</label>
+        <input id="housing-email" name="email" type="email" autocomplete="email" placeholder="name@umars.edu" />
+        <p class="field-error" id="housing-email-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="housing-hall">Residence hall</label>
+        <input id="housing-hall" name="hall" type="text" autocomplete="off" />
+        <p class="hint">Olympus Mons Hall, Isidis Hall, Syrtis Court, or Elysium Hall.</p>
+        <p class="field-error" id="housing-hall-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="housing-room">Room</label>
+        <input id="housing-room" name="room" type="text" autocomplete="off" />
+        <p class="field-error" id="housing-room-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="housing-issue">Issue category</label>
+        <select id="housing-issue" name="issue">
+          <option value="">Select a category</option>
+          <option>Plumbing</option>
+          <option>Electrical</option>
+          <option>Heat or cooling</option>
+          <option>Furniture or fixture</option>
+          <option>Pest</option>
+          <option>Other repair</option>
+        </select>
+        <p class="field-error" id="housing-issue-error" hidden></p>
+      </div>
+      <div class="field full">
+        <label for="housing-description">Description</label>
+        <textarea id="housing-description" name="description" rows="5"></textarea>
+        <p class="field-error" id="housing-description-error" hidden></p>
+      </div>
+      <div class="field full">
+        <label for="housing-availability">Availability</label>
+        <input id="housing-availability" name="availability" type="text" autocomplete="off" />
+        <p class="hint">Days and times you can be there.</p>
+        <p class="field-error" id="housing-availability-error" hidden></p>
+      </div>
+      <fieldset class="field full choices">
+        <legend>Urgency</legend>
+        <label><input type="radio" name="urgency" value="Low" /> Low</label>
+        <label><input type="radio" name="urgency" value="Normal" /> Normal</label>
+        <label><input type="radio" name="urgency" value="Urgent" /> Urgent — no heat, an active leak, or a door that will not lock</label>
+        <p class="field-error" id="housing-urgency-error" hidden></p>
+      </fieldset>
+    </div>
+    <p class="page-actions">
+      <button class="btn" type="submit">Submit request</button>
+    </p>
+  </form>
+  <div class="confirmation" id="housing-confirmation" hidden>
+    <p class="eyebrow">Request received</p>
+    <h2 id="housing-confirm-heading" tabindex="-1">We have your ticket.</h2>
+    <p>Quote this number if you write or call.</p>
+    <p class="ticket-number" id="housing-ticket"></p>
+    <p id="housing-status"></p>
+    <p class="page-actions">
+      <a class="btn" href={u('/support/requests/')}>View my requests</a>
+    </p>
+  </div>
+</section>
+<script>
+  import { statusPillClass } from '../scripts/store';
+  import { submitTicket } from '../scripts/services-client';
+  import { inputField, mountVoiceCall, radioField } from '../scripts/voice-call';
+
+  const launchers = [...document.querySelectorAll<HTMLButtonElement>('[data-call-launch="housing"]')];
+  const form = document.querySelector<HTMLFormElement>('#housing-form');
+  const name = document.querySelector<HTMLInputElement>('#housing-name');
+  const studentId = document.querySelector<HTMLInputElement>('#housing-student-id');
+  const email = document.querySelector<HTMLInputElement>('#housing-email');
+  const hall = document.querySelector<HTMLInputElement>('#housing-hall');
+  const room = document.querySelector<HTMLInputElement>('#housing-room');
+  const issue = document.querySelector<HTMLSelectElement>('#housing-issue');
+  const description = document.querySelector<HTMLTextAreaElement>('#housing-description');
+  const availability = document.querySelector<HTMLInputElement>('#housing-availability');
+  if (form && name && studentId && email && hall && room && issue && description && availability) {
+    mountVoiceCall({
+      mode: 'housing',
+      form,
+      launchers,
+      title: 'Housing support',
+      greeting: 'Housing support, this is the University of Mars. How can I help?',
+      fields: [
+        inputField('name', 'Name', name),
+        inputField('studentId', 'Student ID', studentId),
+        inputField('email', 'UM email', email),
+        inputField('hall', 'Residence hall', hall),
+        inputField('room', 'Room', room),
+        inputField('category', 'Issue category', issue),
+        inputField('description', 'Description', description),
+        inputField('availability', 'Availability', availability),
+        radioField('urgency', 'Urgency', form, 'urgency'),
+      ],
+    });
+
+    const summary = document.querySelector<HTMLElement>('#housing-errors');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const urgency = form.querySelector<HTMLInputElement>('input[name="urgency"]:checked');
+      const subject = [hall.value.trim(), room.value.trim()].filter(Boolean).join(' ');
+      const issueLabel = issue.selectedOptions[0]?.textContent?.trim() || '';
+      const composed = [subject, issueLabel].filter(Boolean).join(': ');
+      const checks: [HTMLElement, string][] = [
+        [name, name.value.trim() ? '' : 'Enter your name.'],
+        [studentId, /^\d{9}$/.test(studentId.value.trim()) ? '' : 'Enter a 9-digit student ID.'],
+        [email, /^[^\s@]+@umars\.edu$/i.test(email.value.trim()) ? '' : 'Enter your UM email ending in @umars.edu.'],
+        [hall, hall.value.trim() ? '' : 'Enter the residence hall.'],
+        [room, room.value.trim() ? '' : 'Enter the room.'],
+        [issue, issue.value ? '' : 'Choose an issue category.'],
+        [description, description.value.trim().length >= 20 ? '' : 'Describe the problem in at least a sentence.'],
+        [availability, availability.value.trim() ? '' : 'Enter when you can be there.'],
+      ];
+      const errors: { id: string; message: string }[] = [];
+      for (const [input, message] of checks) {
+        const box = input.closest('.field');
+        const error = box?.querySelector<HTMLElement>('.field-error');
+        box?.classList.toggle('is-invalid', Boolean(message));
+        if (error) {
+          error.hidden = !message;
+          error.textContent = message;
+        }
+        input.setAttribute('aria-invalid', message ? 'true' : 'false');
+        if (message) errors.push({ id: input.id, message });
+      }
+      const urgencyBox = form.querySelector('input[name="urgency"]')?.closest<HTMLElement>('.field');
+      const urgencyError = document.querySelector<HTMLElement>('#housing-urgency-error');
+      const urgencyMessage = urgency ? '' : 'Choose an urgency.';
+      urgencyBox?.classList.toggle('is-invalid', Boolean(urgencyMessage));
+      if (urgencyError) {
+        urgencyError.hidden = !urgencyMessage;
+        urgencyError.textContent = urgencyMessage;
+      }
+      if (urgencyMessage) errors.push({ id: 'housing-urgency-error', message: urgencyMessage });
+      if (!summary) return;
+      summary.hidden = errors.length === 0;
+      summary.replaceChildren();
+      if (errors.length || composed.length < 4) {
+        if (composed.length < 4 && !errors.some((item) => item.message.startsWith('Enter the residence'))) {
+          errors.push({ id: 'housing-hall', message: 'Enter the hall and room so the subject can be written.' });
+        }
+        const lead = document.createElement('p');
+        lead.textContent = 'Check the highlighted fields and submit the request again.';
+        const list = document.createElement('ul');
+        for (const item of errors) {
+          const li = document.createElement('li');
+          const anchor = document.createElement('a');
+          anchor.href = `#${item.id}`;
+          anchor.textContent = item.message;
+          li.append(anchor);
+          list.append(li);
+        }
+        summary.append(lead, list);
+        summary.hidden = false;
+        summary.focus();
+        return;
+      }
+      try {
+        const ticket = await submitTicket({
+          category: 'housing-repair',
+          subcategory: issue.value,
+          studentId: studentId.value.trim(),
+          email: email.value.trim(),
+          subject: composed,
+          description: description.value.trim(),
+          priority: urgency?.value || 'Normal',
+          name: name.value.trim(),
+          hall: hall.value.trim(),
+          room: room.value.trim(),
+          availability: availability.value.trim(),
+        });
+        const callPanel = document.querySelector<HTMLElement>('.call-panel');
+        if (callPanel?.dataset.callState === 'live' || callPanel?.dataset.callState === 'connecting') {
+          document.querySelector<HTMLButtonElement>('.call-hangup')?.click();
+        }
+        const number = document.querySelector<HTMLElement>('#housing-ticket');
+        const status = document.querySelector<HTMLElement>('#housing-status');
+        if (number) number.textContent = ticket.id;
+        if (status) {
+          status.replaceChildren();
+          const badge = document.createElement('span');
+          badge.className = statusPillClass(ticket.status);
+          badge.textContent = ticket.status;
+          status.append(badge);
+        }
+        form.hidden = true;
+        const confirmation = document.querySelector<HTMLElement>('#housing-confirmation');
+        if (confirmation) {
+          confirmation.hidden = false;
+          confirmation.scrollIntoView({ block: 'start', behavior: 'instant' });
+        }
+        document.querySelector<HTMLElement>('#housing-confirm-heading')?.focus();
+      } catch (error) {
+        summary.hidden = false;
+        const lead = document.createElement('p');
+        lead.textContent = error instanceof Error ? error.message : 'The request could not be sent.';
+        summary.replaceChildren(lead);
+        summary.focus();
+      }
+    });
+  }
+</script>

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import HousingRequest from '../components/HousingRequest.astro';
 import PageHero from '../components/PageHero.astro';
 import Photo from '../components/Photo.astro';
 import { site } from '../data/site';
@@ -17,7 +18,8 @@ import { u } from '../lib/paths';
     crumbs={[{ href: '/housing/', label: 'Housing' }]}
   >
     <p class="page-actions">
-      <a class="btn" href={u('/support/?category=housing-repair#request')}>Request a repair</a>
+      <button class="btn call-launch" type="button" data-call-launch="housing">Call Housing Support</button>
+      <a class="btn btn-ghost" href={u('/support/?category=housing-repair#request')}>Request a repair</a>
     </p>
   </PageHero>
 
@@ -71,9 +73,10 @@ import { u } from '../lib/paths';
     <p>Quiet hours are 10 p.m. to 8 a.m. Sunday through Thursday, and midnight to 8 a.m. Friday and Saturday.</p>
 
     <h2 id="repairs">Maintenance</h2>
+    <HousingRequest />
     <p>
       For a dripping tap, a light, a heater that is uneven, or furniture that failed, submit a housing repair. The form
-      opens with that category already chosen.
+      above calls housing support, or the Help Center form opens with that category already chosen.
     </p>
     <p>
       <a href={u('/support/?category=housing-repair#request')}>Open the repair form</a>
@@ -82,6 +85,7 @@ import { u } from '../lib/paths';
     <p>
       Routine work is scheduled on weekdays. You will get a note at your UM email when the ticket is assigned. See the
       <a href={u('/support/articles/housing-repair/')}>housing repair article</a> for what to include.
+      Booked repairs are listed on the <a href={u('/housing/work-orders/')}>facilities schedule</a>.
     </p>
 
     <h2 id="emergency">Emergency repairs</h2>

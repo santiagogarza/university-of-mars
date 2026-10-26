@@ -1,0 +1,195 @@
+---
+import Base from '../../../layouts/Base.astro';
+import {
+  affiliations,
+  allegations,
+  howReceived,
+  investigators,
+  measures,
+  nextSteps,
+  reporterRoles,
+} from '../../../data/title-ix';
+import { u } from '../../../lib/paths';
+---
+
+<Base
+  title="New case log"
+  description="Staff case log for the Title IX office."
+  robots="noindex, nofollow"
+>
+  <div class="wrap staff-page">
+    <p class="eyebrow">Title IX office</p>
+    <h1>New case log</h1>
+    <p>Initials only. Do not type a full name or a student ID. Leave the case number blank to take the next number.</p>
+    <div id="staff-gate">
+      <form id="staff-gate-form">
+        <div class="field">
+          <label for="staff-passcode">Staff passcode</label>
+          <input id="staff-passcode" name="passcode" type="password" autocomplete="current-password" required />
+          <p id="staff-gate-error" class="field-error" hidden></p>
+        </div>
+        <p class="page-actions"><button class="btn" type="submit">Continue</button></p>
+      </form>
+    </div>
+    <div id="staff-app" hidden>
+      <div id="case-errors" class="error-summary" tabindex="-1" hidden></div>
+      <form id="case-form" class="form-card" novalidate>
+        <div class="field">
+          <label for="caseNumber">1. Case number</label>
+          <input id="caseNumber" name="caseNumber" placeholder="TIX-2026-0042" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="dateReceived">2. Date report received</label>
+          <input id="dateReceived" name="dateReceived" type="date" required />
+        </div>
+        <div class="field">
+          <label for="howReceived">3. How received</label>
+          <select id="howReceived" name="howReceived" required>
+            {howReceived.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="reporterRole">4. Reporter role</label>
+          <select id="reporterRole" name="reporterRole" required>
+            {reporterRoles.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="complainant">5. Complainant (initials only)</label>
+          <input id="complainant" name="complainant" required placeholder="A.R." autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="respondent">6. Respondent (initials or Unknown)</label>
+          <input id="respondent" name="respondent" required placeholder="J.T." autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="respondentAffiliation">7. Respondent affiliation</label>
+          <select id="respondentAffiliation" name="respondentAffiliation" required>
+            {affiliations.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="incidentDate">8. Incident date</label>
+          <input id="incidentDate" name="incidentDate" type="date" required />
+        </div>
+        <div class="field">
+          <label for="incidentLocation">9. Incident location</label>
+          <input id="incidentLocation" name="incidentLocation" required autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="allegationType">10. Allegation type</label>
+          <select id="allegationType" name="allegationType" required>
+            {allegations.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="summary">11. Summary (facts only)</label>
+          <textarea id="summary" name="summary" rows="5" required></textarea>
+        </div>
+        <fieldset class="field choices">
+          <legend>12. Supportive measures offered</legend>
+          {measures.map((value) => (
+            <label><input type="checkbox" name="supportiveMeasures" value={value} /> {value}</label>
+          ))}
+        </fieldset>
+        <div class="field">
+          <label for="outreachDate">13. Outreach sent to complainant</label>
+          <input id="outreachDate" name="outreachDate" type="date" required />
+        </div>
+        <div class="field">
+          <label for="nextStep">14. Next step</label>
+          <select id="nextStep" name="nextStep" required>
+            {nextSteps.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <div class="field">
+          <label for="assignedInvestigator">15. Assigned investigator</label>
+          <select id="assignedInvestigator" name="assignedInvestigator" required>
+            {investigators.map((value) => <option value={value}>{value}</option>)}
+          </select>
+        </div>
+        <p class="page-actions"><button class="btn" type="submit">File case log</button></p>
+      </form>
+      <p><a href={u('/staff/title-ix/')}>Back to the case list</a></p>
+    </div>
+  </div>
+  <script>
+    import { LOCAL_CASES_KEY } from '../../../data/title-ix';
+    import { u } from '../../../lib/paths';
+    import { setupStaffGate, staffFetch, type StaffSession } from '../../../scripts/staff';
+
+    const form = document.querySelector<HTMLFormElement>('#case-form');
+    const summary = document.querySelector<HTMLElement>('#case-errors');
+    let session: StaffSession | null = null;
+
+    function initials(value: string, allowUnknown: boolean) {
+      const text = value.trim();
+      if (allowUnknown && /^unknown$/i.test(text)) return '';
+      if (!text || /\d/.test(text) || /[A-Za-z]{4,}/.test(text) || !/^[A-Za-z.\s]+$/.test(text)) {
+        return 'Use initials only. Do not enter a full name or an ID number.';
+      }
+      return '';
+    }
+
+    setupStaffGate((ready) => {
+      session = ready;
+      document.querySelector<HTMLElement>('#dateReceived')?.focus();
+    });
+
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form || !summary || !session) return;
+      const data = new FormData(form);
+      const body: Record<string, unknown> = {};
+      for (const [key, value] of data.entries()) {
+        if (key === 'supportiveMeasures') {
+          const list = (body[key] as string[] | undefined) ?? [];
+          list.push(String(value));
+          body[key] = list;
+        } else if (String(value).trim()) body[key] = String(value).trim();
+      }
+      const problems = [
+        initials(String(body.complainant ?? ''), false),
+        initials(String(body.respondent ?? ''), true),
+      ].filter(Boolean);
+      if (!Array.isArray(body.supportiveMeasures) || body.supportiveMeasures.length === 0) {
+        problems.push('Choose at least one supportive measure.');
+      }
+      summary.hidden = problems.length === 0;
+      summary.replaceChildren();
+      if (problems.length) {
+        const list = document.createElement('ul');
+        for (const problem of problems) {
+          const item = document.createElement('li');
+          item.textContent = problem;
+          list.append(item);
+        }
+        summary.append(list);
+        summary.focus();
+        return;
+      }
+      if (session.mode === 'local') {
+        const raw = localStorage.getItem(LOCAL_CASES_KEY);
+        const cases = raw ? (JSON.parse(raw) as unknown[]) : [];
+        const number = String(body.caseNumber ?? '') || 'TIX-2026-local';
+        cases.unshift({ ...body, caseNumber: number });
+        localStorage.setItem(LOCAL_CASES_KEY, JSON.stringify(cases));
+        window.location.href = u(`/staff/title-ix/?filed=${encodeURIComponent(number)}`);
+        return;
+      }
+      const response = await staffFetch('/api/title-ix/cases', session.token, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { error?: string; caseNumber?: string };
+      if (!response.ok || !payload.caseNumber) {
+        summary.hidden = false;
+        summary.textContent = payload.error || 'The case was not filed.';
+        summary.focus();
+        return;
+      }
+      window.location.href = u(`/staff/title-ix/?filed=${encodeURIComponent(payload.caseNumber)}`);
+    });
+  </script>
+</Base>

@@ -5,6 +5,9 @@
 # Usage:
 #   npm run reset-demo
 #   npm run reset-demo -- --push
+#
+# When SERVICES_URL and DEMO_BOT_KEY are set, this also POSTs /api/admin/reset.
+# Open /support/?reset=1 to clear ticket keys saved in a browser.
 
 set -euo pipefail
 
@@ -58,18 +61,33 @@ done < seeds/MANIFEST
 
 if git diff --cached --quiet; then
   echo "Seed files already match the baseline. Nothing to commit."
-  exit 0
-fi
-
-git commit -m "$(cat <<'EOF'
+else
+  git commit -m "$(cat <<'EOF'
 Restore demo seed content
 
 Puts the seeded pages and styles back so the workshop issues are present again.
 EOF
 )"
 
-if [[ "$PUSH" -eq 1 ]]; then
-  git push origin main
+  if [[ "$PUSH" -eq 1 ]]; then
+    git push origin main
+  fi
+
+  echo "Demo seed files restored on main."
 fi
 
-echo "Demo seed files restored on main."
+if [[ -n "${SERVICES_URL:-}" && -n "${DEMO_BOT_KEY:-}" ]]; then
+  echo "Restoring services seed data..."
+  curl --fail-with-body --silent --show-error \
+    -X POST "${SERVICES_URL%/}/api/admin/reset" \
+    -H "x-demo-key: ${DEMO_BOT_KEY}" \
+    -H "content-type: application/json" \
+    --data '{}'
+  echo
+  echo "Services seed restored."
+else
+  echo "SERVICES_URL or DEMO_BOT_KEY is not set. Skipped the services reset."
+fi
+
+echo "To clear tickets saved in a browser, open:"
+echo "  https://santiagogarza.github.io/university-of-mars/support/?reset=1"

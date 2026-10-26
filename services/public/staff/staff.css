@@ -1,0 +1,20 @@
+:root {
+  color: #1c1917;
+  background: #fffcf8;
+  font: 17px/1.5 'Source Sans 3', 'Segoe UI', sans-serif;
+}
+body { margin: 0; }
+.wrap { width: min(42rem, calc(100% - 2rem)); margin: 2rem auto 4rem; }
+h1 { color: #4c1822; font-weight: 500; font-size: 2rem; }
+.eyebrow { letter-spacing: 0.14em; text-transform: uppercase; color: #8e3b2e; font-size: 0.75rem; font-weight: 700; }
+label, legend { display: block; font-weight: 700; color: #1b3048; margin-top: 0.9rem; }
+input, select, textarea { width: 100%; box-sizing: border-box; min-height: 2.75rem; padding: 0.45rem 0.6rem; border: 1px solid #c9bba8; font: inherit; background: #fff; }
+textarea { min-height: 8rem; }
+fieldset { border: 0; margin: 0.4rem 0 0; padding: 0; }
+fieldset label { font-weight: 400; display: flex; gap: 0.5rem; align-items: center; }
+fieldset input { width: auto; min-height: 0; }
+button, .actions a { margin-top: 1.1rem; min-height: 2.75rem; padding: 0.55rem 1.1rem; background: #6b2430; color: #fff; border: 2px solid #6b2430; font: inherit; font-weight: 700; }
+a { color: #1b3048; }
+.error { color: #9f1239; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { text-align: left; border-bottom: 1px solid #e4d9cc; padding: 0.45rem; }

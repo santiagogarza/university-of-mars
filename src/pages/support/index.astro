@@ -119,10 +119,11 @@ import { u } from '../../lib/paths';
         </noscript>
         <div id="form-errors" class="error-summary" tabindex="-1" hidden></div>
         <form id="request-form" novalidate>
+          <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
           <div class="form-grid">
             <div class="field">
               <label for="category">Category</label>
-              <select id="category" name="category">
+              <select id="category" name="category" required aria-required="true">
                 <option value="">Select a category</option>
                 <option value="financial-aid">Financial aid</option>
                 <option value="financial-aid-hold">Financial aid hold</option>
@@ -138,12 +139,13 @@ import { u } from '../../lib/paths';
             </div>
             <div class="field">
               <label for="subcategory">Subcategory</label>
-              <select id="subcategory" name="subcategory">
+              <select id="subcategory" name="subcategory" required aria-required="true">
                 <option value="">Select a subcategory</option>
               </select>
               <p class="field-error" id="subcategory-error" hidden></p>
             </div>
             <div class="field">
+              <span class="req req-unlabeled" aria-hidden="true">*</span>
               <input
                 id="student-id"
                 name="studentId"
@@ -153,22 +155,24 @@ import { u } from '../../lib/paths';
                 placeholder="Student ID"
                 autocomplete="off"
                 spellcheck="false"
+                required
+                aria-required="true"
               />
               <p class="field-error" id="student-id-error" hidden></p>
             </div>
             <div class="field">
               <label for="email">UM email</label>
-              <input id="email" name="email" type="email" autocomplete="email" placeholder="name@umars.edu" />
+              <input id="email" name="email" type="email" autocomplete="email" placeholder="name@umars.edu" required aria-required="true" />
               <p class="field-error" id="email-error" hidden></p>
             </div>
             <div class="field full">
               <label for="subject">Subject</label>
-              <input id="subject" name="subject" type="text" autocomplete="off" />
+              <input id="subject" name="subject" type="text" autocomplete="off" required aria-required="true" />
               <p class="field-error" id="subject-error" hidden></p>
             </div>
             <div class="field full">
               <label for="description">Description</label>
-              <textarea id="description" name="description" rows="6"></textarea>
+              <textarea id="description" name="description" rows="6" required aria-required="true"></textarea>
               <p class="field-error" id="description-error" hidden></p>
             </div>
             <div class="field full">
@@ -177,11 +181,11 @@ import { u } from '../../lib/paths';
               <p class="hint">PDF, PNG, or JPG. 5 MB or smaller.</p>
               <p class="field-error" id="attachment-error" hidden></p>
             </div>
-            <fieldset class="field full choices">
+            <fieldset class="field full choices" aria-required="true">
               <legend>Priority</legend>
-              <label><input type="radio" name="priority" value="Low" /> Low</label>
-              <label><input id="priority-normal" type="radio" name="priority" value="Normal" checked /> Normal</label>
-              <label><input type="radio" name="priority" value="Urgent" /> Urgent — blocks enrollment, housing safety, or aid this week</label>
+              <label><input type="radio" name="priority" value="Low" required /> Low</label>
+              <label><input id="priority-normal" type="radio" name="priority" value="Normal" checked required /> Normal</label>
+              <label><input type="radio" name="priority" value="Urgent" required /> Urgent — blocks enrollment, housing safety, or aid this week</label>
             </fieldset>
           </div>
           <p class="page-actions">

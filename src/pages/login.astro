@@ -19,15 +19,16 @@ import { u } from '../lib/paths';
           <a href={u('/support/articles/password/')}>reset the password</a>.
         </p>
       </div>
+      <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
       <div class="form-grid">
         <div class="field full">
           <label for="login-email">UM email</label>
-          <input id="login-email" name="email" type="email" autocomplete="username" />
+          <input id="login-email" name="email" type="email" autocomplete="username" required aria-required="true" />
           <p class="field-error" id="login-email-error" hidden></p>
         </div>
         <div class="field full">
           <label for="login-password">Password</label>
-          <input id="login-password" name="password" type="password" autocomplete="current-password" />
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required aria-required="true" />
           <p class="field-error" id="login-password-error" hidden></p>
         </div>
       </div>

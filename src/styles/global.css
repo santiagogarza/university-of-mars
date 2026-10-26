@@ -20,6 +20,9 @@
   --navy-mid: #24486a;
   --line: #e4d9cc;
   --brass: #a68556;
+  --control-border: #6b6258;
+  --focus-ring: var(--navy);
+  --focus-ring-on-dark: var(--white);
   --serif: 'Newsreader', 'Iowan Old Style', Palatino, 'Palatino Linotype', serif;
   --sans: 'Source Sans 3', 'Segoe UI', Helvetica, Arial, sans-serif;
   --shadow: 0 16px 40px rgba(28, 25, 23, 0.12);
@@ -114,7 +117,7 @@ a:hover {
 }
 
 :focus-visible {
-  outline: 3px solid var(--navy);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -227,13 +230,14 @@ a:hover {
 
 .btn-ghost {
   background: transparent;
-  color: var(--white);
-  border-color: var(--white);
+  color: var(--navy);
+  border-color: var(--navy);
 }
 
 .btn-ghost:hover {
-  background: var(--white);
-  color: var(--oxblood-deep);
+  background: var(--navy);
+  border-color: var(--navy);
+  color: var(--white);
 }
 
 .text-link {
@@ -257,9 +261,10 @@ a:hover {
   color: var(--white);
 }
 
+.hero :focus-visible,
 .utility :focus-visible,
 .site-footer :focus-visible {
-  outline-color: var(--sand);
+  outline-color: var(--focus-ring-on-dark);
 }
 
 .utility-inner {
@@ -769,7 +774,7 @@ a:hover {
 .crumbs li:not(:last-child)::after {
   content: '/';
   margin-left: 0.35rem;
-  color: var(--brass);
+  color: var(--ink-soft);
 }
 
 .crumbs a {
@@ -965,7 +970,7 @@ th {
   width: 100%;
   min-height: 2.75rem;
   padding: 0.5rem 0.65rem;
-  border: 1px solid #c9bba8;
+  border: 1px solid var(--control-border);
   border-radius: 2px;
   background: var(--white);
   color: var(--ink);
@@ -984,9 +989,52 @@ th {
 .field select:focus-visible,
 .field textarea:focus-visible,
 .search-field input:focus-visible {
-  outline: 3px solid var(--navy);
+  outline: 3px solid var(--focus-ring);
   outline-offset: 1px;
   border-color: var(--navy);
+}
+
+.req {
+  color: var(--oxblood);
+  font-weight: 700;
+}
+
+.required-note {
+  margin: 0 0 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.field > label:has(+ :is(input, select, textarea):required)::after,
+.choices > legend:has(~ label input:required)::after {
+  content: ' *';
+  color: var(--oxblood);
+  font-weight: 700;
+}
+
+/* The Help Center student ID stays unlabeled. This marker is not its name. */
+.field:has(#student-id) {
+  position: relative;
+}
+
+.field:has(#student-id) .req-unlabeled {
+  position: absolute;
+  top: 0.78rem;
+  right: 0.7rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.field:has(#student-id) input {
+  padding-right: 1.6rem;
+}
+
+form:not(:has(.required-note)):has(:required)::before {
+  content: '* Required';
+  display: block;
+  margin: 0 0 0.9rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
 }
 
 .hint {
@@ -1245,6 +1293,11 @@ th {
   padding-top: var(--space-md);
   border-top: 1px solid rgba(244, 239, 230, 0.2);
   font-size: 0.92rem;
+}
+
+.footer-statement a {
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
 }
 
 .footer-legal {

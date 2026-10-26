@@ -13,36 +13,37 @@ import { u } from '../lib/paths';
   </p>
   <div id="housing-errors" class="error-summary" tabindex="-1" hidden></div>
   <form id="housing-form" novalidate>
+    <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
     <div class="form-grid">
       <div class="field">
         <label for="housing-name">Name</label>
-        <input id="housing-name" name="name" type="text" autocomplete="name" />
+        <input id="housing-name" name="name" type="text" autocomplete="name" required aria-required="true" />
         <p class="field-error" id="housing-name-error" hidden></p>
       </div>
       <div class="field">
         <label for="housing-student-id">Student ID</label>
-        <input id="housing-student-id" name="studentId" type="text" inputmode="numeric" maxlength="9" autocomplete="off" spellcheck="false" />
+        <input id="housing-student-id" name="studentId" type="text" inputmode="numeric" maxlength="9" autocomplete="off" spellcheck="false" required aria-required="true" />
         <p class="field-error" id="housing-student-id-error" hidden></p>
       </div>
       <div class="field">
         <label for="housing-email">UM email</label>
-        <input id="housing-email" name="email" type="email" autocomplete="email" placeholder="name@umars.edu" />
+        <input id="housing-email" name="email" type="email" autocomplete="email" placeholder="name@umars.edu" required aria-required="true" />
         <p class="field-error" id="housing-email-error" hidden></p>
       </div>
       <div class="field">
         <label for="housing-hall">Residence hall</label>
-        <input id="housing-hall" name="hall" type="text" autocomplete="off" />
+        <input id="housing-hall" name="hall" type="text" autocomplete="off" required aria-required="true" />
         <p class="hint">Olympus Mons Hall, Isidis Hall, Syrtis Court, or Elysium Hall.</p>
         <p class="field-error" id="housing-hall-error" hidden></p>
       </div>
       <div class="field">
         <label for="housing-room">Room</label>
-        <input id="housing-room" name="room" type="text" autocomplete="off" />
+        <input id="housing-room" name="room" type="text" autocomplete="off" required aria-required="true" />
         <p class="field-error" id="housing-room-error" hidden></p>
       </div>
       <div class="field">
         <label for="housing-issue">Issue category</label>
-        <select id="housing-issue" name="issue">
+        <select id="housing-issue" name="issue" required aria-required="true">
           <option value="">Select a category</option>
           <option>Plumbing</option>
           <option>Electrical</option>
@@ -55,20 +56,20 @@ import { u } from '../lib/paths';
       </div>
       <div class="field full">
         <label for="housing-description">Description</label>
-        <textarea id="housing-description" name="description" rows="5"></textarea>
+        <textarea id="housing-description" name="description" rows="5" required aria-required="true"></textarea>
         <p class="field-error" id="housing-description-error" hidden></p>
       </div>
       <div class="field full">
         <label for="housing-availability">Availability</label>
-        <input id="housing-availability" name="availability" type="text" autocomplete="off" />
+        <input id="housing-availability" name="availability" type="text" autocomplete="off" required aria-required="true" />
         <p class="hint">Days and times you can be there.</p>
         <p class="field-error" id="housing-availability-error" hidden></p>
       </div>
-      <fieldset class="field full choices">
+      <fieldset class="field full choices" aria-required="true">
         <legend>Urgency</legend>
-        <label><input type="radio" name="urgency" value="Low" /> Low</label>
-        <label><input type="radio" name="urgency" value="Normal" /> Normal</label>
-        <label><input type="radio" name="urgency" value="Urgent" /> Urgent — no heat, an active leak, or a door that will not lock</label>
+        <label><input type="radio" name="urgency" value="Low" required /> Low</label>
+        <label><input type="radio" name="urgency" value="Normal" required /> Normal</label>
+        <label><input type="radio" name="urgency" value="Urgent" required /> Urgent — no heat, an active leak, or a door that will not lock</label>
         <p class="field-error" id="housing-urgency-error" hidden></p>
       </fieldset>
     </div>

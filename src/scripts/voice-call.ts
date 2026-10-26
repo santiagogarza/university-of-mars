@@ -378,7 +378,12 @@ function sessionConfig(options: MountOptions) {
       'When the required fields are filled, read them back briefly and ask the caller to press Submit. You cannot submit the form.',
       options.mode === 'housing'
         ? 'Halls: Olympus Mons Hall, Isidis Hall, Syrtis Court, Elysium Hall. Issue categories: Plumbing, Electrical, Heat or cooling, Furniture or fixture, Pest, Other repair. Urgency is Low, Normal, or Urgent.'
-        : 'Ask which office the request belongs to before you choose a category. Priority is Low, Normal, or Urgent.',
+        : [
+            'Categories and their subcategories: Financial aid (Award offer, Document status, Scholarship, Disbursement, Work-study); Financial aid hold (Verification, Missing document, Satisfactory academic progress, Other hold); Housing & residential life (Room assignment, Room change, Dining, Roommate); Housing repair (Plumbing, Electrical, Heat or cooling, Furniture or fixture, Pest, Other repair); Registration & records (Add or drop, Transcript, Enrollment verification, Grade); IT & accounts (Password or sign-in, Email, Wi-Fi, Software); Billing (Charge question, Payment, Refund, Payment plan); Accessibility (Accommodation, Exam adjustment, Barrier on campus, Housing accommodation); Something else (General question).',
+            'When the problem the caller describes clearly belongs to one category, for example a leak or a broken heater in their residence hall is Housing repair, set category and the matching subcategory. Only ask which office it belongs to when it is unclear.',
+            'Set subject to a short English summary of the request in the caller\'s own terms, for example "Leak under the bathroom sink in Isidis Hall 214".',
+            'Priority is Low, Normal, or Urgent.',
+          ].join(' '),
     ].join(' '),
     turn_detection: { type: 'server_vad' },
     audio: {

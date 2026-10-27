@@ -303,7 +303,7 @@ export function mountVoiceCall(options: MountOptions) {
       args = {};
     }
     const field = options.fields.find((item) => item.name === args.name);
-    const value = typeof args.value === 'string' ? args.value.trim() : '';
+    const value = typeof args.value === 'string' ? args.value.replace(/\\n/g, '\n').trim() : '';
     if (!field || !value) {
       return { ok: false, error: 'Unknown or empty field.', stillNeeded: missingNames() };
     }
@@ -366,7 +366,7 @@ function sessionConfig(options: MountOptions) {
   return {
     voice: 'eve',
     instructions: [
-      `You are a staff member in ${office} at the University of Mars. Speak in short, warm sentences.`,
+      `You are a staff member in ${office} at the University of Mars. Keep every reply to one or two short, warm sentences. When fields are missing, ask for all of them in one short question, and do not list what you already have.`,
       'Never mention software vendors, models, or that you are automated.',
       'Reply in the language the caller is using right now. If they switch languages, switch with them for those sentences, then follow them back.',
       'Write every form field in English. Translate before you save a field.',
@@ -376,7 +376,7 @@ function sessionConfig(options: MountOptions) {
       'Description is cumulative. Whenever the caller adds a detail about the problem, in any language, call set_field for description again with the full English description so far, keeping every earlier detail.',
       'If the caller speaks any language other than English at any point in the call, the description must end with exactly one line on its own line: Caller language: Spanish, using the English name of the language they spoke. The first time you hear it, call set_field for description with the full English description, a newline, and that one line. If there is no problem text yet, the value is only that line, and the next description update puts the English problem first and keeps the same line at the end. If a line starting with "Caller language:" is already there, do not add another. When they use more than one non-English language, change that same line so it names each language once, separated by commas, for example Caller language: Spanish, French. Never put this note in any other field.',
       `Fields: ${options.fields.map((field) => field.label).join(', ')}.`,
-      'When the required fields are filled, read them back briefly and ask the caller to press Submit. You cannot submit the form.',
+      `When the required fields are filled, do not read them back. In one or two short sentences, say the form is filled in, ask the caller to check it and press Submit${options.mode === 'housing' ? ', and say Housing will email them to confirm the repair time' : ''}. You cannot submit the form.`,
       options.mode === 'housing'
         ? 'Halls: Olympus Mons Hall, Isidis Hall, Syrtis Court, Elysium Hall. Issue categories: Plumbing, Electrical, Heat or cooling, Furniture or fixture, Pest, Other repair. Urgency is Low, Normal, or Urgent.'
         : [
@@ -392,7 +392,7 @@ function sessionConfig(options: MountOptions) {
         format: { type: 'audio/pcm', rate: SAMPLE_RATE },
         transcription: {
           model: 'grok-transcribe',
-          keyterms: ['University of Mars', 'MyUM', 'Jezero', 'Olympus Mons Hall', 'Isidis Hall', 'Syrtis Court', 'Elysium Hall', 'umars.edu'],
+          keyterms: ['University of Mars', 'MyUM', 'Jezero', 'Olympus Mons Hall', 'Isidis Hall', 'Syrtis Court', 'Elysium Hall', 'umars.edu', 'Jordan Rivera', '700123456', 'jordan.rivera@umars.edu'],
         },
       },
       output: { format: { type: 'audio/pcm', rate: SAMPLE_RATE } },

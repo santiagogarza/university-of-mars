@@ -136,7 +136,12 @@ const compact = (room: Room) => room.h < 100;
       const d = door(room);
       const cx = compact(room) ? room.x + room.w * 0.36 : room.x + room.w / 2;
       const cy = room.y + room.h / 2;
-      const pill = compact(room) ? `translate(${room.x + room.w - 44} ${cy})` : `translate(${cx} ${room.y + room.h - 22})`;
+      // Narrow compact rooms have no space beside the number, so their pill sits below the type.
+      const pill = !compact(room)
+        ? `translate(${cx} ${room.y + room.h - 22})`
+        : room.w >= 150
+          ? `translate(${room.x + room.w - 44} ${cy})`
+          : `translate(${room.x + room.w / 2} ${room.y + room.h - 16})`;
       return (
         <g
           class="room"

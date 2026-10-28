@@ -721,6 +721,12 @@ html:has(dialog[open]) {
   stroke-width: 3.5;
 }
 
+/* Must precede the focus and active rules so their outlines still win. */
+.room.is-requested .room-shape {
+  stroke: var(--navy);
+  stroke-width: 4;
+}
+
 .room:focus-visible .room-shape {
   stroke: var(--navy);
   stroke-width: 5;
@@ -769,11 +775,6 @@ html:has(dialog[open]) {
 .room.is-requested .room-requested {
   display: inline;
   animation: badge-in 0.5s var(--ease-out);
-}
-
-.room.is-requested .room-shape {
-  stroke: var(--navy);
-  stroke-width: 4;
 }
 
 .room.is-requested {

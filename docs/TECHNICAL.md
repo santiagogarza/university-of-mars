@@ -8,7 +8,7 @@ Plain-language overview: [SPEC.md](../SPEC.md). This page is the build, content,
 - GitHub Pages deploys from `.github/workflows/pages.yml` on every push to `main`. The published URL is in the README.
 - `.github/workflows/ci.yml` runs lint, the services tests, and `astro build` on every pull request. It does not check seeds. A pull request that fixes S1–S5 stays as the fix; putting the planted text back is not required for a green check.
 - Before a session, run the **Check seeds** workflow (`.github/workflows/check-seeds.yml`, `workflow_dispatch`), which runs `npm run check-seeds`.
-- Dependencies: astro, the Newsreader and Source Sans 3 font packages, sharp, and `@astrojs/check`.
+- Dependencies: astro, the Newsreader and Source Sans 3 font packages, three (the About page globe only), sharp, and `@astrojs/check`.
 - The queue, voice token, work orders, case log, and aid-hold releases live in `services/` and deploy as a separate project. See `services/README.md` and `services/API.md`. No keys are stored in this repository or in the site bundle.
 
 ## Identity
@@ -16,7 +16,15 @@ Plain-language overview: [SPEC.md](../SPEC.md). This page is the build, content,
 - Motto "Lux ultra horizontem", founded 2004, 1 Olympus Way, Jezero. Phones are (628) 555-01xx.
 - Colors: oxblood `#6b2430`, navy `#1b3048`, paper `#fffcf8`, sand, and brass.
 - Type: Newsreader for headings, Source Sans 3 for body text. Content width 1120px.
-- Shared data lives in `src/data/` (`site.ts`, `nav.ts`, `search-index.ts`).
+- Shared data lives in `src/data/` (`site.ts`, `nav.ts`, `search-index.ts`, `campuses.ts`).
+
+## Campus globe
+
+- The **Our campuses** section on About (`src/components/CampusGlobe.astro`) shows the Jezero campus and three fictional field stations on a 3D Mars. `src/scripts/campus-globe.ts` loads the three.js scene (`src/scripts/mars-globe-scene.ts`) only when the section nears the viewport.
+- Drag turns the planet, the wheel zooms, and a pin or a site button flies the camera to it and opens its card. With the globe focused, the arrow keys cycle the sites, plus and minus zoom, Escape closes the card, and Home resets the view.
+- With `prefers-reduced-motion: reduce`, or without WebGL, the section shows a flat map with the same pins and cards. A reduced-motion visitor can still opt in to the globe; it then neither spins nor animates the camera.
+- The textures in `public/textures/` are painted by `node scripts/make-mars-texture.mjs` and committed. Nothing is fetched from another origin.
+- Sol clocks and seasons come from `src/lib/mars-time.ts` (Mars24 formulas), on the campus day of January 11, 2027. Weather is sample data.
 
 ## Pages
 

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
+import CampusGlobe from '../components/CampusGlobe.astro';
 import { site } from '../data/site';
 import { u } from '../lib/paths';
 ---
@@ -17,6 +18,7 @@ import { u } from '../lib/paths';
   >
     <p class="page-actions">
       <a class="btn" href="#contact">Contact the campus</a>
+      <a class="btn btn-ghost" href="#campuses">Explore our campuses</a>
     </p>
   </PageHero>
   <article class="prose wrap">
@@ -38,7 +40,11 @@ import { u } from '../lib/paths';
         </tbody>
       </table>
     </div>
+  </article>
 
+  <CampusGlobe />
+
+  <article class="prose wrap">
     <h2 id="leadership">Leadership</h2>
     <ul>
       <li>Office of the Chancellor</li>

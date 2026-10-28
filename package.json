@@ -21,10 +21,12 @@
   "dependencies": {
     "@fontsource/newsreader": "^5.2.8",
     "@fontsource/source-sans-3": "^5.2.6",
-    "astro": "^5.15.2"
+    "astro": "^5.15.2",
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.5",
+    "@types/three": "^0.170.0",
     "axe-core": "^4.14.0",
     "playwright-core": "^1.56.1",
     "sharp": "^0.34.4",

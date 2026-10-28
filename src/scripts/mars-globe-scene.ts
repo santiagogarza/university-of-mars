@@ -317,8 +317,6 @@ export function createGlobe(options: GlobeOptions): GlobeHandle {
   controls.maxDistance = MAX_DISTANCE;
 
   const jezero = sites.find((site) => site.main) ?? sites[0];
-  camera.position.copy(surface(jezero.lat * 0.6, jezero.lon + 30).multiplyScalar(HOME_DISTANCE));
-  controls.update();
 
   let width = 1;
   let height = 1;
@@ -352,6 +350,12 @@ export function createGlobe(options: GlobeOptions): GlobeHandle {
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host);
   resize();
+
+  /** Portrait stages need the camera further out to keep the planet's width in frame. */
+  const fit = (distance: number) => distance * Math.max(1, 1.15 / camera.aspect);
+
+  camera.position.copy(surface(jezero.lat * 0.6, jezero.lon + 30).multiplyScalar(fit(HOME_DISTANCE)));
+  controls.update();
 
   const tmp = new Vector3();
   const tmp2 = new Vector3();
@@ -566,14 +570,14 @@ export function createGlobe(options: GlobeOptions): GlobeHandle {
       if (!pin) return;
       selected = id;
       globe.updateMatrixWorld();
-      flyTo(headWorld(pin, new Vector3()), FOCUS_DISTANCE);
+      flyTo(headWorld(pin, new Vector3()), fit(FOCUS_DISTANCE));
     },
     release() {
       selected = null;
       markInteraction();
-      zoomTarget = HOME_DISTANCE;
+      zoomTarget = fit(HOME_DISTANCE);
       if (reducedMotion) {
-        camera.position.setLength(HOME_DISTANCE);
+        camera.position.setLength(zoomTarget);
         zoomTarget = null;
       }
     },
@@ -592,7 +596,7 @@ export function createGlobe(options: GlobeOptions): GlobeHandle {
       lastInteraction = performance.now() - IDLE_BEFORE_SPIN_MS + 1500;
       globe.updateMatrixWorld();
       const home = surface(jezero.lat * 0.6, jezero.lon + 30).applyMatrix4(globe.matrixWorld);
-      flyTo(home, HOME_DISTANCE);
+      flyTo(home, fit(HOME_DISTANCE));
     },
     setCardInset(px) {
       inset = Math.max(0, px);

@@ -430,8 +430,55 @@ main:has(.planner) .page-hero > .wrap,
 }
 
 .drag-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding-right: 0.4rem;
   font-size: 0.8rem;
   color: var(--ink-soft);
+  touch-action: none;
+}
+
+.grip {
+  width: 0.6rem;
+  height: 1rem;
+  background: radial-gradient(circle, var(--ink-soft) 1.2px, transparent 1.6px) 0 0 / 0.3rem 0.3rem;
+}
+
+.planner.is-dragging,
+.planner.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.planner.is-dragging .course-card:hover {
+  background: inherit;
+}
+
+.drag-avatar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+  display: grid;
+  gap: 0.05rem;
+  max-width: 17rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 3px;
+  background: var(--c, var(--navy));
+  box-shadow: 0 14px 30px rgba(28, 25, 23, 0.3);
+  color: var(--white);
+  font-size: 0.8rem;
+  line-height: 1.25;
+  pointer-events: none;
+  transform: translate(-100vw, 0);
+  will-change: transform;
+}
+
+.drag-avatar strong {
+  font-size: 0.9rem;
+  letter-spacing: 0.03em;
 }
 
 .catalog-empty {
@@ -926,6 +973,7 @@ main:has(.planner) .page-hero > .wrap,
 .block {
   position: absolute;
   pointer-events: auto;
+  touch-action: none;
   transition:
     top 0.5s var(--ease-move),
     left 0.5s var(--ease-move),

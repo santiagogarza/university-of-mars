@@ -115,7 +115,6 @@ const hours = Array.from({ length: 13 }, (_, index) => 8 + index);
               <li
                 class={`course-card college-${collegeSlug(collegeOf(course.dept))}`}
                 data-code={course.code}
-                draggable="true"
               >
                 <div class="course-top">
                   <span class="course-code">{course.code}</span>
@@ -159,7 +158,7 @@ const hours = Array.from({ length: 13 }, (_, index) => 8 + index);
                     <span class="sr-only">{course.code} {course.title}</span>
                     <span data-add-rest>to plan</span>
                   </button>
-                  <span class="drag-hint" aria-hidden="true">or drag to the calendar</span>
+                  <span class="drag-hint" aria-hidden="true"><span class="grip"></span>or drag to the calendar</span>
                 </div>
               </li>
             ))
@@ -267,7 +266,7 @@ const hours = Array.from({ length: 13 }, (_, index) => 8 + index);
         </div>
         <p class="note week-help">
           On the calendar, press <kbd>Enter</kbd> on a class to change its section, or <kbd>Delete</kbd> to remove it.
-          Drag a class onto a dashed outline to switch sections.
+          Drag a class onto another dashed outline to switch sections. On a touch screen, drag a course by its grip.
         </p>
 
         <h3 class="plan-heading" id="plan-heading" tabindex="-1">Courses in your plan</h3>

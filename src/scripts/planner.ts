@@ -436,7 +436,6 @@ if (root) {
       if (!li) {
         li = document.createElement('li');
         li.className = 'block is-entering';
-        li.draggable = true;
         li.dataset.key = item.key;
         const button = document.createElement('button');
         button.type = 'button';
@@ -571,7 +570,7 @@ if (root) {
     return best;
   }
 
-  function pointToSlot(event: DragEvent): { day: DayCode; minute: number } {
+  function pointToSlot(event: MouseEvent): { day: DayCode; minute: number } {
     const rect = weekGrid.getBoundingClientRect();
     const column = Math.max(0, Math.min(4, Math.floor(((event.clientX - rect.left) / rect.width) * 5)));
     const minute = GRID_START + (event.clientY - rect.top) / PX_PER_MIN;
@@ -948,10 +947,15 @@ if (root) {
 
   // ---------- events ----------
 
-  filtersForm.addEventListener('input', applyFilters);
+  const refilter = () => {
+    applyFilters();
+    courseList.scrollTop = 0;
+  };
+  // Not on change: a search box fires change when it loses focus, which would jump the list mid-click.
+  filtersForm.addEventListener('input', refilter);
   filtersForm.addEventListener('change', applyFilters);
   filtersForm.addEventListener('submit', (event) => event.preventDefault());
-  filtersForm.addEventListener('reset', () => window.setTimeout(applyFilters, 0));
+  filtersForm.addEventListener('reset', () => window.setTimeout(refilter, 0));
 
   courseList.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add]');
@@ -979,66 +983,146 @@ if (root) {
     if (!courseList.contains(event.relatedTarget as Node | null)) showPreview(undefined);
   });
 
-  const startDrag = (event: DragEvent, code: string) => {
-    event.dataTransfer?.setData('text/plain', code);
-    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copyMove';
+  // Pointer events rather than HTML drag and drop, so dragging also works with touch and pen.
+  type DragSession = {
+    code: string;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    active: boolean;
+    over: boolean;
+    avatar: HTMLElement | null;
+  };
+  let drag: DragSession | null = null;
+  let suppressClick = false;
+
+  function beginDrag(event: PointerEvent, code: string) {
+    if (event.button !== 0 || drag) return;
+    drag = {
+      code,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      active: false,
+      over: false,
+      avatar: null,
+    };
+  }
+
+  function activateDrag(session: DragSession) {
+    const course = byCode.get(session.code);
+    if (!course) return;
+    session.active = true;
     dragging = true;
-    preview = { code, target: null };
+    preview = { code: session.code, target: null };
+    window.getSelection()?.removeAllRanges();
+    root!.classList.add('is-dragging');
     week.classList.add('is-drop-ready');
     weekEmpty.hidden = true;
+    const avatar = document.createElement('div');
+    avatar.className = 'drag-avatar';
+    avatar.setAttribute('aria-hidden', 'true');
+    const pick = state.picks.find((item) => item.code === course.code);
+    avatar.style.setProperty('--c', PALETTE[(pick?.color ?? nextColor()) % PALETTE.length]!);
+    const strong = document.createElement('strong');
+    strong.textContent = course.code;
+    const hint = document.createElement('span');
+    hint.textContent = course.title;
+    avatar.append(strong, hint);
+    document.body.append(avatar);
+    session.avatar = avatar;
     renderGhosts();
-  };
-  const endDrag = () => {
-    dragging = false;
-    preview = null;
-    week.classList.remove('is-drop-ready', 'is-over');
-    weekEmpty.hidden = blocks.size > 0;
-    renderGhosts();
-  };
+  }
 
-  courseList.addEventListener('dragstart', (event) => {
-    const code = (event.target as HTMLElement).closest<HTMLElement>('.course-card')?.dataset.code;
-    if (code) startDrag(event, code);
-  });
-  courseList.addEventListener('dragend', endDrag);
-  blockLayer.addEventListener('dragstart', (event) => {
-    const code = (event.target as HTMLElement).closest<HTMLElement>('.block')?.dataset.code;
-    if (code) startDrag(event, code);
-  });
-  blockLayer.addEventListener('dragend', endDrag);
-
-  weekGrid.addEventListener('dragover', (event) => {
-    if (!preview) return;
+  function moveDrag(event: PointerEvent) {
+    if (!drag || event.pointerId !== drag.pointerId) return;
+    if (!drag.active) {
+      if (Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 6) return;
+      activateDrag(drag);
+    }
+    if (!drag.avatar || !preview) return;
     event.preventDefault();
-    if (event.dataTransfer) event.dataTransfer.dropEffect = state.picks.some((p) => p.code === preview!.code) ? 'move' : 'copy';
-    week.classList.add('is-over');
-    const course = byCode.get(preview.code);
-    if (!course) return;
-    const slot = pointToSlot(event);
-    const target = nearestSection(course, slot.day, slot.minute);
+    drag.avatar.style.transform = `translate(${event.clientX + 14}px, ${event.clientY + 10}px)`;
+    const rect = weekGrid.getBoundingClientRect();
+    const over =
+      event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
+    drag.over = over;
+    week.classList.toggle('is-over', over);
+    const course = byCode.get(drag.code)!;
+    const target = over ? nearestSection(course, ...pointToSlotArgs(event)) : null;
+    const hint = drag.avatar.querySelector('span');
+    if (hint) {
+      const section = target ? sectionOf(course, target) : null;
+      hint.textContent = section ? `Section ${section.id} · ${sectionSummary(section)}` : course.title;
+    }
     if (target !== preview.target) {
       preview.target = target;
       renderGhosts();
     }
-  });
-  weekGrid.addEventListener('dragleave', (event) => {
-    if (weekGrid.contains(event.relatedTarget as Node | null)) return;
-    week.classList.remove('is-over');
-    if (preview) {
-      preview.target = null;
-      renderGhosts();
-    }
-  });
-  weekGrid.addEventListener('drop', (event) => {
-    event.preventDefault();
-    const code = event.dataTransfer?.getData('text/plain') || preview?.code;
-    const course = code ? byCode.get(code) : undefined;
-    if (!course) return endDrag();
+  }
+
+  function finishDrag(event: PointerEvent | null) {
+    if (!drag || (event && event.pointerId !== drag.pointerId)) return;
+    const session = drag;
+    drag = null;
+    if (!session.active) return;
+    const target = event && session.over ? preview?.target : null;
+    session.avatar?.remove();
+    dragging = false;
+    preview = null;
+    root!.classList.remove('is-dragging');
+    week.classList.remove('is-drop-ready', 'is-over');
+    weekEmpty.hidden = blocks.size > 0;
+    renderGhosts();
+    suppressClick = true;
+    window.setTimeout(() => {
+      suppressClick = false;
+    }, 0);
+    if (target) addCourse(session.code, target);
+    else if (event) announce('Drop on the calendar to add a course.');
+  }
+
+  function pointToSlotArgs(event: PointerEvent): [DayCode, number] {
     const slot = pointToSlot(event);
-    const target = preview?.target ?? nearestSection(course, slot.day, slot.minute);
-    endDrag();
-    addCourse(course.code, target);
+    return [slot.day, slot.minute];
+  }
+
+  courseList.addEventListener('pointerdown', (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest('button, a, input, select, textarea')) return;
+    const code = target.closest<HTMLElement>('.course-card')?.dataset.code;
+    if (code) beginDrag(event, code);
   });
+  courseList.addEventListener('mousedown', (event) => {
+    if (!(event.target as HTMLElement).closest('button, a, input, select, textarea')) event.preventDefault();
+  });
+  blockLayer.addEventListener('pointerdown', (event) => {
+    const code = (event.target as HTMLElement).closest<HTMLElement>('.block')?.dataset.code;
+    if (code) beginDrag(event, code);
+  });
+  document.addEventListener('pointermove', moveDrag, { passive: false });
+  document.addEventListener('pointerup', finishDrag);
+  document.addEventListener('pointercancel', () => finishDrag(null));
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key === 'Escape' && drag?.active) {
+        event.stopPropagation();
+        finishDrag(null);
+        announce('Drag canceled.');
+      }
+    },
+    true,
+  );
+  document.addEventListener(
+    'click',
+    (event) => {
+      if (!suppressClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+    },
+    true,
+  );
 
   blockLayer.addEventListener('click', (event) => {
     const code = (event.target as HTMLElement).closest<HTMLElement>('.block')?.dataset.code;

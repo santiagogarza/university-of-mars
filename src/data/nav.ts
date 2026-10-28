@@ -17,6 +17,7 @@ export const utilityAudiences: NavLink[] = [
 
 export const utilityTools: NavLink[] = [
   { label: 'MyUM', href: '/login/' },
+  { label: 'Directory', href: '/directory/' },
   { label: 'Search', href: '/search/' },
 ];
 

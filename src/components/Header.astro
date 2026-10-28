@@ -50,54 +50,71 @@ function inSection(href: string): boolean {
         <span class="wordmark-sub">Public research university</span>
       </span>
     </a>
-    <nav class="primary" aria-label="Primary" data-nav>
-      <button
-        class="nav-toggle"
-        type="button"
-        aria-expanded="false"
-        aria-controls="primary-menu"
-        data-nav-toggle
-      >
-        <span class="sr-only">Menu</span>
-        <span class="bars" aria-hidden="true"></span>
-      </button>
-      <ul id="primary-menu" class="menu">
-        {
-          primaryNav.map((item) => (
-            <li data-mega>
-              <button
-                type="button"
-                aria-expanded="false"
-                aria-controls={`mega-${item.id}`}
-                aria-current={inSection(item.href) ? 'true' : undefined}
-              >
-                {item.label}
-              </button>
-              <div class="mega" id={`mega-${item.id}`}>
-                <div class="wrap mega-grid">
-                  <div class="mega-intro">
-                    <p class="mega-kicker">{item.label}</p>
-                    <p>{item.summary}</p>
-                    <a href={u(item.href)}>Overview</a>
-                  </div>
-                  {item.groups.map((group) => (
-                    <div class="mega-group">
-                      <p class="mega-label">{group.title}</p>
-                      <ul>
-                        {group.links.map((link) => (
-                          <li>
-                            <a href={u(link.href)}>{link.label}</a>
-                          </li>
-                        ))}
-                      </ul>
+    <div class="header-end">
+      <nav class="primary" aria-label="Primary" data-nav>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-menu"
+          data-nav-toggle
+        >
+          <span class="sr-only">Menu</span>
+          <span class="bars" aria-hidden="true"></span>
+        </button>
+        <ul id="primary-menu" class="menu">
+          {
+            primaryNav.map((item) => (
+              <li data-mega>
+                <button
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls={`mega-${item.id}`}
+                  aria-current={inSection(item.href) ? 'true' : undefined}
+                >
+                  {item.label}
+                </button>
+                <div class="mega" id={`mega-${item.id}`}>
+                  <div class="wrap mega-grid">
+                    <div class="mega-intro">
+                      <p class="mega-kicker">{item.label}</p>
+                      <p>{item.summary}</p>
+                      <a href={u(item.href)}>Overview</a>
                     </div>
-                  ))}
+                    {item.groups.map((group) => (
+                      <div class="mega-group">
+                        <p class="mega-label">{group.title}</p>
+                        <ul>
+                          {group.links.map((link) => (
+                            <li>
+                              <a href={u(link.href)}>{link.label}</a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <button
+        class="header-search"
+        type="button"
+        aria-haspopup="dialog"
+        aria-controls="cmdk"
+        aria-keyshortcuts="Control+K Meta+K"
+        data-cmdk-open
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+          <circle cx="10.5" cy="10.5" r="6"></circle>
+          <path d="m15 15 5 5"></path>
+        </svg>
+        <span class="header-search-label">Search</span>
+        <kbd class="header-search-kbd" aria-hidden="true" data-cmdk-kbd>Ctrl K</kbd>
+      </button>
+    </div>
   </div>
 </header>

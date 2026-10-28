@@ -1,40 +1,109 @@
 ---
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
+import { quickActions } from '../data/quick-actions';
 import { u } from '../lib/paths';
+
+const types = [
+  { value: 'all', label: 'All' },
+  { value: 'pages', label: 'Pages' },
+  { value: 'help', label: 'Help articles' },
+  { value: 'news', label: 'News' },
+  { value: 'people', label: 'People' },
+  { value: 'actions', label: 'Quick actions' },
+];
+const featured = quickActions.filter((action) => action.featured);
 ---
 
-<Base title="Search" description="Search University of Mars pages and help articles.">
+<Base title="Search" description="Search University of Mars pages, help articles, news, and the campus directory.">
   <PageHero
     eyebrow="Directory"
     title="Search"
-    lede="Look across offices, help articles, and the academic calendar."
+    lede="Look across offices, help articles, news, the campus directory, and the academic calendar."
     crumbs={[{ href: '/search/', label: 'Search' }]}
   />
-  <div class="wrap prose">
+  <div class="wrap prose search-page">
     <form id="site-search" class="portal-search" role="search" action={u('/search/')} method="get">
       <div class="search-field">
         <label for="q">Search the site</label>
-        <input id="q" name="q" type="search" />
+        <input id="q" name="q" type="search" autocomplete="off" aria-describedby="search-tip" />
       </div>
       <button class="btn" type="submit">Search</button>
     </form>
-    <p id="result-count" aria-live="polite"></p>
-    <div id="search-empty" class="empty">
-      <h2>Search pages and help articles</h2>
-      <p>Try a word from the task, such as verification, move-in, transcript, or observatory.</p>
-      <ul>
-        <li><a href={u('/support/')}>Help Center</a></li>
-        <li><a href={u('/financial-aid/')}>Financial aid</a></li>
-        <li><a href={u('/academics/calendar/')}>Academic calendar</a></li>
-      </ul>
+    <p class="hint search-tip" id="search-tip">
+      Results update as you type. On any page, press <kbd data-cmdk-kbd>Ctrl K</kbd> to search without leaving it.
+    </p>
+
+    <div class="search-layout">
+      <aside class="search-filters" aria-label="Filters" data-search-filters hidden>
+        <fieldset class="filter-types">
+          <legend>Type</legend>
+          {
+            types.map((type) => (
+              <label class="filter-chip">
+                <input type="radio" name="type" value={type.value} checked={type.value === 'all'} />
+                <span class="filter-chip-label">{type.label}</span>
+                <span class="filter-count" data-count={type.value} />
+              </label>
+            ))
+          }
+        </fieldset>
+        <div class="field filter-area">
+          <label for="area">Site area</label>
+          <select id="area" name="area">
+            <option value="">All areas</option>
+          </select>
+        </div>
+        <div class="field filter-sort">
+          <label for="sort">Sort by</label>
+          <select id="sort" name="sort">
+            <option value="relevance">Best match</option>
+            <option value="title">Title, A to Z</option>
+          </select>
+        </div>
+        <p><button class="linkish" type="button" data-search-reset hidden>Clear filters</button></p>
+      </aside>
+
+      <div class="search-main">
+        <p id="result-count" class="result-count" aria-live="polite"></p>
+        <div id="search-empty" class="empty search-start">
+          <h2>Search pages, help, news, and people</h2>
+          <p>Try a word from the task, such as verification, move-in, transcript, observatory, or a staff name.</p>
+          <ul class="search-actions">
+            {
+              featured.map((action) => (
+                <li>
+                  <a href={u(action.href)}>
+                    <strong>{action.title}</strong>
+                    <span>{action.description}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+          <div data-search-recent hidden>
+            <h3>Recent searches</h3>
+            <ul class="recent-list" data-search-recent-list></ul>
+          </div>
+        </div>
+        <div id="search-none" class="empty" hidden>
+          <h2>No pages matched “<span data-term></span>”</h2>
+          <p data-none-filtered hidden>
+            Nothing matched with the current filters. <button class="linkish" type="button" data-search-reset>Clear filters</button>
+          </p>
+          <p>Check the spelling, or try one of these help articles:</p>
+          <ul class="results results-compact" data-related></ul>
+          <p class="page-actions">
+            <a class="btn" href={u('/support/#request')}>Ask the Help Center</a>
+            <a class="btn btn-ghost" href={u('/directory/')}>Browse the directory</a>
+          </p>
+        </div>
+        <ol id="results" class="results search-results" hidden></ol>
+        <p class="search-more" data-search-more hidden>
+          <button class="btn btn-ghost" type="button">Show more results</button>
+        </p>
+      </div>
     </div>
-    <div id="search-none" class="empty" hidden>
-      <h2>No pages matched “<span data-term></span>”</h2>
-      <p>Check the spelling, or browse the Help Center topics. The offices are listed in the footer.</p>
-      <p><a class="btn" href={u('/support/')}>Open the Help Center</a></p>
-    </div>
-    <ul id="results" class="results" hidden></ul>
   </div>
   <script>
     import '../scripts/search.ts';

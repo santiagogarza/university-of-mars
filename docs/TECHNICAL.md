@@ -16,13 +16,21 @@ Plain-language overview: [SPEC.md](../SPEC.md). This page is the build, content,
 - Motto "Lux ultra horizontem", founded 2004, 1 Olympus Way, Jezero. Phones are (628) 555-01xx.
 - Colors: oxblood `#6b2430`, navy `#1b3048`, paper `#fffcf8`, sand, and brass.
 - Type: Newsreader for headings, Source Sans 3 for body text. Content width 1120px.
-- Shared data lives in `src/data/` (`site.ts`, `nav.ts`, `search-index.ts`).
+- Shared data lives in `src/data/` (`site.ts`, `nav.ts`, `search-index.ts`, `directory.ts`, `quick-actions.ts`).
 
 ## Pages
 
 - **About the university:** Home, About, Academics and Calendar, Admissions, Financial Aid, Housing, Research, Faculty, Students, Parents, Alumni, Give, and News (3 stories).
 - **Policies:** Accessibility, Privacy, Title IX, Emergency.
-- **Utility:** Search, MyUM login (mock), and 404.
+- **Utility:** Search, Campus directory, MyUM login (mock), and 404.
+
+## Search
+
+- `src/pages/search-index.json.ts` renders every public page with Astro's container API at build time and writes `/search-index.json`: titles, breadcrumbs, summaries, and body text split at each heading. Noindex pages, `/staff/`, `/search/`, and 404 are left out. People and departments come from `src/data/directory.ts`, quick actions from `src/data/quick-actions.ts`, and extra keywords from `src/data/search-index.ts`.
+- `src/lib/search-engine.ts` does the matching (prefix, typo-tolerant, weighted by field) and has no imports, so `scripts/search-engine.test.ts` runs it under `node --test`.
+- The command palette (`src/components/CommandPalette.astro`, `src/scripts/command-palette.ts`) is on every page. Ctrl K or ⌘K, `/`, or the header Search button opens it. It is a modal `<dialog>` with an ARIA combobox and grouped listbox: arrows move, Tab and Shift Tab jump between groups, Enter opens, Escape closes. Recent searches are kept in this browser under `um-recent-searches`.
+- `/search/` uses the same index, with type and site-area filters kept in the URL (`?q=&type=&area=&sort=`).
+- The index is a static file on the same site. Search makes no other requests.
 - **Facilities:** `/housing/work-orders/` lists booked repairs. It is not in the public navigation.
 - **Staff case log:** `/staff/title-ix/new/` and `/staff/title-ix/`. Noindex, not linked from the public navigation, behind a passcode gate. The passcode is a build variable, not real authentication. Writes use a short-lived token from the services project. The bot key never ships in the site.
 

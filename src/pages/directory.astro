@@ -1,0 +1,103 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { departments, people } from '../data/directory';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+
+const groups = departments
+  .map((department) => ({ department, staff: people.filter((person) => person.department === department.id) }))
+  .filter((group) => group.staff.length);
+---
+
+<Base title="Campus directory" description="Offices, colleges, and staff contacts at the University of Mars.">
+  <PageHero
+    eyebrow="Directory"
+    title="Campus directory"
+    lede="Phone numbers, email addresses, and office locations for the offices and people students contact most."
+    crumbs={[{ href: '/directory/', label: 'Campus directory' }]}
+  >
+    <p class="page-actions">
+      <button class="btn" type="button" data-cmdk-open data-cmdk-query="">Search people and offices</button>
+      <a class="btn btn-ghost" href={u('/support/#request')}>Ask the Help Center</a>
+    </p>
+  </PageHero>
+  <div class="wrap prose">
+    <p class="note">
+      For an emergency, call Campus Safety at <a href={site.safetyHref}>{site.safetyPhone}</a>. Office hours are
+      weekdays unless a listing says otherwise.
+    </p>
+
+    <h2 id="offices">Offices and colleges</h2>
+    <ul class="dir-grid">
+      {
+        departments.map((department) => (
+          <li class="dir-card" id={department.id}>
+            <p class="kicker">{department.kind}</p>
+            <h3>{department.name}</h3>
+            <p>{department.summary}</p>
+            <dl class="dir-facts">
+              <div>
+                <dt>Location</dt>
+                <dd>{department.location}</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd>
+                  <a href={department.phoneHref}>{department.phone}</a>
+                </dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>
+                  <a href={`mailto:${department.email}`}>{department.email}</a>
+                </dd>
+              </div>
+              {department.hours && (
+                <div>
+                  <dt>Hours</dt>
+                  <dd>{department.hours}</dd>
+                </div>
+              )}
+            </dl>
+            <p class="dir-link">
+              <a href={u(department.page.href)}>{department.page.label}</a>
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <h2 id="people">People</h2>
+    {
+      groups.map(({ department, staff }) => (
+        <section class="dir-section" aria-labelledby={`people-${department.id}`}>
+          <h3 id={`people-${department.id}`}>{department.name}</h3>
+          <ul class="dir-people">
+            {staff.map((person) => (
+              <li class="dir-person" id={person.id}>
+                <span class="dir-avatar" aria-hidden="true">
+                  {person.name
+                    .replace(/^(Dr|Lt)\.\s+/, '')
+                    .split(/\s+/)
+                    .filter((_, i, parts) => i === 0 || i === parts.length - 1)
+                    .map((part) => part[0])
+                    .join('')}
+                </span>
+                <div>
+                  <p class="dir-name">{person.name}</p>
+                  <p class="dir-title">{person.title}</p>
+                  <p class="dir-focus">{person.focus}</p>
+                  <p class="dir-contact">
+                    {person.office} · <a href={person.phoneHref}>{person.phone}</a> ·{' '}
+                    <a href={`mailto:${person.email}`}>{person.email}</a>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</Base>

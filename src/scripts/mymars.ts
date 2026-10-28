@@ -207,16 +207,19 @@ function setupDrag(): void {
     card.style.transform = '';
     card.classList.remove('is-lifted');
     slot.remove();
-    if (moved && current && motionOk()) {
+    if (!moved) return;
+    if (!commit) {
+      announce(`Move canceled. ${cardTitle(card)} is back at ${positionText(card)}.`);
+      return;
+    }
+    if (current && motionOk()) {
       card.animate([{ transform: current }, { transform: 'none' }], {
         duration: 240,
         easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       });
     }
-    if (moved) {
-      persistOrder();
-      announce(`${cardTitle(card)} moved to ${positionText(card)}.`);
-    }
+    persistOrder();
+    announce(`${cardTitle(card)} moved to ${positionText(card)}.`);
   };
 
   grid.addEventListener('pointerdown', (event) => {

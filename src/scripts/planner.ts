@@ -992,6 +992,7 @@ if (root) {
     active: boolean;
     over: boolean;
     avatar: HTMLElement | null;
+    source: Element | null;
   };
   let drag: DragSession | null = null;
   let suppressClick = false;
@@ -1006,14 +1007,20 @@ if (root) {
       active: false,
       over: false,
       avatar: null,
+      source: event.currentTarget as Element | null,
     };
-    (event.currentTarget as Element | null)?.setPointerCapture(event.pointerId);
   }
 
   function activateDrag(session: DragSession) {
     const course = byCode.get(session.code);
     if (!course) return;
     session.active = true;
+    // Capture only once a drag starts; capturing on pointerdown retargets plain clicks on calendar blocks.
+    try {
+      session.source?.setPointerCapture(session.pointerId);
+    } catch {
+      // The pointer was already released.
+    }
     dragging = true;
     preview = { code: session.code, target: null };
     window.getSelection()?.removeAllRanges();

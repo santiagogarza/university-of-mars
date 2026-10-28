@@ -352,7 +352,8 @@ export function createGlobe(options: GlobeOptions): GlobeHandle {
   resize();
 
   /** Portrait stages need the camera further out to keep the planet's width in frame. */
-  const fit = (distance: number) => distance * Math.max(1, 1.15 / camera.aspect);
+  const fit = (distance: number) =>
+    Math.min(MAX_DISTANCE, distance * Math.max(1, 1.15 / camera.aspect));
 
   camera.position.copy(surface(jezero.lat * 0.6, jezero.lon + 30).multiplyScalar(fit(HOME_DISTANCE)));
   controls.update();

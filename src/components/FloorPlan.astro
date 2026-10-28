@@ -1,0 +1,190 @@
+---
+import { PLAN_HEIGHT, PLAN_WIDTH, TYPE_ABBR } from '../data/rooms';
+import type { Floor, Hall, Room, Space } from '../data/rooms';
+import { STATUS_LABELS, bedsLine, formatRate } from '../lib/room-finder';
+
+interface Props {
+  hall: Hall;
+  floor: Floor;
+  active: boolean;
+}
+
+const { hall, floor, active } = Astro.props;
+const hatchId = `hatch-${floor.id}`;
+const visibility: Record<string, boolean> = active ? {} : { hidden: true };
+const DOOR = 22;
+
+function door(room: Room) {
+  const { x, y, w, h } = room;
+  switch (room.door) {
+    case 's': {
+      const hx = x + w - 8;
+      const hy = y + h;
+      return { gap: `M${hx - DOOR} ${hy} H${hx}`, swing: `M${hx - DOOR} ${hy} A${DOOR} ${DOOR} 0 0 1 ${hx} ${hy - DOOR} V${hy}` };
+    }
+    case 'n': {
+      const hx = x + w - 8;
+      return { gap: `M${hx - DOOR} ${y} H${hx}`, swing: `M${hx - DOOR} ${y} A${DOOR} ${DOOR} 0 0 0 ${hx} ${y + DOOR} V${y}` };
+    }
+    case 'e': {
+      const hx = x + w;
+      const hy = y + h - 8;
+      return { gap: `M${hx} ${hy - DOOR} V${hy}`, swing: `M${hx} ${hy - DOOR} A${DOOR} ${DOOR} 0 0 0 ${hx - DOOR} ${hy} H${hx}` };
+    }
+    default: {
+      const hy = y + h - 8;
+      return { gap: `M${x} ${hy - DOOR} V${hy}`, swing: `M${x} ${hy - DOOR} A${DOOR} ${DOOR} 0 0 1 ${x + DOOR} ${hy} H${x}` };
+    }
+  }
+}
+
+function roomLabel(room: Room): string {
+  const parts = [
+    `Room ${room.number}`,
+    room.type,
+    STATUS_LABELS[room.status],
+    bedsLine(room.beds, room.taken),
+    `${formatRate(room.rate)} per semester`,
+  ];
+  if (room.accessible) parts.push('accessible room');
+  return parts.join(', ');
+}
+
+function stairLines(space: Space): number[] {
+  const horizontal = space.w > space.h;
+  const length = horizontal ? space.w : space.h;
+  const count = Math.max(3, Math.floor(length / 12));
+  return Array.from({ length: count - 1 }, (_, index) => ((index + 1) * length) / count);
+}
+
+const compact = (room: Room) => room.h < 100;
+---
+
+<svg
+  class="plan-svg"
+  viewBox={`0 0 ${PLAN_WIDTH} ${PLAN_HEIGHT}`}
+  data-floor={floor.id}
+  data-hall={hall.id}
+  role="group"
+  aria-label={`${hall.name}, ${floor.label} floor plan`}
+  {...visibility}
+>
+  <defs>
+    <pattern id={hatchId} width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="9" class="hatch-line"></line>
+    </pattern>
+  </defs>
+  <path class="plan-outline-shadow" d={floor.outline}></path>
+  <path class="plan-outline" d={floor.outline}></path>
+  {floor.corridors.map((c) => <rect class="plan-corridor" x={c.x} y={c.y} width={c.w} height={c.h} />)}
+  {
+    floor.spaces.map((space) => (
+      <g class={`plan-space plan-space-${space.kind}`} aria-hidden="true">
+        {space.kind === 'courtyard' ? (
+          <>
+            <rect class="courtyard-ground" x={space.x} y={space.y} width={space.w} height={space.h} rx="18" />
+            <path
+              class="courtyard-lights"
+              d={`M${space.x + 20} ${space.y + 26} Q${space.x + space.w / 4} ${space.y + 58} ${space.x + space.w / 2} ${space.y + 26} T${space.x + space.w - 20} ${space.y + 26}`}
+            />
+            {[0.18, 0.34, 0.66, 0.82].map((f, i) => (
+              <circle class="courtyard-tree" cx={space.x + space.w * f} cy={space.y + space.h * (i % 2 ? 0.62 : 0.72)} r="16" />
+            ))}
+            <text class="plan-space-label" x={space.x + space.w / 2} y={space.y + space.h - 20}>
+              {space.label}
+            </text>
+          </>
+        ) : (
+          <>
+            <rect x={space.x} y={space.y} width={space.w} height={space.h} />
+            {space.kind === 'stairs' &&
+              stairLines(space).map((offset) =>
+                space.w > space.h ? (
+                  <line class="stair-tread" x1={space.x + offset} y1={space.y + 4} x2={space.x + offset} y2={space.y + space.h - 4} />
+                ) : (
+                  <line class="stair-tread" x1={space.x + 4} y1={space.y + offset} x2={space.x + space.w - 4} y2={space.y + offset} />
+                ),
+              )}
+            {space.kind === 'elevator' && (
+              <path
+                class="lift-cross"
+                d={`M${space.x + 8} ${space.y + 8} L${space.x + space.w - 8} ${space.y + space.h - 8} M${space.x + space.w - 8} ${space.y + 8} L${space.x + 8} ${space.y + space.h - 8}`}
+              />
+            )}
+            {space.kind === 'atrium' && (
+              <rect class="atrium-skylight" x={space.x + 14} y={space.y + 14} width={space.w - 28} height={space.h - 28} rx="4" />
+            )}
+            {space.kind !== 'stairs' && space.kind !== 'elevator' && (
+              <text class="plan-space-label" x={space.x + space.w / 2} y={space.y + space.h / 2 + 4}>
+                {space.label}
+              </text>
+            )}
+            {(space.kind === 'stairs' || space.kind === 'elevator') && (
+              <text class="plan-space-label plan-space-chip" x={space.x + space.w / 2} y={space.y + space.h / 2 + 4}>
+                {space.label}
+              </text>
+            )}
+          </>
+        )}
+      </g>
+    ))
+  }
+  {
+    floor.rooms.map((room) => {
+      const d = door(room);
+      const cx = compact(room) ? room.x + room.w * 0.36 : room.x + room.w / 2;
+      const cy = room.y + room.h / 2;
+      // Narrow compact rooms have no space beside the number, so their pill sits below the type.
+      const pill = !compact(room)
+        ? `translate(${cx} ${room.y + room.h - 22})`
+        : room.w >= 150
+          ? `translate(${room.x + room.w - 44} ${cy})`
+          : `translate(${room.x + room.w / 2} ${room.y + room.h - 16})`;
+      return (
+        <g
+          class="room"
+          data-room={room.id}
+          data-status={room.status}
+          tabindex={active ? '0' : '-1'}
+          role="button"
+          aria-label={roomLabel(room)}
+        >
+          <rect class="room-shape" x={room.x + 2} y={room.y + 2} width={room.w - 4} height={room.h - 4} rx="3" />
+          {room.status === 'full' && (
+            <rect class="room-hatch" fill={`url(#${hatchId})`} x={room.x + 2} y={room.y + 2} width={room.w - 4} height={room.h - 4} rx="3" />
+          )}
+          <path class="door-gap" d={d.gap} />
+          <path class="door-swing" d={d.swing} />
+          <text class="room-number" x={cx} y={compact(room) ? cy + 1 : cy - 2}>
+            {room.number}
+          </text>
+          <text class="room-type" x={cx} y={compact(room) ? cy + 17 : cy + 16}>
+            {TYPE_ABBR[room.type]}
+          </text>
+          {room.accessible && (
+            <g class="room-access" transform={`translate(${room.x + 8} ${room.y + 8})`}>
+              <circle cx="9" cy="9" r="9" />
+              <path d="M8.6 4.2a1.3 1.3 0 1 0 0.01 0M8 7v4h3.6l1.6 3.2M8 9.2H11M6.6 9.4a3.4 3.4 0 1 0 4.4 4.3" />
+            </g>
+          )}
+          <g class="room-compare" transform={`translate(${room.x + room.w - 26} ${room.y + 8})`}>
+            <circle cx="9" cy="9" r="9.5" />
+            <text x="9" y="13">
+              1
+            </text>
+          </g>
+          <g class="room-requested" transform={pill}>
+            <rect x="-35" y="-10" width="70" height="20" rx="10" />
+            <text x="0" y="4">
+              Requested
+            </text>
+          </g>
+        </g>
+      );
+    })
+  }
+  <g class="plan-compass" transform={`translate(${PLAN_WIDTH - 40} ${PLAN_HEIGHT - 22})`} aria-hidden="true">
+    <path d="M0 -14 L5 4 L0 0 L-5 4 Z"></path>
+    <text x="0" y="-18">N</text>
+  </g>
+</svg>

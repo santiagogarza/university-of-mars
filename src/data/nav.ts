@@ -82,6 +82,7 @@ export const primaryNav: NavItem[] = [
         links: [
           { label: 'Housing and dining', href: '/housing/' },
           { label: 'Residence halls', href: '/housing/#halls' },
+          { label: 'Room finder', href: '/housing/rooms/' },
           { label: 'Spring move-in', href: '/housing/#move-in' },
         ],
       },

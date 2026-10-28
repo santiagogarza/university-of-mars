@@ -60,6 +60,30 @@ import { u } from '../lib/paths';
       </article>
     </div>
 
+    <article class="card finder-card">
+      <svg class="finder-card-plan" viewBox="0 0 168 104" aria-hidden="true">
+        <rect class="plan-wall" x="3" y="3" width="162" height="98" rx="2"></rect>
+        <rect class="plan-hall" x="8" y="44" width="152" height="16"></rect>
+        <rect class="plan-room is-open" x="8" y="8" width="28" height="36"></rect>
+        <rect class="plan-room is-limited" x="38" y="8" width="28" height="36"></rect>
+        <rect class="plan-room is-open" x="68" y="8" width="28" height="36"></rect>
+        <rect class="plan-room is-full" x="102" y="8" width="28" height="36"></rect>
+        <rect class="plan-room is-open" x="132" y="8" width="28" height="36"></rect>
+        <rect class="plan-room is-full" x="8" y="60" width="28" height="36"></rect>
+        <rect class="plan-room is-open" x="38" y="60" width="28" height="36"></rect>
+        <rect class="plan-room is-limited" x="102" y="60" width="28" height="36"></rect>
+        <rect class="plan-room is-open" x="132" y="60" width="28" height="36"></rect>
+      </svg>
+      <div>
+        <h3>Residence Hall Room Finder</h3>
+        <p>
+          See spring openings on floor plans for all four halls. Filter by room type, rate, and access, and compare up to
+          three rooms side by side.
+        </p>
+        <p class="finder-card-link"><a href={u('/housing/rooms/')}>Open the room finder</a></p>
+      </div>
+    </article>
+
     <h2 id="move-in">Move-in</h2>
     <p>
       Fall move-in was Saturday and Sunday, August 22–23, 2026. Most continuing students keep their keys through winter
@@ -99,3 +123,67 @@ import { u } from '../lib/paths';
     </p>
   </article>
 </Base>
+
+<style>
+  .finder-card {
+    display: grid;
+    grid-template-columns: 10.5rem 1fr;
+    gap: 1.35rem;
+    align-items: center;
+    margin-top: 0.9rem;
+    border-left: 4px solid var(--oxblood);
+  }
+
+  .finder-card p {
+    margin-bottom: 0.5rem;
+  }
+
+  .finder-card-link {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .finder-card-plan {
+    width: 100%;
+    height: auto;
+  }
+
+  .plan-wall {
+    fill: var(--paper);
+    stroke: var(--navy);
+    stroke-width: 3;
+  }
+
+  .plan-hall {
+    fill: #efe7da;
+  }
+
+  .plan-room {
+    stroke-width: 1.5;
+  }
+
+  .plan-room.is-open {
+    fill: #cfe5d6;
+    stroke: #2f6a4c;
+  }
+
+  .plan-room.is-limited {
+    fill: #f4dfa8;
+    stroke: #8a6418;
+  }
+
+  .plan-room.is-full {
+    fill: #e8ddd8;
+    stroke: #8b6f68;
+  }
+
+  @media (max-width: 680px) {
+    .finder-card {
+      grid-template-columns: 1fr;
+    }
+
+    .finder-card-plan {
+      max-width: 12rem;
+    }
+  }
+</style>

@@ -69,6 +69,12 @@ export const searchIndex: SearchItem[] = [
     text: 'Olympus Mons Hall Isidis Syrtis Elysium move-in maintenance call housing support',
   },
   {
+    title: 'Residence Hall Room Finder',
+    href: '/housing/rooms/',
+    group: 'Offices',
+    text: 'room finder floor plans open rooms single double suite apartment accessible quiet floor gender-inclusive compare request',
+  },
+  {
     title: 'Housing work orders',
     href: '/housing/work-orders/',
     group: 'Offices',

@@ -13,13 +13,14 @@
     "optimize-images": "node scripts/optimize-images.mjs",
     "check-seeds": "node scripts/check-seeds.mjs",
     "reset-demo": "bash scripts/reset-demo-seeds.sh",
-    "test": "node --test services/test/api.test.js scripts/campus-time.test.ts",
+    "test": "node --test services/test/api.test.js scripts/campus-time.test.ts scripts/appearance.test.ts",
     "services": "node services/src/local.mjs",
     "make-demo-audio": "node scripts/make-demo-audio.mjs",
     "record-demo": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@fontsource/newsreader": "^5.2.8",
+    "@fontsource/opendyslexic": "^5.3.0",
     "@fontsource/source-sans-3": "^5.2.6",
     "astro": "^5.15.2"
   },

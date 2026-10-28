@@ -1,4 +1,5 @@
 ---
+import AppearanceMenu from './AppearanceMenu.astro';
 import Crest from './Crest.astro';
 import { primaryNav, utilityAudiences, utilityTools } from '../data/nav';
 import { normalizePath, u } from '../lib/paths';
@@ -99,5 +100,32 @@ function inSection(href: string): boolean {
         }
       </ul>
     </nav>
+    <AppearanceMenu />
   </div>
 </header>
+<script is:inline>
+  // Large text or the reading font can make the desktop row too wide for the media query to notice.
+  // When it no longer fits, the header uses the menu-button layout. Runs here to avoid a flash.
+  (function () {
+    var root = document.documentElement;
+    var wide = window.matchMedia('(min-width: 1041px)');
+    function fitHeader() {
+      var inner = document.querySelector('.site-header .header-inner');
+      var brand = inner && inner.querySelector('.brand');
+      var menu = document.getElementById('primary-menu');
+      if (!inner || !brand || !menu) return;
+      if (!wide.matches) {
+        root.removeAttribute('data-header');
+        return;
+      }
+      root.setAttribute('data-header', 'measure');
+      var tools = inner.querySelector('.appearance');
+      var gap = parseFloat(getComputedStyle(inner).columnGap) || 0;
+      var need = brand.scrollWidth + gap + menu.scrollWidth + (tools ? gap + tools.offsetWidth : 0);
+      if (need > inner.clientWidth) root.setAttribute('data-header', 'compact');
+      else root.removeAttribute('data-header');
+    }
+    window.umFitHeader = fitHeader;
+    fitHeader();
+  })();
+</script>

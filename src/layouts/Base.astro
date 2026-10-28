@@ -1,9 +1,17 @@
 ---
 import '../styles/global.css';
 import '../styles/phase2.css';
+import '../styles/appearance.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { u } from '../lib/paths';
+import {
+  APPEARANCE_STORAGE_KEY,
+  DEFAULT_APPEARANCE,
+  TEXT_SCALE_MAX,
+  TEXT_SCALE_MIN,
+  THEME_COLORS,
+} from '../lib/appearance';
 
 interface Props {
   title: string;
@@ -20,10 +28,47 @@ const fullTitle = title === 'University of Mars' ? title : `${title} · Universi
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#6B2430" />
+    <script
+      is:inline
+      define:vars={{
+        storageKey: APPEARANCE_STORAGE_KEY,
+        defaultTheme: DEFAULT_APPEARANCE.theme,
+        scaleMin: TEXT_SCALE_MIN,
+        scaleMax: TEXT_SCALE_MAX,
+        themeColors: THEME_COLORS,
+      }}
+    >
+      // Runs before first paint so a saved dark theme or text size never flashes the defaults.
+      var root = document.documentElement;
+      var saved = {};
+      try {
+        saved = JSON.parse(window.localStorage.getItem(storageKey) || '{}') || {};
+      } catch (error) {
+        saved = {};
+      }
+      var pref = saved.theme === 'light' || saved.theme === 'dark' || saved.theme === 'system' ? saved.theme : defaultTheme;
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = pref === 'dark' || (pref === 'system' && prefersDark) ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      root.setAttribute('data-theme-preference', pref);
+      root.style.colorScheme = theme;
+      var themeMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeMeta) themeMeta.setAttribute('content', themeColors[theme]);
+      var scale = Number(saved.textScale);
+      if (isFinite(scale) && scale >= scaleMin && scale <= scaleMax) {
+        root.style.setProperty('--um-text-scale', String(scale / 100));
+      }
+      if (saved.dyslexicFont === true) root.setAttribute('data-font', 'dyslexic');
+      var reduce =
+        typeof saved.reduceMotion === 'boolean'
+          ? saved.reduceMotion
+          : window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) root.setAttribute('data-motion', 'reduce');
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {robots && <meta name="robots" content={robots} />}
-    <meta name="theme-color" content="#6B2430" />
     <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -38,6 +83,7 @@ const fullTitle = title === 'University of Mars' ? title : `${title} · Universi
     <Footer />
     <script>
       import '../scripts/nav.ts';
+      import '../scripts/appearance.ts';
     </script>
   </body>
 </html>

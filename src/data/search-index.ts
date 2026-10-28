@@ -99,6 +99,12 @@ export const searchIndex: SearchItem[] = [
     text: 'fall 2026 spring semester 2027 finals commencement summer',
   },
   {
+    title: 'Events calendar',
+    href: '/events/',
+    group: 'Campus Life',
+    text: 'events lectures athletics basketball concerts theater arts career fair wellness deadlines january february march 2027',
+  },
+  {
     title: 'Research',
     href: '/research/',
     group: 'Research',

@@ -17,6 +17,7 @@ const pages = [
   '/academics/calendar/',
   '/admissions/',
   '/financial-aid/',
+  '/financial-aid/net-price-calculator/',
   '/housing/',
   '/research/',
   '/faculty/',

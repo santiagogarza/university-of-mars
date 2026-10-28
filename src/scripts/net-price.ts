@@ -384,6 +384,7 @@ function init(root: HTMLElement) {
       button.setAttribute('aria-pressed', String(button.dataset.edit === id));
     });
     editingTag.textContent = `Scenario ${id.toUpperCase()}`;
+    editingTag.dataset.editing = id;
     formCard.dataset.editing = id;
     root.querySelectorAll<HTMLElement>('[data-result]').forEach((card) => {
       card.classList.toggle('is-editing', state.compare && card.dataset.result === id);

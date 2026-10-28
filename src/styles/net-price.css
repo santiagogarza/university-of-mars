@@ -188,7 +188,7 @@
   border-radius: 2px;
 }
 
-.npc-form-card[data-editing='b'] .npc-editing-tag,
+.npc-editing-tag[data-editing='b'],
 [data-result='b'] .npc-scenario-chip {
   background: var(--navy);
 }

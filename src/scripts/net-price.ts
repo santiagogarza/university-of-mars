@@ -449,7 +449,7 @@ function init(root: HTMLElement) {
     }
   }
 
-  const parseMoney = (value: string) => Number(value.replace(/[^\d]/g, '').slice(0, 8)) || 0;
+  const parseMoney = (value: string) => Number(value.split('.')[0].replace(/[^\d]/g, '').slice(0, 8)) || 0;
 
   form.addEventListener('change', (event) => {
     const target = event.target as HTMLInputElement;

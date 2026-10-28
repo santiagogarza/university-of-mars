@@ -63,6 +63,12 @@ export const searchIndex: SearchItem[] = [
     text: 'aid year 2026-27 grants loans scholarships verification holds cost of attendance',
   },
   {
+    title: 'Net Price Calculator',
+    href: '/financial-aid/net-price-calculator/',
+    group: 'Offices',
+    text: 'estimate net price cost of attendance tuition grants scholarships loans work-study compare scenarios',
+  },
+  {
     title: 'Housing and Residential Life',
     href: '/housing/',
     group: 'Offices',

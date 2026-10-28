@@ -66,6 +66,7 @@ export const primaryNav: NavItem[] = [
         links: [
           { label: 'Tuition and fees', href: '/admissions/#tuition' },
           { label: 'Financial aid', href: '/financial-aid/' },
+          { label: 'Net price calculator', href: '/financial-aid/net-price-calculator/' },
           { label: 'Scholarships', href: '/financial-aid/#scholarships' },
         ],
       },

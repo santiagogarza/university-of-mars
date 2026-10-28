@@ -136,7 +136,7 @@ const compact = (room: Room) => room.h < 100;
       const d = door(room);
       const cx = compact(room) ? room.x + room.w * 0.36 : room.x + room.w / 2;
       const cy = room.y + room.h / 2;
-      const pill = compact(room) ? `translate(${room.x + room.w - 40} ${cy})` : `translate(${cx} ${room.y + room.h - 22})`;
+      const pill = compact(room) ? `translate(${room.x + room.w - 44} ${cy})` : `translate(${cx} ${room.y + room.h - 22})`;
       return (
         <g
           class="room"
@@ -171,7 +171,7 @@ const compact = (room: Room) => room.h < 100;
             </text>
           </g>
           <g class="room-requested" transform={pill}>
-            <rect x="-30" y="-9" width="60" height="18" rx="9" />
+            <rect x="-35" y="-10" width="70" height="20" rx="10" />
             <text x="0" y="4">
               Requested
             </text>

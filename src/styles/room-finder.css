@@ -1,5 +1,13 @@
 /* Residence Hall Room Finder (/housing/rooms/). */
 
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
 .finder {
   --available-fill: #cfe5d6;
   --available-stroke: #2f6a4c;
@@ -763,13 +771,34 @@
   animation: badge-in 0.5s var(--ease-out);
 }
 
+.room.is-requested .room-shape {
+  stroke: var(--navy);
+  stroke-width: 4;
+}
+
+.room.is-requested {
+  animation: requested-glow 1.8s ease-out 0.2s 2;
+}
+
+@keyframes requested-glow {
+  0% {
+    filter: drop-shadow(0 0 0 rgba(27, 48, 72, 0.6));
+  }
+  45% {
+    filter: drop-shadow(0 0 12px rgba(27, 48, 72, 0.55));
+  }
+  100% {
+    filter: drop-shadow(0 0 0 rgba(27, 48, 72, 0));
+  }
+}
+
 .room-requested rect {
   fill: var(--navy);
 }
 
 .room-requested text {
   font-family: var(--sans);
-  font-size: 9.5px;
+  font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

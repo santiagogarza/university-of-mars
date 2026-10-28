@@ -104,7 +104,7 @@ export const places: Place[] = [
       'The main library on the north side of the quad. Reading rooms on the first floor, stacks above, and the university archives on the lower level.',
     photo: photos.library,
     hours: [
-      { days: 'Monday to Friday', time: '7 a.m. to midnight' },
+      { days: 'Monday to Friday', time: '8 a.m. to midnight' },
       { days: 'Saturday', time: '10 a.m. to 8 p.m.' },
       { days: 'Sunday', time: 'Noon to midnight' },
     ],

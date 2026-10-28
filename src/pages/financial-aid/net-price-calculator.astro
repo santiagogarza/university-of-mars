@@ -1,0 +1,483 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { site } from '../../data/site';
+import { u } from '../../lib/paths';
+import {
+  AID_YEAR,
+  COST_ITEMS,
+  DEPENDENCY_OPTIONS,
+  FUNDING_ITEMS,
+  GRANT_ITEMS,
+  HOUSING_OPTIONS,
+  LIMITS,
+  RESIDENCY_OPTIONS,
+} from '../../lib/net-price';
+import '../../styles/net-price.css';
+
+const steps = [
+  { id: 'residency', label: 'Residency' },
+  { id: 'housing', label: 'Housing' },
+  { id: 'household', label: 'Household' },
+  { id: 'finances', label: 'Income & assets' },
+  { id: 'review', label: 'Review' },
+];
+
+const icons: Record<string, string> = {
+  mars: '<circle cx="16" cy="16" r="11"/><circle cx="12" cy="13" r="2.2"/><circle cx="19.5" cy="19" r="1.6"/><path d="M8 21c3 1.6 9 2 15-1"/>',
+  earth:
+    '<circle cx="8" cy="20" r="4.5"/><circle cx="24" cy="10" r="5.5"/><path d="M11 15.5c3-4 6-6.5 9.5-7.5"/><path d="m17.5 7.5 3 .5-1 2.9"/>',
+  intl: '<circle cx="16" cy="16" r="11"/><path d="M5 16h22M16 5c3.5 3.2 4.8 7 4.8 11s-1.3 7.8-4.8 11c-3.5-3.2-4.8-7-4.8-11S12.5 8.2 16 5Z"/>',
+  campus: '<path d="M4 27h24M7 27V12l9-6 9 6v15"/><path d="M12 27v-6h8v6M11 15h2M19 15h2"/>',
+  off: '<path d="M4 27h24M6 27V9h11v18M17 14h9v13"/><path d="M9 13h2M12 13h2M9 17h2M12 17h2M9 21h2M12 21h2M20 18h3M20 22h3"/>',
+  family: '<path d="M4 27h24M7 27V15l9-8 9 8v12"/><path d="M13 27v-7h6v7"/><path d="M16 14.6c-1.6-1.8-4-.3-2.8 1.5L16 19l2.8-2.9c1.2-1.8-1.2-3.3-2.8-1.5Z"/>',
+  dependent: '<circle cx="11" cy="9" r="3.5"/><circle cx="22" cy="12" r="2.6"/><path d="M4.5 26c0-5 3-8 6.5-8s6.5 3 6.5 8M17 26c.3-4 2.3-6.5 5-6.5s4.7 2.5 5 6.5"/>',
+  independent: '<circle cx="16" cy="9.5" r="4"/><path d="M8 27c0-5.5 3.5-9 8-9s8 3.5 8 9"/><path d="m21 5 2.5-2.5M24.5 8.5H28"/>',
+};
+
+const ring = 2 * Math.PI * 78;
+---
+
+<Base
+  title="Net Price Calculator"
+  description="Estimate your 2026–27 net price at the University of Mars: cost of attendance, grants and scholarships, loans, work-study, and what your family pays."
+>
+  <PageHero
+    eyebrow={`Student Financial Services · Aid year ${AID_YEAR}`}
+    title="Net Price Calculator"
+    lede="Answer a few questions about where you are coming from, where you will live, and your household. Your estimate updates as you go, and you can compare two plans side by side."
+    crumbs={[
+      { href: '/financial-aid/', label: 'Financial aid' },
+      { href: '/financial-aid/net-price-calculator/', label: 'Net price calculator' },
+    ]}
+  />
+
+  <div class="wrap npc" data-npc>
+    <p class="npc-print-head" aria-hidden="true">
+      <strong>University of Mars · Net price estimate, aid year {AID_YEAR}</strong>
+      <span>Prepared with the Net Price Calculator on <span data-print-date>January 11, 2027</span>.</span>
+      <span data-print-url></span>
+    </p>
+
+    <aside class="npc-notice" aria-labelledby="npc-notice-title">
+      <svg viewBox="0 0 24 24" aria-hidden="true" class="npc-notice-icon">
+        <circle cx="12" cy="12" r="10"></circle><path d="M12 7.5v6M12 16.5v.5"></path>
+      </svg>
+      <div>
+        <p id="npc-notice-title"><strong>This is an estimate, not an aid offer.</strong></p>
+        <p>
+          It uses sample {AID_YEAR} budgets for a full-time, first-year undergraduate. Your real offer comes after you
+          file the FAFSA or the university aid application and your file is reviewed. Nothing you enter here leaves this
+          browser.
+        </p>
+      </div>
+    </aside>
+
+    <div class="npc-toolbar">
+      <div class="npc-switch" role="group" aria-label="Scenario to edit" data-scenario-switch hidden>
+        <span class="npc-switch-label" aria-hidden="true">Editing</span>
+        <button type="button" class="npc-switch-btn" data-edit="a" aria-pressed="true">Scenario A</button>
+        <button type="button" class="npc-switch-btn" data-edit="b" aria-pressed="false">Scenario B</button>
+      </div>
+      <div class="npc-actions">
+        <button type="button" class="btn btn-ghost npc-compare-btn" data-compare-toggle aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="7.5" height="16" rx="1"></rect><rect x="13.5" y="4" width="7.5" height="16" rx="1"></rect></svg>
+          <span data-compare-label>Compare two scenarios</span>
+        </button>
+        <button type="button" class="btn btn-ghost" data-copy-link>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3.6-3.6a4 4 0 0 0-5.7-5.7L12 6.3"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3.6 3.6a4 4 0 0 0 5.7 5.7L12 17.7"></path></svg>
+          Copy link
+        </button>
+        <button type="button" class="btn btn-ghost" data-print>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3"></path><rect x="7" y="14" width="10" height="7"></rect></svg>
+          Print summary
+        </button>
+      </div>
+      <p class="npc-status" role="status" data-status></p>
+    </div>
+
+    <div class="npc-layout" data-layout>
+      <section class="npc-form-card" aria-labelledby="npc-form-title" data-form-card>
+        <h2 id="npc-form-title" class="npc-form-title">
+          Your answers <span class="npc-editing-tag" data-editing-tag hidden>Scenario A</span>
+        </h2>
+
+        <ol class="npc-steps">
+          {
+            steps.map((step, index) => (
+              <li>
+                <button type="button" class="npc-step-btn" data-goto={index + 1}>
+                  <span class="npc-step-dot" aria-hidden="true">
+                    {index + 1}
+                  </span>
+                  <span class="npc-step-name">{step.label}</span>
+                  <span class="sr-only" data-step-state />
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="npc-progress" aria-hidden="true"><span data-progress></span></div>
+
+        <form class="npc-form" data-npc-form novalidate>
+          <fieldset class="npc-step" data-step="1">
+            <legend>
+              <span class="npc-step-count">Step 1 of 5</span>
+              <span class="npc-step-title" tabindex="-1">Where are you coming from?</span>
+            </legend>
+            <p class="hint">Residency sets your tuition rate and which public grants you can receive.</p>
+            <div class="npc-options">
+              {
+                RESIDENCY_OPTIONS.map((option) => (
+                  <label class="npc-option">
+                    <input type="radio" name="residency" value={option.value} />
+                    <span class="npc-option-icon" aria-hidden="true">
+                      <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+                    </span>
+                    <span class="npc-option-text">
+                      <strong>{option.label}</strong>
+                      <span>{option.hint}</span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="npc-step" data-step="2" hidden>
+            <legend>
+              <span class="npc-step-count">Step 2 of 5</span>
+              <span class="npc-step-title" tabindex="-1">Where will you live?</span>
+            </legend>
+            <p class="hint">Housing is the biggest cost after tuition. Living with family lowers the budget.</p>
+            <div class="npc-options">
+              {
+                HOUSING_OPTIONS.map((option) => (
+                  <label class="npc-option">
+                    <input type="radio" name="housing" value={option.value} />
+                    <span class="npc-option-icon" aria-hidden="true">
+                      <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+                    </span>
+                    <span class="npc-option-text">
+                      <strong>{option.label}</strong>
+                      <span>{option.hint}</span>
+                    </span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+
+          <fieldset class="npc-step" data-step="3" hidden>
+            <legend>
+              <span class="npc-step-count">Step 3 of 5</span>
+              <span class="npc-step-title" tabindex="-1">Tell us about your household</span>
+            </legend>
+            <fieldset class="npc-subgroup">
+              <legend>Dependency status</legend>
+              <div class="npc-options npc-options-row">
+                {
+                  DEPENDENCY_OPTIONS.map((option) => (
+                    <label class="npc-option">
+                      <input type="radio" name="dependency" value={option.value} />
+                      <span class="npc-option-icon" aria-hidden="true">
+                        <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+                      </span>
+                      <span class="npc-option-text">
+                        <strong>{option.label}</strong>
+                        <span>{option.hint}</span>
+                      </span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+            <div class="field npc-size-field">
+              <label for="npc-size" data-size-label>People in your parents’ household</label>
+              <div class="npc-stepper">
+                <button type="button" data-size-step="-1" aria-label="One fewer person">−</button>
+                <input
+                  id="npc-size"
+                  name="size"
+                  type="number"
+                  inputmode="numeric"
+                  min={LIMITS.size.min}
+                  max={LIMITS.size.max}
+                  aria-describedby="npc-size-hint"
+                />
+                <button type="button" data-size-step="1" aria-label="One more person">+</button>
+              </div>
+              <p class="hint" id="npc-size-hint" data-size-hint>Count yourself, your parents, and anyone they support.</p>
+            </div>
+          </fieldset>
+
+          <fieldset class="npc-step" data-step="4" hidden>
+            <legend>
+              <span class="npc-step-count">Step 4 of 5</span>
+              <span class="npc-step-title" tabindex="-1">Income and assets</span>
+            </legend>
+            <div class="npc-money">
+              <div class="npc-money-head">
+                <label for="npc-income-range" data-income-label>Parents’ household income</label>
+                <output class="npc-money-value" for="npc-income-range" data-income-out>$0</output>
+              </div>
+              <input
+                class="npc-range"
+                id="npc-income-range"
+                type="range"
+                min={LIMITS.income.min}
+                max={LIMITS.income.max}
+                step={LIMITS.income.step}
+                aria-describedby="npc-income-hint"
+              />
+              <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$150k</span><span>$300k+</span></div>
+              <div class="npc-typed">
+                <label for="npc-income">Or type the amount</label>
+                <span class="npc-typed-input">
+                  <span aria-hidden="true">$</span>
+                  <input id="npc-income" type="text" inputmode="numeric" autocomplete="off" />
+                </span>
+              </div>
+              <p class="hint" id="npc-income-hint">Total yearly income before taxes, from last year’s return.</p>
+            </div>
+
+            <div class="npc-money">
+              <div class="npc-money-head">
+                <label for="npc-assets-range" data-assets-label>Parents’ savings and investments</label>
+                <output class="npc-money-value" for="npc-assets-range" data-assets-out>$0</output>
+              </div>
+              <input
+                class="npc-range"
+                id="npc-assets-range"
+                type="range"
+                min={LIMITS.assets.min}
+                max={LIMITS.assets.max}
+                step={LIMITS.assets.step}
+                aria-describedby="npc-assets-hint"
+              />
+              <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$200k</span><span>$400k+</span></div>
+              <div class="npc-typed">
+                <label for="npc-assets">Or type the amount</label>
+                <span class="npc-typed-input">
+                  <span aria-hidden="true">$</span>
+                  <input id="npc-assets" type="text" inputmode="numeric" autocomplete="off" />
+                </span>
+              </div>
+              <p class="hint" id="npc-assets-hint">
+                Cash, savings, and investments. Leave out retirement accounts and the home you live in.
+              </p>
+            </div>
+          </fieldset>
+
+          <div class="npc-step" data-step="5" hidden>
+            <h3 class="npc-review-title">
+              <span class="npc-step-count">Step 5 of 5</span>
+              <span class="npc-step-title" tabindex="-1">Review your answers</span>
+            </h3>
+            <dl class="npc-review" data-review></dl>
+            <div class="npc-review-actions">
+              <button type="button" class="btn" data-print>Print or save as PDF</button>
+              <button type="button" class="btn btn-ghost" data-copy-link>Copy a link to this estimate</button>
+              <button type="button" class="linkish" data-reset>Start over</button>
+            </div>
+          </div>
+
+          <div class="npc-step-nav">
+            <button type="button" class="btn btn-ghost" data-prev>Back</button>
+            <button type="button" class="btn" data-next>Next</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="npc-results" aria-labelledby="npc-results-title" data-results>
+        <div class="npc-results-head">
+          <h2 id="npc-results-title">Your estimate</h2>
+          <p class="npc-results-year">Aid year {AID_YEAR} · per academic year</p>
+        </div>
+
+        <div class="npc-delta" data-delta hidden>
+          <span class="npc-delta-icon" aria-hidden="true" data-delta-icon></span>
+          <p>
+            <span data-delta-text>Scenario B costs</span>
+            <strong data-delta-value>$0</strong>
+            <span data-delta-tail>less per year than Scenario A.</span>
+            <span class="npc-delta-four">Over four years, about <strong data-delta-four>$0</strong>.</span>
+          </p>
+        </div>
+
+        <div class="npc-result-grid" data-result-grid>
+          {
+            ['a', 'b'].map((id) => (
+              <article
+                class="npc-result"
+                data-result={id}
+                aria-labelledby={`npc-${id}-label`}
+                hidden={id === 'b'}
+              >
+                <header class="npc-result-head">
+                  <p class="npc-result-label" id={`npc-${id}-label`}>
+                    <span class="npc-scenario-chip">Scenario {id.toUpperCase()}</span>
+                    <button type="button" class="linkish npc-edit-link" data-edit={id}>
+                      Edit<span class="sr-only"> scenario {id.toUpperCase()}</span>
+                    </button>
+                  </p>
+                  <p class="npc-result-summary" data-summary />
+                </header>
+
+                <div class="npc-net">
+                  <p class="npc-net-label">Estimated net price</p>
+                  <p class="npc-net-value">
+                    <span data-v="net">$0</span>
+                    <span class="npc-per">per year</span>
+                  </p>
+                  <p class="npc-net-sub">
+                    <span data-v="coa">$0</span> cost of attendance, minus <span data-v="grantTotal">$0</span> in grants
+                    and scholarships.
+                  </p>
+                </div>
+
+                <figure class="npc-chart npc-cost">
+                  <figcaption>
+                    <h3>Cost of attendance</h3>
+                  </figcaption>
+                  <div class="npc-cost-body">
+                    <div class="npc-donut-wrap">
+                      <svg class="npc-donut" viewBox="0 0 200 200" role="img" aria-label="Cost of attendance chart" data-donut>
+                        <circle class="npc-donut-track" cx="100" cy="100" r="78" />
+                        <g transform="rotate(-90 100 100)">
+                          {COST_ITEMS.map((item) => (
+                            <circle
+                              class="npc-seg"
+                              cx="100"
+                              cy="100"
+                              r="78"
+                              stroke={item.color}
+                              stroke-dasharray={`0 ${ring}`}
+                              data-seg={item.key}
+                            />
+                          ))}
+                        </g>
+                      </svg>
+                      <div class="npc-donut-center" aria-hidden="true">
+                        <span data-center-label>Total per year</span>
+                        <strong data-center-value>$0</strong>
+                      </div>
+                    </div>
+                    <ul class="npc-legend">
+                      {COST_ITEMS.map((item) => (
+                        <li data-legend={item.key} tabindex="0">
+                          <span class="npc-swatch" style={`--swatch: ${item.color}`} aria-hidden="true" />
+                          <span class="npc-legend-label">{item.label}</span>
+                          <span class="npc-legend-value" data-v={`cost.${item.key}`}>
+                            $0
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </figure>
+
+                <figure class="npc-chart npc-pay">
+                  <figcaption>
+                    <h3>How the year could be paid</h3>
+                  </figcaption>
+                  <div class="npc-bar" role="img" aria-label="Payment chart" data-bar>
+                    {FUNDING_ITEMS.map((item) => (
+                      <span class="npc-bar-seg" style={`--swatch: ${item.color}`} data-bar-seg={item.key}>
+                        <span data-bar-pct />
+                      </span>
+                    ))}
+                  </div>
+                  <ul class="npc-legend npc-pay-legend">
+                    {FUNDING_ITEMS.map((item) => (
+                      <li data-legend={item.key}>
+                        <span class="npc-swatch" style={`--swatch: ${item.color}`} aria-hidden="true" />
+                        <span class="npc-legend-label">
+                          {item.label}
+                          <small>{item.note}</small>
+                        </span>
+                        <span class="npc-legend-value" data-v={`pay.${item.key}`}>
+                          $0
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </figure>
+
+                <details class="npc-breakdown">
+                  <summary>Grants and scholarships in this estimate</summary>
+                  <ul class="npc-grant-list">
+                    {GRANT_ITEMS.map((item) => (
+                      <li data-grant={item.key}>
+                        <span>
+                          {item.label}
+                          <small>{item.source}</small>
+                        </span>
+                        <span data-v={`grant.${item.key}`}>$0</span>
+                      </li>
+                    ))}
+                    <li class="npc-grant-empty" data-grant-empty hidden>
+                      <span>
+                        No need-based grants at this income and asset level.
+                        <small>Ask about departmental merit awards, named in March.</small>
+                      </span>
+                    </li>
+                  </ul>
+                  <p class="npc-efc">
+                    Estimated family contribution: <strong data-v="contribution">$0</strong>
+                    <span class="hint">What the aid formula expects your household to cover this year.</span>
+                  </p>
+                </details>
+              </article>
+            ))
+          }
+        </div>
+        <p class="sr-only" aria-live="polite" data-announce></p>
+      </section>
+    </div>
+
+    <section class="npc-about" aria-labelledby="npc-about-title">
+      <h2 id="npc-about-title">About this estimate</h2>
+      <div class="npc-about-grid">
+        <div>
+          <h3>What it assumes</h3>
+          <ul>
+            <li>A full-time, first-year undergraduate enrolled for Fall Semester 2026 and Spring Semester 2027.</li>
+            <li>The standard {AID_YEAR} budgets. Mars residents pay the in-state rate; Earth transfers and international students pay the nonresident rate.</li>
+            <li>A simplified need formula. It is close to, but not the same as, the one used for your file.</li>
+            <li>Loans shown are the standard first-year amount. You can accept less, or none.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>What it leaves out</h3>
+          <ul>
+            <li>Departmental merit awards, outside scholarships, and veterans’ benefits.</li>
+            <li>Course and lab fees, health insurance waivers, and summer terms.</li>
+            <li>Changes to tuition, budgets, or award rules after January 2027.</li>
+            <li>Special circumstances such as a recent job loss. Tell the aid office about these.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Next steps</h3>
+          <ul>
+            <li>File the FAFSA or the university aid application. See <a href={u('/financial-aid/#dates')}>key dates</a>.</li>
+            <li>Read about <a href={u('/financial-aid/#scholarships')}>Red Planet Scholars</a>.</li>
+            <li>
+              Questions? Call <a href={site.aidHref}>{site.aidPhone}</a> or write to
+              <a href={`mailto:${site.aidEmail}`}>{site.aidEmail}</a>.
+            </li>
+          </ul>
+        </div>
+      </div>
+      <p class="npc-fine">
+        Estimates are not a promise of aid and do not reserve funds. The University of Mars is a fictional university,
+        and every figure in this calculator is sample data for demonstration. Your answers are kept in this page’s address
+        so you can share or reopen an estimate. They are not sent to the university.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import '../../scripts/net-price.ts';
+</script>

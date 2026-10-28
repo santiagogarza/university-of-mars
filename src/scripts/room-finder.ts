@@ -453,7 +453,8 @@ function renderCompareTable() {
   const list = state.compare.map((id) => byId.get(id)).filter((room): room is Room => Boolean(room));
   const cheapest = best(list, (room) => room.rate, 'min');
   const biggest = best(list, (room) => room.sqft, 'max');
-  const value = best(list, (room) => room.rate / room.sqft, 'min');
+  const perShare = (room: Room) => room.rate / (room.sqft / room.beds);
+  const value = best(list, perShare, 'min');
   const tag = (show: boolean, text: string) => (show ? ` <span class="best-tag">${text}</span>` : '');
   const row = (label: string, cell: (room: Room) => string) =>
     `<tr><th scope="row">${label}</th>${list.map((room) => `<td>${cell(room)}</td>`).join('')}</tr>`;
@@ -475,7 +476,7 @@ function renderCompareTable() {
     row('Room type', (room) => escapeHtml(room.type)),
     row('Rate per semester', (room) => `<strong>${formatRate(room.rate)}</strong>${tag(cheapest.has(room.id), 'Lowest rate')}`),
     row('Square footage', (room) => `${room.sqft} sq ft${tag(biggest.has(room.id), 'Most space')}`),
-    row('Rate per sq ft', (room) => `${perFoot.format(room.rate / room.sqft)}${tag(value.has(room.id), 'Best value')}`),
+    row('Rate per sq ft of your share', (room) => `${perFoot.format(perShare(room))}${tag(value.has(room.id), 'Best value')}`),
     row('Beds', (room) => escapeHtml(bedsLine(room.beds, room.taken))),
     row('Roommates', (room) =>
       room.beds === 1

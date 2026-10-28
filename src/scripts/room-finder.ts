@@ -238,9 +238,13 @@ function closeWithMotion(dialog: HTMLDialogElement, done?: () => void) {
   const once = () => {
     if (finished) return;
     finished = true;
+    dialog.removeEventListener('animationend', onEnd);
     finish();
   };
-  dialog.addEventListener('animationend', once, { once: true });
+  const onEnd = (event: AnimationEvent) => {
+    if (event.target === dialog) once();
+  };
+  dialog.addEventListener('animationend', onEnd);
   window.setTimeout(once, 400);
 }
 
@@ -332,7 +336,14 @@ function closeDrawer() {
     markActive(null);
     const id = state.active;
     state.active = null;
-    if (id) roomEls.get(id)?.focus({ preventScroll: true });
+    const el = id ? roomEls.get(id) : undefined;
+    el?.focus({ preventScroll: true });
+    if (el && id === glowPending) {
+      el.classList.remove('just-requested');
+      void el.getBoundingClientRect();
+      el.classList.add('just-requested');
+    }
+    glowPending = null;
   });
 }
 
@@ -364,9 +375,14 @@ function showConfirmation(room: Room, replaced: Room | null) {
   $<HTMLElement>('#confirm-heading')?.focus({ preventScroll: true });
 }
 
+let glowPending: string | null = null;
+
 function setRequested(id: string | null) {
   state.requested = id;
-  for (const el of roomEls.values()) el.classList.toggle('is-requested', el.dataset.room === id);
+  for (const el of roomEls.values()) {
+    el.classList.toggle('is-requested', el.dataset.room === id);
+    if (el.dataset.room !== id) el.classList.remove('just-requested');
+  }
 }
 
 /* Compare. */
@@ -508,6 +524,7 @@ function requestRoom(room: Room) {
   }
   const previous = state.requested ? (byId.get(state.requested) ?? null) : null;
   setRequested(room.id);
+  glowPending = room.id;
   showConfirmation(room, previous);
   if (compareDialog?.open) renderCompareTable();
 }

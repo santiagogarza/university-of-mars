@@ -777,8 +777,8 @@ html:has(dialog[open]) {
   animation: badge-in 0.5s var(--ease-out);
 }
 
-.room.is-requested {
-  animation: requested-glow 1.8s ease-out 0.2s 2;
+.room.is-requested.just-requested {
+  animation: requested-glow 1.5s ease-out 0.15s 2;
 }
 
 @keyframes requested-glow {

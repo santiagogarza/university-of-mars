@@ -1,0 +1,319 @@
+---
+import Base from '../../layouts/Base.astro';
+import FloorPlan from '../../components/FloorPlan.astro';
+import PageHero from '../../components/PageHero.astro';
+import { halls, rateCeiling, rateFloor, roomFinderAsOf } from '../../data/rooms';
+import { site } from '../../data/site';
+import { ROOM_TYPES, formatRate } from '../../lib/room-finder';
+import { u } from '../../lib/paths';
+import '../../styles/room-finder.css';
+
+const firstHall = halls[0]!;
+const firstFloor = firstHall.floors[0]!;
+const openRooms = (hallIndex: number) =>
+  halls[hallIndex]!.floors.flatMap((floor) => floor.rooms).filter((room) => room.status !== 'full').length;
+const lowestRate = (hallIndex: number) =>
+  Math.min(...halls[hallIndex]!.floors.flatMap((floor) => floor.rooms).map((room) => room.rate));
+---
+
+<Base
+  title="Residence Hall Room Finder"
+  description="Interactive floor plans with Spring Semester 2027 openings in Olympus Mons Hall, Isidis Hall, Syrtis Court, and Elysium Hall."
+>
+  <PageHero
+    eyebrow="Housing &amp; Residential Life"
+    title="Residence Hall Room Finder"
+    lede={`Spring Semester 2027 openings in all four halls, as of ${roomFinderAsOf}. Pick a hall and a floor, narrow the list, and compare up to three rooms side by side.`}
+    crumbs={[
+      { href: '/housing/', label: 'Housing' },
+      { href: '/housing/rooms/', label: 'Room finder' },
+    ]}
+  >
+    <p class="finder-sample-note">
+      <span class="pill">Sample listings</span>
+      Rooms, rates, and residents on this page are examples. Requests here are a preview and are not sent.
+    </p>
+  </PageHero>
+
+  <div class="wrap finder" id="finder" data-rate-ceiling={rateCeiling}>
+    <section class="hall-picker" aria-labelledby="hall-picker-heading">
+      <h2 id="hall-picker-heading" class="sr-only">Choose a residence hall</h2>
+      {
+        halls.map((hall, index) => (
+          <button
+            type="button"
+            class="hall-option"
+            data-hall-option={hall.id}
+            aria-pressed={index === 0 ? 'true' : 'false'}
+          >
+            <span class="hall-option-years">{hall.years}</span>
+            <span class="hall-option-name">{hall.name}</span>
+            <span class="hall-option-blurb">{hall.blurb}</span>
+            <span class="hall-option-stats">
+              <span>
+                <b data-hall-count={hall.id}>{openRooms(index)}</b>
+                <span data-hall-count-label={hall.id}>open rooms</span>
+              </span>
+              <span>from {formatRate(lowestRate(index))}</span>
+            </span>
+          </button>
+        ))
+      }
+    </section>
+
+    <div class="finder-layout">
+      <aside class="finder-filters" aria-labelledby="filters-heading">
+        <form id="room-filters" class="filter-card">
+          <div class="filter-head">
+            <h2 id="filters-heading">Filters</h2>
+            <button type="reset" class="linkish" id="filters-reset">Reset</button>
+          </div>
+          <div class="field">
+            <label for="filter-type">Room type</label>
+            <select id="filter-type" name="type">
+              <option value="any">Any room type</option>
+              {ROOM_TYPES.map((type) => <option value={type}>{type}</option>)}
+            </select>
+          </div>
+          <div class="field filter-range">
+            <label for="filter-rate">Max rate per semester</label>
+            <div class="range-readout">
+              <output id="filter-rate-output" for="filter-rate">{formatRate(rateCeiling)}</output>
+            </div>
+            <input
+              id="filter-rate"
+              name="maxRate"
+              type="range"
+              min={rateFloor}
+              max={rateCeiling}
+              step="20"
+              value={rateCeiling}
+              aria-describedby="filter-rate-hint"
+            />
+            <p class="range-scale" id="filter-rate-hint">
+              <span>{formatRate(rateFloor)}</span>
+              <span>{formatRate(rateCeiling)}</span>
+            </p>
+          </div>
+          <fieldset class="filter-toggles">
+            <legend>Must have</legend>
+            <label class="toggle">
+              <input type="checkbox" name="accessibleOnly" id="filter-accessible" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span class="toggle-text">Accessible rooms only</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="quietFloor" id="filter-quiet" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span class="toggle-text">Quiet floor</span>
+            </label>
+            <label class="toggle">
+              <input type="checkbox" name="genderInclusive" id="filter-gender" />
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span class="toggle-text">Gender-inclusive</span>
+            </label>
+          </fieldset>
+          <p class="hint">Rooms that do not match stay on the plan, dimmed, so you can still see the layout.</p>
+        </form>
+      </aside>
+
+      <section class="finder-plan" aria-labelledby="plan-heading">
+        <div class="plan-head">
+          <div>
+            <p class="eyebrow" id="plan-eyebrow">{firstHall.years}</p>
+            <h2 id="plan-heading">{firstHall.name}</h2>
+          </div>
+          <fieldset class="floor-switch">
+            <legend class="sr-only">Floor</legend>
+            {
+              [1, 2, 3].map((level) => (
+                <label class="floor-option">
+                  <input type="radio" name="floor" value={String(level)} checked={level === 1} />
+                  <span>
+                    Floor {level}
+                    <small data-floor-count={String(level)} />
+                  </span>
+                </label>
+              ))
+            }
+          </fieldset>
+        </div>
+
+        <div class="plan-meta">
+          <p class="floor-tags" id="floor-tags">
+            <span class="floor-note" id="floor-note">{firstFloor.note}</span>
+          </p>
+          <ul class="legend" aria-label="Legend">
+            <li><span class="swatch swatch-available" aria-hidden="true"></span>Available</li>
+            <li><span class="swatch swatch-limited" aria-hidden="true"></span>Limited · one bed left</li>
+            <li><span class="swatch swatch-full" aria-hidden="true"></span>Full</li>
+            <li><span class="swatch-access" aria-hidden="true">
+              <svg viewBox="0 0 18 18"><circle cx="9" cy="9" r="9"></circle><path d="M8.6 4.2a1.3 1.3 0 1 0 0.01 0M8 7v4h3.6l1.6 3.2M8 9.2H11M6.6 9.4a3.4 3.4 0 1 0 4.4 4.3"></path></svg>
+            </span>Accessible</li>
+          </ul>
+        </div>
+
+        <div class="plan-stage" id="plan-stage">
+          {
+            halls.flatMap((hall, hallIndex) =>
+              hall.floors.map((floor, floorIndex) => (
+                <FloorPlan hall={hall} floor={floor} active={hallIndex === 0 && floorIndex === 0} />
+              )),
+            )
+          }
+          <div class="plan-tooltip" id="plan-tooltip" role="presentation" aria-hidden="true">
+            <p class="tip-title"><strong data-tip="number"></strong> <span data-tip="type"></span></p>
+            <p class="tip-status"><span class="status-dot" data-tip="dot"></span><span data-tip="status"></span></p>
+            <p class="tip-facts"><span data-tip="rate"></span> · <span data-tip="sqft"></span></p>
+            <p class="tip-hint">Click for details</p>
+          </div>
+        </div>
+
+        <div class="plan-summary">
+          <p id="plan-summary" role="status" aria-live="polite"></p>
+          <button type="button" class="linkish" id="plan-jump" hidden></button>
+        </div>
+      </section>
+    </div>
+
+    <section class="finder-notes" aria-labelledby="finder-notes-heading">
+      <h2 id="finder-notes-heading">Before you request a room</h2>
+      <div class="finder-notes-grid">
+        <div>
+          <h3>Rates</h3>
+          <p>
+            Rates are per semester for housing only. Meal plans are billed separately. A standard double with a meal plan
+            is budgeted on the <a href={u('/housing/#halls')}>housing page</a>.
+          </p>
+        </div>
+        <div>
+          <h3>Accessible rooms</h3>
+          <p>
+            Housing accommodations go through Accessibility Services first:
+            <a href={site.accessHref}>{site.accessPhone}</a> or
+            <a href={`mailto:${site.accessEmail}`}>{site.accessEmail}</a>.
+          </p>
+        </div>
+        <div>
+          <h3>Real room changes</h3>
+          <p>
+            This finder is a preview. To change rooms this spring, call the housing office at
+            <a href={site.housingHref}>{site.housingPhone}</a> or write to
+            <a href={`mailto:${site.housingEmail}`}>{site.housingEmail}</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <dialog class="room-drawer" id="room-drawer" aria-labelledby="drawer-title">
+    <div class="drawer-inner">
+      <header class="drawer-head">
+        <div>
+          <p class="eyebrow" id="drawer-eyebrow"></p>
+          <h2 id="drawer-title"></h2>
+          <p class="drawer-type" id="drawer-type"></p>
+        </div>
+        <button type="button" class="drawer-close" id="drawer-close" aria-label="Close room details">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+        </button>
+      </header>
+
+      <div class="drawer-body" id="drawer-details">
+        <p class="status-pill" id="drawer-status"></p>
+        <dl class="drawer-stats">
+          <div><dt>Rate per semester</dt><dd id="drawer-rate"></dd></div>
+          <div><dt>Square footage</dt><dd id="drawer-sqft"></dd></div>
+          <div><dt>Beds</dt><dd id="drawer-beds"></dd></div>
+        </dl>
+        <dl class="drawer-facts">
+          <div>
+            <dt>Roommates</dt>
+            <dd id="drawer-roommates"></dd>
+          </div>
+          <div>
+            <dt>Accessibility</dt>
+            <dd id="drawer-access"></dd>
+          </div>
+          <div>
+            <dt>Window view</dt>
+            <dd id="drawer-view"></dd>
+          </div>
+          <div>
+            <dt>Floor</dt>
+            <dd id="drawer-floor"></dd>
+          </div>
+          <div>
+            <dt>In the hall</dt>
+            <dd id="drawer-amenities"></dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="drawer-confirm" id="drawer-confirm" hidden>
+        <div class="confirm-mark" aria-hidden="true">
+          <svg viewBox="0 0 120 120">
+            <circle class="confirm-halo" cx="60" cy="60" r="44"></circle>
+            <circle class="confirm-track" cx="60" cy="60" r="44"></circle>
+            <circle class="confirm-ring" cx="60" cy="60" r="44" pathLength="100"></circle>
+            <path class="confirm-check" d="M41 61.5l13 12.5 26-28" pathLength="100"></path>
+          </svg>
+        </div>
+        <p class="eyebrow confirm-line">Request preview</p>
+        <h3 class="confirm-line" id="confirm-heading" tabindex="-1"></h3>
+        <p class="confirm-line confirm-detail" id="confirm-detail"></p>
+        <p class="confirm-line confirm-ref">Reference <span id="confirm-ref"></span></p>
+        <p class="confirm-line confirm-replaced" id="confirm-replaced" hidden></p>
+        <p class="confirm-line note">
+          Nothing was sent to Housing and no room is held. In a real request, Housing would reply at your UM email within
+          two business days.
+        </p>
+      </div>
+
+      <footer class="drawer-actions" id="drawer-actions">
+        <button type="button" class="btn" id="drawer-request">Request this room</button>
+        <button type="button" class="btn btn-ghost" id="drawer-compare" aria-pressed="false">Add to compare</button>
+        <p class="drawer-action-note" id="drawer-action-note" role="status"></p>
+      </footer>
+      <footer class="drawer-actions" id="confirm-actions" hidden>
+        <button type="button" class="btn btn-navy" id="confirm-done">Back to the floor plan</button>
+        <button type="button" class="linkish" id="confirm-withdraw">Withdraw request</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <section class="compare-tray" id="compare-tray" aria-label="Rooms to compare" data-open="false" inert>
+    <div class="wrap compare-tray-inner">
+      <p class="compare-tray-label">
+        <strong>Compare</strong>
+        <span id="compare-count">0 of 3 rooms</span>
+      </p>
+      <ul class="compare-chips" id="compare-chips"></ul>
+      <div class="compare-tray-actions">
+        <button type="button" class="btn compare-open" id="compare-open" disabled>Compare side by side</button>
+        <button type="button" class="linkish compare-clear" id="compare-clear">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <dialog class="compare-dialog" id="compare-dialog" aria-labelledby="compare-title">
+    <div class="compare-dialog-inner">
+      <header class="compare-dialog-head">
+        <div>
+          <p class="eyebrow">Room finder</p>
+          <h2 id="compare-title">Compare rooms</h2>
+        </div>
+        <button type="button" class="drawer-close" id="compare-close" aria-label="Close comparison">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"></path></svg>
+        </button>
+      </header>
+      <div class="table-scroll">
+        <table class="compare-table" id="compare-table"></table>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import '../../scripts/room-finder.ts';
+  </script>
+</Base>

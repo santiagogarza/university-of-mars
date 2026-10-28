@@ -10,7 +10,6 @@ interface Props {
 }
 
 const { hall, floor, active } = Astro.props;
-const titleId = `plan-title-${floor.id}`;
 const hatchId = `hatch-${floor.id}`;
 const visibility: Record<string, boolean> = active ? {} : { hidden: true };
 const DOOR = 22;
@@ -67,10 +66,9 @@ const compact = (room: Room) => room.h < 100;
   data-floor={floor.id}
   data-hall={hall.id}
   role="group"
-  aria-labelledby={titleId}
+  aria-label={`${hall.name}, ${floor.label} floor plan`}
   {...visibility}
 >
-  <title id={titleId}>{`${hall.name}, ${floor.label} floor plan`}</title>
   <defs>
     <pattern id={hatchId} width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
       <line x1="0" y1="0" x2="0" y2="9" class="hatch-line"></line>

@@ -1,0 +1,169 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { campusEvents, campusLocations, eventCategories } from '../data/events';
+import { formatEventDates, formatMonthYear, formatTimeRange } from '../lib/events';
+import { u } from '../lib/paths';
+import '../styles/events.css';
+
+const months = ['2027-01', '2027-02', '2027-03'].map((month) => ({
+  label: formatMonthYear(`${month}-01`),
+  events: campusEvents
+    .filter((event) => event.date.startsWith(month))
+    .sort((a, b) => `${a.date} ${a.start ?? ''}`.localeCompare(`${b.date} ${b.start ?? ''}`)),
+}));
+const locationName = (id: string) => campusLocations.find((location) => location.id === id)?.name ?? '';
+---
+
+<Base
+  title="Events calendar"
+  description="Lectures, athletics, the arts, career fairs, wellness programs, and deadlines at the University of Mars, January through March 2027."
+>
+  <PageHero
+    eyebrow="Campus Life"
+    title="Events calendar"
+    lede="Lectures, games, performances, career fairs, wellness programs, and deadlines for Spring Semester 2027, January through March."
+    crumbs={[{ href: '/events/', label: 'Events calendar' }]}
+  >
+    <p class="page-actions">
+      <a class="btn btn-ghost" href={u('/academics/calendar/')}>Academic calendar</a>
+    </p>
+  </PageHero>
+
+  <section class="wrap events-app" data-events-app aria-labelledby="ev-range">
+    <div class="ev-toolbar">
+      <div class="ev-nav">
+        <button class="ev-icon-btn" type="button" data-ev-prev aria-label="Previous month">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"></path></svg>
+        </button>
+        <button class="ev-today-btn" type="button" data-ev-today>Today</button>
+        <button class="ev-icon-btn" type="button" data-ev-next aria-label="Next month">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 5.5 6.5 6.5-6.5 6.5"></path></svg>
+        </button>
+        <h2 id="ev-range" class="ev-range">January 2027</h2>
+      </div>
+      <div class="ev-tabs" role="tablist" aria-label="Calendar view" data-ev-tabs>
+        <button type="button" role="tab" id="ev-tab-month" data-view="month" aria-controls="ev-panel" aria-selected="true">Month</button>
+        <button type="button" role="tab" id="ev-tab-week" data-view="week" aria-controls="ev-panel" aria-selected="false" tabindex="-1">Week</button>
+        <button type="button" role="tab" id="ev-tab-agenda" data-view="agenda" aria-controls="ev-panel" aria-selected="false" tabindex="-1">Agenda</button>
+        <button type="button" role="tab" id="ev-tab-mine" data-view="mine" aria-controls="ev-panel" aria-selected="false" tabindex="-1">
+          <svg class="ev-star-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"></path></svg>
+          My events <span class="ev-count" data-ev-saved-count>0</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="ev-filters">
+      <div class="ev-search">
+        <label for="ev-q">Search events</label>
+        <div class="ev-search-box">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5 5"></path></svg>
+          <input id="ev-q" type="search" autocomplete="off" placeholder="Title, place, or topic" aria-describedby="ev-status" />
+        </div>
+      </div>
+      <div class="ev-chips" role="group" aria-labelledby="ev-chips-label">
+        <span id="ev-chips-label" class="ev-chips-label">Categories</span>
+        <button type="button" class="ev-chip-filter is-all" data-cat="all" aria-pressed="true">All</button>
+        {
+          eventCategories.map((category) => (
+            <button type="button" class="ev-chip-filter" data-cat={category.id} aria-pressed="false" style={`--c: ${category.color}`}>
+              <span class="ev-dot" aria-hidden="true"></span>
+              {category.label}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <p id="ev-status" class="ev-status" role="status"></p>
+
+    <div class="ev-stage" data-ev-stage>
+      <div id="ev-panel" role="tabpanel" aria-labelledby="ev-tab-month" class="ev-panel" data-ev-panel>
+        <p class="ev-loading">Loading the calendar…</p>
+      </div>
+      <div class="ev-popover" role="dialog" aria-modal="false" aria-labelledby="ev-popover-title" data-ev-popover hidden>
+        <div class="ev-popover-head">
+          <h3 id="ev-popover-title" data-ev-popover-title></h3>
+          <button class="ev-close" type="button" data-ev-popover-close aria-label="Close day list">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </div>
+        <ul class="ev-popover-list" data-ev-popover-list></ul>
+      </div>
+    </div>
+
+    <noscript>
+      <style is:inline>
+        .ev-loading {
+          display: none;
+        }
+      </style>
+      <div class="ev-noscript">
+        {
+          months.map((month) => (
+            <section>
+              <h3>{month.label}</h3>
+              <ul>
+                {month.events.map((event) => (
+                  <li>
+                    <strong>{event.title}</strong>
+                    <span>
+                      {formatEventDates(event)} · {formatTimeRange(event.start, event.end)} · {locationName(event.location)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </noscript>
+
+    <p class="ev-note">
+      Listings are sample data for the University of Mars demo site. Saved events stay in this browser only.
+    </p>
+  </section>
+
+  <dialog class="ev-modal" aria-labelledby="ev-modal-title" data-ev-modal>
+    <div class="ev-modal-inner">
+      <div class="ev-modal-head">
+        <p class="ev-modal-cat" data-ev-modal-cat></p>
+        <button class="ev-close" type="button" data-ev-modal-close aria-label="Close event details">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
+      </div>
+      <h2 id="ev-modal-title" data-ev-modal-title></h2>
+      <dl class="ev-facts">
+        <div>
+          <dt>When</dt>
+          <dd data-ev-modal-when></dd>
+        </div>
+        <div>
+          <dt>Where</dt>
+          <dd data-ev-modal-where></dd>
+        </div>
+      </dl>
+      <p class="ev-modal-desc" data-ev-modal-desc></p>
+      <figure class="ev-map">
+        <div class="ev-map-canvas" data-ev-map></div>
+        <figcaption data-ev-map-caption></figcaption>
+      </figure>
+      <div class="ev-modal-actions">
+        <button class="btn" type="button" data-ev-ics>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="1.5"></rect><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4M12 12.5v5M9.5 15h5"></path></svg>
+          Add to calendar
+        </button>
+        <button class="btn btn-ghost ev-save" type="button" data-ev-save aria-pressed="false">
+          <svg class="ev-star-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"></path></svg>
+          <span data-ev-save-label>Save</span>
+        </button>
+        <button class="ev-link-btn" type="button" data-ev-copy>Copy link</button>
+        <span class="ev-copy-status" role="status" data-ev-copy-status></span>
+      </div>
+    </div>
+  </dialog>
+
+  <script>
+    import '../scripts/events.ts';
+  </script>
+</Base>

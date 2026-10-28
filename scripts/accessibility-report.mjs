@@ -15,6 +15,7 @@ const pages = [
   '/about/',
   '/academics/',
   '/academics/calendar/',
+  '/events/',
   '/admissions/',
   '/financial-aid/',
   '/housing/',

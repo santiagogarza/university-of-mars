@@ -54,6 +54,7 @@ function init(root: HTMLElement) {
   let mode: Mode = 'pending';
   let globe: GlobeHandle | null = null;
   let active: string | null = null;
+  let lastActive: string | null = null;
 
   root.classList.add('is-enhanced');
   for (const card of cards.values()) card.hidden = true;
@@ -156,6 +157,7 @@ function init(root: HTMLElement) {
     const campus = byId.get(id);
     if (!campus) return;
     active = id;
+    lastActive = id;
     cardsBox.hidden = false;
     for (const [key, card] of cards) card.hidden = key !== id;
     for (const el of selectors) {
@@ -186,7 +188,8 @@ function init(root: HTMLElement) {
   }
 
   function cycle(step: number) {
-    const current = active ? order.indexOf(active) : step > 0 ? -1 : 0;
+    const from = active ?? lastActive;
+    const current = from ? order.indexOf(from) : step > 0 ? -1 : 0;
     const next = order[(current + step + order.length) % order.length];
     select(next, { focusPin: true });
   }

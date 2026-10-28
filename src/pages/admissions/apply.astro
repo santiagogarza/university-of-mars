@@ -110,6 +110,7 @@ const searchText = (program: (typeof programs)[number]) =>
                         data-bind="about.applicantType"
                         disabled={!type.open}
                         required
+                        aria-required="true"
                       />
                       <span>
                         <strong>{type.label}</strong>
@@ -124,12 +125,12 @@ const searchText = (program: (typeof programs)[number]) =>
               <div class="form-grid">
                 <div class="field">
                   <label for="first-name">Legal first name</label>
-                  <input id="first-name" type="text" autocomplete="given-name" data-bind="about.firstName" required />
+                  <input id="first-name" type="text" autocomplete="given-name" data-bind="about.firstName" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
                   <label for="last-name">Legal last name</label>
-                  <input id="last-name" type="text" autocomplete="family-name" data-bind="about.lastName" required />
+                  <input id="last-name" type="text" autocomplete="family-name" data-bind="about.lastName" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
@@ -148,12 +149,12 @@ const searchText = (program: (typeof programs)[number]) =>
                 </div>
                 <div class="field">
                   <label for="birth-date">Date of birth</label>
-                  <input id="birth-date" type="date" autocomplete="bday" data-bind="about.birthDate" required max={applyDates.campusTodayIso} />
+                  <input id="birth-date" type="date" autocomplete="bday" data-bind="about.birthDate" required aria-required="true" max={applyDates.campusTodayIso} />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
                   <label for="citizenship">Citizenship status</label>
-                  <select id="citizenship" data-bind="about.citizenship" required>
+                  <select id="citizenship" data-bind="about.citizenship" required aria-required="true">
                     <option value="">Select a status</option>
                     <option>Citizen</option>
                     <option>Permanent resident</option>
@@ -179,22 +180,22 @@ const searchText = (program: (typeof programs)[number]) =>
               <div class="form-grid">
                 <div class="field">
                   <label for="email">Email</label>
-                  <input id="email" type="email" autocomplete="email" placeholder="name@example.com" data-bind="contact.email" required />
+                  <input id="email" type="email" autocomplete="email" placeholder="name@example.com" data-bind="contact.email" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
                   <label for="phone">Phone</label>
-                  <input id="phone" type="tel" autocomplete="tel" placeholder="(628) 555-0123" data-bind="contact.phone" required />
+                  <input id="phone" type="tel" autocomplete="tel" placeholder="(628) 555-0123" data-bind="contact.phone" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field full">
                   <label for="street">Street address</label>
-                  <input id="street" type="text" autocomplete="street-address" data-bind="contact.street" required />
+                  <input id="street" type="text" autocomplete="street-address" data-bind="contact.street" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
                   <label for="city">City</label>
-                  <input id="city" type="text" autocomplete="address-level2" data-bind="contact.city" required />
+                  <input id="city" type="text" autocomplete="address-level2" data-bind="contact.city" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
@@ -203,12 +204,12 @@ const searchText = (program: (typeof programs)[number]) =>
                 </div>
                 <div class="field">
                   <label for="postal">Postal code</label>
-                  <input id="postal" type="text" autocomplete="postal-code" data-bind="contact.postal" required />
+                  <input id="postal" type="text" autocomplete="postal-code" data-bind="contact.postal" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <div class="field">
                   <label for="country">Country or territory</label>
-                  <input id="country" type="text" autocomplete="country-name" data-bind="contact.country" required />
+                  <input id="country" type="text" autocomplete="country-name" data-bind="contact.country" required aria-required="true" />
                   <p class="field-error" hidden></p>
                 </div>
                 <fieldset class="field full choices">
@@ -346,7 +347,7 @@ const searchText = (program: (typeof programs)[number]) =>
                 {
                   essayPrompts.map((prompt) => (
                     <label class="prompt-option">
-                      <input type="radio" name="essayPrompt" id={`essay-prompt-${prompt.id}`} value={prompt.id} data-bind="essay.prompt" required />
+                      <input type="radio" name="essayPrompt" id={`essay-prompt-${prompt.id}`} value={prompt.id} data-bind="essay.prompt" required aria-required="true" />
                       <span>
                         <strong>{prompt.title}</strong>
                         <span class="prompt-text">{prompt.text}</span>
@@ -359,7 +360,7 @@ const searchText = (program: (typeof programs)[number]) =>
               <div class="field essay-field">
                 <label for="essay-text">Your essay</label>
                 <p class="essay-prompt-echo" id="essay-prompt-echo" hidden></p>
-                <textarea id="essay-text" rows="14" data-bind="essay.text" required aria-describedby="essay-count essay-note"></textarea>
+                <textarea id="essay-text" rows="14" data-bind="essay.text" required aria-required="true" aria-describedby="essay-count essay-note"></textarea>
                 <div class="essay-meter" id="essay-meter" data-tone="empty" aria-hidden="true">
                   <span class="essay-meter-min" style={`left: ${(essayMinimum / essayLimit) * 100}%`}></span>
                   <span class="essay-meter-fill"></span>
@@ -396,7 +397,7 @@ const searchText = (program: (typeof programs)[number]) =>
               <div class="certify">
                 <div class="field choices">
                   <label>
-                    <input type="checkbox" id="certify" data-bind="review.certify" required />
+                    <input type="checkbox" id="certify" data-bind="review.certify" required aria-required="true" />
                     <span>
                       I certify that the information in this application is complete and my own, and that the essay is my own work.
                     </span>

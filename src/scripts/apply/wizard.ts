@@ -205,9 +205,9 @@ if (app && form && confirmation) {
   function courseHTML(course: Course, index: number, schoolIndex: number) {
     const p = `course-${course.id}`;
     return `<li class="course is-new" data-item="course" data-id="${course.id}">
-      ${field(`${p}-title`, 'Course title', `<input id="${p}-title" type="text" data-k="title" placeholder="PLSC 101 Intro to Planetary Science" required>`)}
+      ${field(`${p}-title`, 'Course title', `<input id="${p}-title" type="text" data-k="title" placeholder="PLSC 101 Intro to Planetary Science" required aria-required="true">`)}
       ${field(`${p}-term`, 'Term <span class="hint">(optional)</span>', `<input id="${p}-term" type="text" data-k="term" placeholder="Fall 2026">`)}
-      ${field(`${p}-grade`, 'Grade', `<select id="${p}-grade" data-k="grade" required>${options(gradeOptions.map((g) => ({ value: g, label: g })), 'Select')}</select>`)}
+      ${field(`${p}-grade`, 'Grade', `<select id="${p}-grade" data-k="grade" required aria-required="true">${options(gradeOptions.map((g) => ({ value: g, label: g })), 'Select')}</select>`)}
       <button type="button" class="icon-btn" data-remove-course="${course.id}" aria-label="Remove course ${index + 1} from school ${schoolIndex + 1}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
@@ -222,14 +222,14 @@ if (app && form && confirmation) {
         <button type="button" class="linkish" data-remove-school="${school.id}">Remove<span class="sr-only"> school ${index + 1}</span></button>
       </div>
       <div class="form-grid">
-        ${field(`${p}-type`, 'Kind of school', `<select id="${p}-type" data-k="type" required>${options(schoolTypes, 'Select a kind')}</select>`)}
-        ${field(`${p}-name`, 'School name', `<input id="${p}-name" type="text" data-k="name" autocomplete="off" required>`)}
-        ${field(`${p}-city`, 'City', `<input id="${p}-city" type="text" data-k="city" required>`)}
+        ${field(`${p}-type`, 'Kind of school', `<select id="${p}-type" data-k="type" required aria-required="true">${options(schoolTypes, 'Select a kind')}</select>`)}
+        ${field(`${p}-name`, 'School name', `<input id="${p}-name" type="text" data-k="name" autocomplete="off" required aria-required="true">`)}
+        ${field(`${p}-city`, 'City', `<input id="${p}-city" type="text" data-k="city" required aria-required="true">`)}
         ${field(`${p}-gpa`, 'GPA <span class="hint">(optional)</span>', `<input id="${p}-gpa" type="text" inputmode="decimal" data-k="gpa" placeholder="3.60">`)}
-        ${field(`${p}-start`, 'Started', `<input id="${p}-start" type="month" data-k="start" placeholder="YYYY-MM" max="${applyDates.campusTodayIso.slice(0, 7)}" required>`)}
+        ${field(`${p}-start`, 'Started', `<input id="${p}-start" type="month" data-k="start" placeholder="YYYY-MM" max="${applyDates.campusTodayIso.slice(0, 7)}" required aria-required="true">`)}
         <div class="field school-end">
           <label for="${p}-end">Finished</label>
-          <input id="${p}-end" type="month" data-k="end" placeholder="YYYY-MM" ${school.current ? 'disabled' : 'required'}>
+          <input id="${p}-end" type="month" data-k="end" placeholder="YYYY-MM" max="${applyDates.campusTodayIso.slice(0, 7)}" ${school.current ? 'disabled' : 'required aria-required="true"'}>
           <label class="check"><input type="checkbox" id="${p}-current" data-k="current"> I attend now</label>
           <p class="field-error" hidden></p>
         </div>
@@ -260,10 +260,10 @@ if (app && form && confirmation) {
         <button type="button" class="linkish" data-remove-score="${score.id}">Remove<span class="sr-only"> score ${index + 1}</span></button>
       </div>
       <div class="score-grid">
-        ${field(`${p}-test`, 'Test', `<select id="${p}-test" data-k="test" required>${options(testTypes.map((t) => ({ value: t.id, label: t.label })), 'Select a test')}</select>`)}
-        ${type?.subject ? field(`${p}-subject`, 'Subject', `<input id="${p}-subject" type="text" data-k="subject" placeholder="Calculus BC" required>`) : ''}
-        ${field(`${p}-value`, 'Score', `<input id="${p}-value" type="number" inputmode="decimal" data-k="value" ${range} required ${type ? '' : 'disabled'}>`, type ? `<p class="hint">${esc(type.hint)}</p>` : '')}
-        ${field(`${p}-date`, 'Month tested', `<input id="${p}-date" type="month" data-k="date" placeholder="YYYY-MM" required>`)}
+        ${field(`${p}-test`, 'Test', `<select id="${p}-test" data-k="test" required aria-required="true">${options(testTypes.map((t) => ({ value: t.id, label: t.label })), 'Select a test')}</select>`)}
+        ${type?.subject ? field(`${p}-subject`, 'Subject', `<input id="${p}-subject" type="text" data-k="subject" placeholder="Calculus BC" required aria-required="true">`) : ''}
+        ${field(`${p}-value`, 'Score', `<input id="${p}-value" type="number" inputmode="decimal" data-k="value" ${range} required aria-required="true" ${type ? '' : 'disabled'}>`, type ? `<p class="hint">${esc(type.hint)}</p>` : '')}
+        ${field(`${p}-date`, 'Month tested', `<input id="${p}-date" type="month" data-k="date" placeholder="YYYY-MM" required aria-required="true">`)}
       </div>
     </li>`;
   }
@@ -319,12 +319,12 @@ if (app && form && confirmation) {
       </div>
       <div class="activity-body" id="${p}-body" ${open ? '' : 'hidden'}>
         <div class="form-grid">
-          ${field(`${p}-type`, 'Type', `<select id="${p}-type" data-k="type" required>${options(activityTypes.map((t) => ({ value: t, label: t })), 'Select a type')}</select>`)}
-          ${field(`${p}-role`, 'Your role', `<input id="${p}-role" type="text" data-k="role" placeholder="Captain" required>`)}
-          ${field(`${p}-org`, 'Organization', `<input id="${p}-org" type="text" data-k="org" placeholder="Debate Society" required>`, '', 'full')}
-          ${field(`${p}-desc`, 'What you did', `<textarea id="${p}-desc" data-k="desc" rows="2" maxlength="${activityDescriptionLimit + 40}" aria-describedby="${p}-desc-count" required></textarea>`, `<p class="hint char-count" id="${p}-desc-count">${a.desc.length} / ${activityDescriptionLimit} characters</p>`, 'full')}
-          ${field(`${p}-hours`, 'Hours per week', `<input id="${p}-hours" type="number" inputmode="numeric" min="1" max="60" data-k="hours" required>`)}
-          ${field(`${p}-weeks`, 'Weeks per year', `<input id="${p}-weeks" type="number" inputmode="numeric" min="1" max="52" data-k="weeks" required>`)}
+          ${field(`${p}-type`, 'Type', `<select id="${p}-type" data-k="type" required aria-required="true">${options(activityTypes.map((t) => ({ value: t, label: t })), 'Select a type')}</select>`)}
+          ${field(`${p}-role`, 'Your role', `<input id="${p}-role" type="text" data-k="role" placeholder="Captain" required aria-required="true">`)}
+          ${field(`${p}-org`, 'Organization', `<input id="${p}-org" type="text" data-k="org" placeholder="Debate Society" required aria-required="true">`, '', 'full')}
+          ${field(`${p}-desc`, 'What you did', `<textarea id="${p}-desc" data-k="desc" rows="2" maxlength="${activityDescriptionLimit + 40}" aria-describedby="${p}-desc-count" required aria-required="true"></textarea>`, `<p class="hint char-count" id="${p}-desc-count">${a.desc.length} / ${activityDescriptionLimit} characters</p>`, 'full')}
+          ${field(`${p}-hours`, 'Hours per week', `<input id="${p}-hours" type="number" inputmode="numeric" min="1" max="60" data-k="hours" required aria-required="true">`)}
+          ${field(`${p}-weeks`, 'Weeks per year', `<input id="${p}-weeks" type="number" inputmode="numeric" min="1" max="52" data-k="weeks" required aria-required="true">`)}
         </div>
       </div>
     </li>`;
@@ -938,6 +938,10 @@ if (app && form && confirmation) {
     renderActivities();
     syncTestsMode();
     syncPrograms();
+    search.value = '';
+    collegeFilter = '';
+    for (const chip of $$('.chip', form!)) chip.setAttribute('aria-pressed', String(chip.dataset.filter === ''));
+    filterPrograms();
     updateEssay();
     $('#restored-note')!.hidden = true;
     confirmation!.hidden = true;
@@ -1022,6 +1026,8 @@ if (app && form && confirmation) {
         const end = $<HTMLInputElement>('[data-k="end"]', item)!;
         end.disabled = school.current;
         end.required = !school.current;
+        if (school.current) end.removeAttribute('aria-required');
+        else end.setAttribute('aria-required', 'true');
         if (school.current) {
           school.end = '';
           end.value = '';

@@ -325,6 +325,8 @@ export function validateAcademics(data: ApplicationData): FieldError[] {
       if (!MONTH.test(school.end)) errors.push({ id: `${p}-end`, message: `${n}: enter the month you finished, or check “I attend now”.` });
       else if (MONTH.test(school.start) && school.end < school.start) {
         errors.push({ id: `${p}-end`, message: `${n}: the end month is before the start month.` });
+      } else if (school.end > CAMPUS_MONTH) {
+        errors.push({ id: `${p}-end`, message: `${n}: the end month is in the future. Check “I attend now” if you still attend.` });
       }
     }
     if (school.gpa.trim()) {

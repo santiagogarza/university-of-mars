@@ -1,0 +1,304 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { COURSES, DAYS, DEPARTMENTS, TERM, departmentName } from '../../data/courses';
+import { formatTime, meetingLabel, requirementLabel, whereLabel } from '../../lib/planner';
+import { u } from '../../lib/paths';
+import '../../styles/planner.css';
+
+const colleges = [...new Set(DEPARTMENTS.map((dept) => dept.college))];
+const collegeOf = (code: string) => DEPARTMENTS.find((dept) => dept.code === code)?.college ?? '';
+const collegeSlug = (name: string) => name.toLowerCase().replace(/[^a-z]+/g, '-');
+const hours = Array.from({ length: 13 }, (_, index) => 8 + index);
+---
+
+<Base
+  title="Spring 2027 course planner"
+  description="Plan a Spring Semester 2027 weekly schedule from the University of Mars schedule of classes: filters, conflict checks, prerequisites, and calendar export."
+>
+  <PageHero
+    eyebrow="Registrar"
+    title="Spring 2027 course planner"
+    lede="Try sections side by side, catch time conflicts and missing prerequisites, and let the planner find every schedule that fits."
+    crumbs={[
+      { href: '/academics/', label: 'Academics' },
+      { href: '/academics/planner/', label: 'Course planner' },
+    ]}
+  >
+    <p class="page-actions">
+      <a class="btn btn-ghost" href={u('/academics/calendar/')}>Academic calendar</a>
+      <a href={u('/support/articles/registration/')}>Registration help</a>
+    </p>
+  </PageHero>
+
+  <div class="planner" data-planner>
+    <p class="planner-note">
+      <strong>Planning is not registration.</strong> Courses, instructors, rooms, and seat counts here are sample data
+      for {TERM.name}. Your plan stays in this browser. Register for the sections you choose in MyUM before the add/drop
+      deadline on the <a href={u('/academics/calendar/')}>academic calendar</a>.
+    </p>
+
+    <div class="planner-layout">
+      <section class="catalog" aria-labelledby="catalog-heading">
+        <div class="catalog-head">
+          <h2 id="catalog-heading">Schedule of classes</h2>
+          <p id="catalog-count" class="catalog-count" role="status">{COURSES.length} courses</p>
+        </div>
+
+        <form class="catalog-filters" id="catalog-filters" role="search" aria-label="Filter the schedule of classes">
+          <div class="filter-search">
+            <label for="course-search">Search courses</label>
+            <input
+              id="course-search"
+              name="q"
+              type="search"
+              placeholder="Title, number, instructor, or building"
+              autocomplete="off"
+            />
+          </div>
+          <div class="filter-row">
+            <div class="filter-select">
+              <label for="course-dept">Department</label>
+              <select id="course-dept" name="dept">
+                <option value="">All departments</option>
+                {
+                  colleges.map((college) => (
+                    <optgroup label={college === 'Education' || college === 'Public Policy' ? `School of ${college}` : `College of ${college}`}>
+                      {DEPARTMENTS.filter((dept) => dept.college === college).map((dept) => (
+                        <option value={dept.code}>{`${dept.name} (${dept.code})`}</option>
+                      ))}
+                    </optgroup>
+                  ))
+                }
+              </select>
+            </div>
+            <label class="filter-check">
+              <input type="checkbox" name="open" id="course-open" />
+              Open seats only
+            </label>
+          </div>
+          <fieldset class="chip-set">
+            <legend>Level</legend>
+            {
+              [100, 200, 300, 400].map((level) => (
+                <label class="chip">
+                  <input type="checkbox" name="level" value={level} checked />
+                  <span>{level}s</span>
+                </label>
+              ))
+            }
+          </fieldset>
+          <fieldset class="chip-set">
+            <legend>Days <span class="legend-hint">(all meetings)</span></legend>
+            {
+              DAYS.map((day) => (
+                <label class="chip">
+                  <input type="checkbox" name="day" value={day.code} checked />
+                  <span aria-hidden="true">{day.short}</span>
+                  <span class="sr-only">{day.long}</span>
+                </label>
+              ))
+            }
+          </fieldset>
+          <fieldset class="chip-set">
+            <legend>Time of day</legend>
+            <label class="chip"><input type="checkbox" name="period" value="morning" checked /><span>Morning</span></label>
+            <label class="chip"><input type="checkbox" name="period" value="afternoon" checked /><span>Afternoon</span></label>
+            <label class="chip"><input type="checkbox" name="period" value="evening" checked /><span>Evening</span></label>
+            <button class="linkish filter-reset" type="reset">Reset filters</button>
+          </fieldset>
+        </form>
+
+        <ul class="course-list" id="course-list" aria-labelledby="catalog-heading">
+          {
+            COURSES.map((course) => (
+              <li
+                class={`course-card college-${collegeSlug(collegeOf(course.dept))}`}
+                data-code={course.code}
+                draggable="true"
+              >
+                <div class="course-top">
+                  <span class="course-code">{course.code}</span>
+                  <span class="course-credits">{course.credits} credits</span>
+                </div>
+                <h3 class="course-title">{course.title}</h3>
+                <p class="course-dept">{departmentName(course.dept)}</p>
+                <p class="course-summary">{course.summary}</p>
+                <ul class="course-sections" aria-label={`${course.code} sections`}>
+                  {course.sections.map((section) => (
+                    <li data-section={section.id}>
+                      <span class="sec-id">{section.id}</span>
+                      <span class="sec-times">
+                        {section.meetings.map((meeting) => (
+                          <span>
+                            {meeting.kind !== 'Lecture' && <b>{meeting.kind} </b>}
+                            {meetingLabel(meeting)}
+                          </span>
+                        ))}
+                      </span>
+                      <span class="sec-detail">
+                        {section.instructor} · {whereLabel(section.meetings[0]!)}
+                      </span>
+                      <span class={`sec-seats${section.seats === 0 ? ' is-full' : section.seats <= 5 ? ' is-low' : ''}`}>
+                        {section.seats === 0 ? 'Full' : `${section.seats} of ${section.capacity} seats left`}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p class="course-prereq">
+                  {course.prereqs.length ? (
+                    <>Prerequisites: {course.prereqs.map(requirementLabel).join('; ')}</>
+                  ) : (
+                    <>No prerequisites</>
+                  )}
+                  <span class="prereq-status" data-prereq-status />
+                </p>
+                <div class="course-actions">
+                  <button class="btn btn-small" type="button" data-add>
+                    <span data-add-verb>Add</span>
+                    <span class="sr-only">{course.code} {course.title}</span>
+                    <span data-add-rest>to plan</span>
+                  </button>
+                  <span class="drag-hint" aria-hidden="true">or drag to the calendar</span>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="catalog-empty" id="catalog-empty" hidden>No courses match these filters.</p>
+      </section>
+
+      <section class="board" aria-labelledby="board-heading">
+        <div class="board-head">
+          <h2 id="board-heading">Your week</h2>
+          <p class="save-status" id="save-status"></p>
+        </div>
+
+        <div class="board-summary">
+          <div class="credits" id="credits">
+            <p class="credits-total"><span id="credit-total">0</span> <span id="credit-unit">credits</span></p>
+            <div
+              class="meter"
+              id="credit-meter"
+              role="meter"
+              aria-label="Credit load"
+              aria-valuemin="0"
+              aria-valuemax="21"
+              aria-valuenow="0"
+            >
+              <span class="meter-band" aria-hidden="true"></span>
+              <span class="meter-fill" aria-hidden="true"></span>
+              <span class="meter-tick" style="--at: 12" aria-hidden="true">12</span>
+              <span class="meter-tick" style="--at: 18" aria-hidden="true">18</span>
+            </div>
+            <p class="credits-state" id="credit-state">Full-time is {TERM.minCredits}–{TERM.maxCredits} credits.</p>
+          </div>
+          <div class="board-actions">
+            <button class="btn" type="button" id="generate" disabled>Generate schedules</button>
+            <button class="btn btn-ghost" type="button" id="export-ics" disabled>Export .ics</button>
+            <button class="linkish" type="button" id="clear-plan" disabled>Clear plan</button>
+          </div>
+        </div>
+
+        <div class="generator" id="generator" role="region" aria-labelledby="generator-heading" tabindex="-1" hidden>
+          <div class="gen-top">
+            <div>
+              <h3 id="generator-heading" class="gen-heading">Generated schedules</h3>
+              <p class="gen-count" id="gen-count" aria-live="polite"></p>
+            </div>
+            <div class="gen-nav">
+              <button class="gen-arrow" type="button" id="gen-prev" aria-label="Previous schedule">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+              </button>
+              <button class="gen-arrow" type="button" id="gen-next" aria-label="Next schedule">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+              </button>
+            </div>
+          </div>
+          <div class="gen-progress" aria-hidden="true"><span id="gen-progress"></span></div>
+          <p class="gen-stats" id="gen-stats"></p>
+          <div class="gen-options">
+            <div class="filter-select">
+              <label for="gen-sort">Sort by</label>
+              <select id="gen-sort">
+                <option value="days">Fewest days on campus</option>
+                <option value="late">Latest first class</option>
+                <option value="gaps">Fewest gaps between classes</option>
+                <option value="early">Done earliest in the day</option>
+              </select>
+            </div>
+            <label class="filter-check"><input type="checkbox" id="gen-open" checked /> Open sections only</label>
+          </div>
+          <div class="gen-actions">
+            <button class="btn btn-navy" type="button" id="gen-apply">Use this schedule</button>
+            <button class="btn btn-ghost" type="button" id="gen-close">Back to my plan</button>
+            <p class="gen-hint">
+              Press the <kbd>Left</kbd> and <kbd>Right</kbd> arrow keys to flip schedules, <kbd>Esc</kbd> to close.
+            </p>
+          </div>
+        </div>
+
+        <ul class="alerts" id="alerts" aria-label="Plan checks"></ul>
+
+        <div class="week-scroll">
+          <div class="week" id="week">
+            <div class="week-head" aria-hidden="true">
+              <span></span>
+              {DAYS.map((day) => <span>{day.short}</span>)}
+            </div>
+            <div class="week-body">
+              <div class="week-times" aria-hidden="true">
+                {hours.map((hour) => <span style={`--h: ${hour - 8}`}>{formatTime(hour * 60).replace(':00', '')}</span>)}
+              </div>
+              <div class="week-grid" id="week-grid">
+                <div class="week-days" aria-hidden="true">
+                  {DAYS.map((day) => <span data-day={day.code} />)}
+                </div>
+                <div class="week-layer" id="week-ghosts" aria-hidden="true"></div>
+                <ul class="week-layer week-blocks" id="week-blocks" aria-label="Classes on your calendar"></ul>
+                <div class="week-layer" id="week-conflicts" aria-hidden="true"></div>
+                <p class="week-empty" id="week-empty">
+                  <strong>Your week is empty.</strong>
+                  <span>Drag a course here from the schedule of classes, or use its Add to plan button.</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="note week-help">
+          On the calendar, press <kbd>Enter</kbd> on a class to change its section, or <kbd>Delete</kbd> to remove it.
+          Drag a class onto a dashed outline to switch sections.
+        </p>
+
+        <h3 class="plan-heading" id="plan-heading">Courses in your plan</h3>
+        <ol class="plan-list" id="plan-list" aria-labelledby="plan-heading"></ol>
+        <p class="plan-empty" id="plan-empty">No courses yet.</p>
+
+        <details class="record" id="record">
+          <summary>Completed coursework <span id="record-count"></span></summary>
+          <p class="note">
+            Prerequisites are checked against this sample student record. Add or remove courses to see how the warnings
+            change.
+          </p>
+          <ul class="record-list" id="record-list" aria-label="Completed courses"></ul>
+          <form class="record-add" id="record-add">
+            <div class="filter-search">
+              <label for="record-input">Add a completed course</label>
+              <input id="record-input" list="record-options" autocomplete="off" placeholder="e.g. PHYS 152" />
+              <datalist id="record-options">
+                {COURSES.map((course) => <option value={course.code}>{course.title}</option>)}
+              </datalist>
+            </div>
+            <button class="btn btn-navy btn-small" type="submit">Add</button>
+            <button class="linkish" type="button" id="record-reset">Restore sample record</button>
+          </form>
+        </details>
+      </section>
+    </div>
+    <p class="sr-only" id="planner-live" aria-live="polite"></p>
+  </div>
+
+  <script>
+    import '../../scripts/planner.ts';
+  </script>
+</Base>

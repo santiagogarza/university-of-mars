@@ -9,17 +9,20 @@ const { class: className = 'crest' } = Astro.props;
 
 <svg class={className} viewBox="0 0 64 76" aria-hidden="true" focusable="false">
   <path
+    class="crest-field"
     fill="#6B2430"
     d="M32 1.5 60 12.5v28.2c0 16.4-11.2 29.6-28 34.8C15.2 70.3 4 57.1 4 40.7V12.5L32 1.5z"
   ></path>
   <path
+    class="crest-border"
     fill="none"
     stroke="#F4EFE6"
     stroke-width="1.25"
     d="M32 6.2 55.5 15.2v25.2c0 13.6-9.3 24.6-23.5 29.2C17.8 65 8.5 54 8.5 40.4V15.2L32 6.2z"
   ></path>
-  <circle cx="32" cy="33" r="10" fill="#1B3048"></circle>
+  <circle class="crest-planet" cx="32" cy="33" r="10" fill="#1B3048"></circle>
   <ellipse
+    class="crest-orbit"
     cx="32"
     cy="33"
     rx="16.5"
@@ -28,7 +31,7 @@ const { class: className = 'crest' } = Astro.props;
     stroke="#E7D3B0"
     stroke-width="1.35"
     transform="rotate(-18 32 33)"></ellipse>
-  <circle cx="28.1" cy="30.2" r="2.15" fill="#C4A574"></circle>
+  <circle class="crest-moon" cx="28.1" cy="30.2" r="2.15" fill="#C4A574"></circle>
   <circle cx="46" cy="23.5" r="1.25" fill="#F4EFE6"></circle>
   <circle cx="18.2" cy="26.2" r="0.95" fill="#F4EFE6"></circle>
   <text

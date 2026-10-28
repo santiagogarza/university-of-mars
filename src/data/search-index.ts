@@ -81,6 +81,12 @@ export const searchIndex: SearchItem[] = [
     text: 'WCAG barrier report accommodation access',
   },
   {
+    title: 'Display settings',
+    href: '/accessibility/#display-settings',
+    group: 'Offices',
+    text: 'dark mode dark theme light theme text size larger text font dyslexia dyslexic reduce motion animation',
+  },
+  {
     title: 'Admissions',
     href: '/admissions/',
     group: 'Admissions',

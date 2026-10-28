@@ -33,6 +33,7 @@ const pages = [
   '/emergency/',
   '/search/',
   '/login/',
+  '/mymars/',
   '/support/',
   '/support/requests/',
   '/support/articles/password/',

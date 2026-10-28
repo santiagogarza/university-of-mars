@@ -1007,6 +1007,7 @@ if (root) {
       over: false,
       avatar: null,
     };
+    (event.currentTarget as Element | null)?.setPointerCapture(event.pointerId);
   }
 
   function activateDrag(session: DragSession) {
@@ -1063,6 +1064,7 @@ if (root) {
 
   function finishDrag(event: PointerEvent | null) {
     if (!drag || (event && event.pointerId !== drag.pointerId)) return;
+    if (event && drag.active) moveDrag(event);
     const session = drag;
     drag = null;
     if (!session.active) return;

@@ -1,10 +1,14 @@
 /* Events calendar (/events/) */
 
-.events-app {
+.events-app,
+.ev-modal {
   --hour: 3.25rem;
   --ev-today-tint: #fff6f0;
   --ev-star: #d29a22;
   --ev-star-line: #8a5a00;
+}
+
+.events-app {
   position: relative;
   padding: var(--space-lg) 0 var(--space-xl);
 }
@@ -563,10 +567,14 @@
 }
 
 .ev-pill.is-saved .ev-pill-title::before,
-.ev-pop-item.is-saved .ev-pop-title::after,
 .ev-block.is-saved .ev-block-title::before,
 .ev-allday-pill.is-saved span:last-child::before {
   content: '★ ';
+  color: var(--ev-star-line);
+}
+
+.ev-pop-item.is-saved .ev-pop-title::after {
+  content: ' ★';
   color: var(--ev-star-line);
 }
 
@@ -1092,7 +1100,7 @@
 }
 
 .ev-star .ev-star-icon,
-.ev-save .ev-star-icon {
+.ev-modal-actions .ev-save .ev-star-icon {
   width: 1.35rem;
   height: 1.35rem;
   fill: none;
@@ -1110,7 +1118,7 @@
 }
 
 .ev-star[aria-pressed='true'] .ev-star-icon,
-.ev-save[aria-pressed='true'] .ev-star-icon {
+.ev-modal-actions .ev-save[aria-pressed='true'] .ev-star-icon {
   fill: var(--ev-star);
   stroke: var(--ev-star-line);
 }
@@ -1410,7 +1418,7 @@
   color: #5c3d00;
 }
 
-.ev-save:hover .ev-star-icon {
+.ev-modal-actions .ev-save:not([aria-pressed='true']):hover .ev-star-icon {
   stroke: currentColor;
 }
 

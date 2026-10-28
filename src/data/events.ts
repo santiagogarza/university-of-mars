@@ -168,7 +168,7 @@ export const campusLocations: CampusLocation[] = [
     name: 'Jezero Observatory',
     area: 'Rooftop dome of the Research Building',
     box: { x: 302, y: 142, w: 82, h: 40 },
-    pin: { x: 366, y: 152 },
+    pin: { x: 366, y: 154 },
   },
 ];
 

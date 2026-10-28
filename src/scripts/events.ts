@@ -893,7 +893,7 @@ function mapMarkup(locationId: string): string {
     <path class="ev-map-walk" d="M0 63h400M0 133h400M100 0v200M220 0v200M309 0v200"></path>
     <circle class="ev-map-tower" cx="160" cy="88" r="4"></circle>
     ${buildings}
-    <path class="ev-map-dome" d="M356 142a10 10 0 0 1 20 0z"></path>
+    <path class="ev-map-dome" d="M356 160a10 10 0 0 1 20 0z"></path>
     ${pin}
   </svg>`;
 }

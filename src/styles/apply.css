@@ -1139,7 +1139,7 @@
 }
 
 .apply .essay-field textarea {
-  min-height: 20rem;
+  min-height: 16rem;
   padding: 0.9rem 1rem;
   font-family: var(--serif);
   font-size: 1.12rem;

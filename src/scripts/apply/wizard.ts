@@ -736,6 +736,7 @@ if (app && form && confirmation) {
     if (STEPS[state.step].id === 'major') syncPrograms();
     if (STEPS[state.step].id === 'essay') updateEssay();
     hideSummary();
+    if (from !== state.step) $('#restored-note')!.hidden = true;
     if (!attempted.has(state.step)) clearInline(section);
     updateChrome();
     saveSoon();

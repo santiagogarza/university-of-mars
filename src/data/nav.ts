@@ -132,6 +132,7 @@ export const primaryNav: NavItem[] = [
           { label: 'About UM', href: '/about/' },
           { label: 'Leadership', href: '/about/#leadership' },
           { label: 'Facts and figures', href: '/about/#facts' },
+          { label: 'Our campuses', href: '/about/#campuses' },
           { label: 'News', href: '/#news' },
         ],
       },

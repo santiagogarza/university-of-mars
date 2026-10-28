@@ -108,7 +108,7 @@ export const searchIndex: SearchItem[] = [
     title: 'About the university',
     href: '/about/',
     group: 'About',
-    text: `founded ${site.founded} leadership jezero chancellor contact`,
+    text: `founded ${site.founded} leadership jezero chancellor contact campuses field stations olympus mons observatory valles marineris gale crater`,
   },
   {
     title: 'Title IX and civil rights',

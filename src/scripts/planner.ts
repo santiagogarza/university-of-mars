@@ -315,6 +315,7 @@ if (root) {
   function addCourse(code: string, sectionId?: string) {
     const course = byCode.get(code);
     if (!course) return;
+    applyGenerated(false);
     generator = null;
     undoPicks = null;
     const existing = state.picks.find((pick) => pick.code === code);
@@ -337,6 +338,7 @@ if (root) {
   function removeCourse(code: string) {
     const index = state.picks.findIndex((pick) => pick.code === code);
     if (index < 0) return;
+    applyGenerated(false);
     generator = null;
     undoPicks = null;
     state.picks.splice(index, 1);

@@ -102,7 +102,7 @@ function persistOrder(): void {
 }
 
 function applyOrder(order: CardId[], animate = true): void {
-  if (!grid) return;
+  if (!grid || cards().map(cardId).join() === order.join()) return;
   const run = () => {
     for (const id of order) {
       const card = grid.querySelector<HTMLElement>(`:scope > [data-card="${id}"]`);
@@ -789,6 +789,7 @@ document.querySelector('[data-reset-demo]')?.addEventListener('click', () => {
 });
 
 applyOrder(state.order, false);
+window.setTimeout(() => grid?.classList.add('is-settled'), 800);
 if (state.holdCleared) hold?.setAttribute('data-state', 'cleared');
 setupDrag();
 setupTabs();

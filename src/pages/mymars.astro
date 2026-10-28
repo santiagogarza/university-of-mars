@@ -1,0 +1,753 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { u } from '../lib/paths';
+import { site } from '../data/site';
+import {
+  actionItems,
+  aidHold,
+  balance,
+  defaultCardOrder,
+  degree,
+  housing,
+  library,
+  notifications,
+  schedule,
+  student,
+  today,
+  type CardId,
+  type ScheduleItem,
+} from '../data/mymars';
+import '../styles/mymars.css';
+
+const money = (value: number) =>
+  value.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
+
+function clock(minutes: number, withMeridiem = true): string {
+  const h24 = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const h12 = ((h24 + 11) % 12) + 1;
+  const text = `${h12}:${String(m).padStart(2, '0')}`;
+  return withMeridiem ? `${text} ${h24 < 12 ? 'a.m.' : 'p.m.'}` : text;
+}
+
+function timeRange(item: ScheduleItem): string {
+  if (item.end === undefined) return `By ${clock(item.start)}`;
+  const sameHalf = item.start < 720 === item.end < 720;
+  return sameHalf ? `${clock(item.start, false)}–${clock(item.end)}` : `${clock(item.start)}–${clock(item.end)}`;
+}
+
+const kindLabel: Record<ScheduleItem['kind'], string> = {
+  class: 'Class',
+  lab: 'Lab',
+  meeting: 'Appointment',
+  housing: 'Housing',
+  deadline: 'Deadline',
+};
+
+const todayDay = schedule[0]!;
+const nowIndex = todayDay.items.findIndex((item) => item.start > today.nowMinutes);
+const upNext = todayDay.items[nowIndex];
+
+const chargesTotal = balance.charges.reduce((sum, line) => sum + line.amount, 0);
+const creditsTotal = balance.credits.reduce((sum, line) => sum + line.amount, 0);
+const balanceDue = chargesTotal - creditsTotal;
+const installment = balanceDue / balance.plan.installments.length;
+const pct = (value: number) => `${((value / chargesTotal) * 100).toFixed(2)}%`;
+
+const credits = degree.areas.reduce(
+  (sum, area) => ({ done: sum.done + area.done, inProgress: sum.inProgress + area.inProgress }),
+  { done: 0, inProgress: 0 },
+);
+const ringRadius = (index: number) => 86 - index * 17;
+
+const cardTitles: Record<CardId, string> = {
+  actions: 'Action items',
+  schedule: 'This week',
+  balance: 'Account balance',
+  degree: 'Degree progress',
+  housing: 'Housing',
+  library: 'Library loans',
+};
+
+const unread = notifications.length;
+const loanProgress = (loan: (typeof library.loans)[number]) =>
+  Math.round(((loan.periodDays - loan.dueInDays) / loan.periodDays) * 100);
+---
+
+<Base
+  title="MyMars"
+  description="MyMars student dashboard demo for a fictional University of Mars student."
+  robots="noindex, nofollow"
+>
+  <script is:inline>
+    document.documentElement.classList.add('mm-js');
+  </script>
+  <PageHero
+    eyebrow={`MyMars · ${today.term}, week ${today.week}`}
+    title={`Good morning, ${student.first}`}
+    lede={`${today.long}. Here is what needs you this week.`}
+    crumbs={[
+      { href: '/login/', label: 'MyUM' },
+      { href: '/mymars/', label: 'MyMars' },
+    ]}
+  >
+    <div class="mm-hero-bar">
+      <div class="mm-profile">
+        <span class="mm-avatar" aria-hidden="true">{student.initials}</span>
+        <p>
+          <strong>{student.name}</strong>
+          <span>{student.program} · {student.standing}</span>
+        </p>
+      </div>
+      <ul class="mm-glance" aria-label="At a glance">
+        <li data-glance="holds">
+          <b data-hold-count>1 hold</b>
+          <span data-hold-glance>on your account</span>
+        </li>
+        <li>
+          <b>{upNext ? clock(upNext.start) : 'Done'}</b>
+          <span>{upNext ? `Next: ${upNext.code ?? upNext.title}` : 'No more events today'}</span>
+        </li>
+        <li>
+          <b data-glance-installment>{money(installment)}</b>
+          <span>Due {balance.plan.installments[0]!.due}</span>
+        </li>
+      </ul>
+      <div class="mm-hero-actions">
+        <button class="mm-bell" type="button" aria-haspopup="dialog" aria-controls="mm-drawer" data-open-drawer>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M12 3a6 6 0 0 0-6 6v3.6L4.3 15.4A1 1 0 0 0 5.1 17h13.8a1 1 0 0 0 .8-1.6L18 12.6V9a6 6 0 0 0-6-6Zm-2.3 15.5a2.4 2.4 0 0 0 4.6 0Z" />
+          </svg>
+          <span>Notifications</span>
+          <span class="mm-badge" data-unread-badge>
+            <span data-unread-count>{unread}</span><span class="sr-only"> unread</span>
+          </span>
+        </button>
+        <a class="mm-signout" href={u('/login/')}>Sign out</a>
+      </div>
+    </div>
+  </PageHero>
+
+  <div class="wrap mm-shell">
+    <div class="mm-toolbar">
+      <p id="mm-layout-help">
+        <svg class="mm-inline-grip" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" />
+          <circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" />
+        </svg>
+        Drag a card by its handle to rearrange. With a keyboard, focus a handle, press Space, use the arrow keys, then
+        press Space again. Your layout is saved in this browser.
+      </p>
+      <div class="mm-toolbar-actions">
+        <button class="mm-text-btn" type="button" data-reset-layout>Reset layout</button>
+        <button class="mm-text-btn" type="button" data-reset-demo>Reset demo</button>
+      </div>
+    </div>
+
+    <div class="mm-grid" id="mm-grid" data-default-order={defaultCardOrder.join(',')}>
+      {
+        defaultCardOrder.map((id) => (
+          <section class={`mm-card mm-card-${id}`} data-card={id} aria-labelledby={`mm-h-${id}`}>
+            <header class="mm-card-head">
+              <h2 id={`mm-h-${id}`} tabindex="-1">
+                {cardTitles[id]}
+              </h2>
+              {id === 'actions' && (
+                <span class="mm-count" data-action-count>
+                  3 open
+                </span>
+              )}
+              {id === 'schedule' && <span class="mm-count">Jan 11–15</span>}
+              {id === 'library' && <span class="mm-count">{library.loans.length} out</span>}
+              <button
+                class="mm-handle"
+                type="button"
+                aria-label={`Move ${cardTitles[id]} card`}
+                aria-describedby="mm-layout-help"
+                data-handle
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <circle cx="9" cy="6" r="1.6" />
+                  <circle cx="15" cy="6" r="1.6" />
+                  <circle cx="9" cy="12" r="1.6" />
+                  <circle cx="15" cy="12" r="1.6" />
+                  <circle cx="9" cy="18" r="1.6" />
+                  <circle cx="15" cy="18" r="1.6" />
+                </svg>
+              </button>
+            </header>
+
+            {id === 'actions' && (
+              <div class="mm-card-body">
+                <article class="mm-hold" data-hold data-state="open" aria-labelledby="mm-hold-title">
+                  <span class="mm-hold-icon" aria-hidden="true">
+                    <svg class="mm-icon-alert" viewBox="0 0 24 24" focusable="false">
+                      <path d="M12 7v6" />
+                      <path d="M12 16.5v.5" />
+                    </svg>
+                    <svg class="mm-icon-check" viewBox="0 0 24 24" focusable="false">
+                      <path d="m6.5 12.5 3.6 3.6 7.4-8" />
+                    </svg>
+                  </span>
+                  <div class="mm-hold-text">
+                    <p class="mm-kicker">
+                      <span class="mm-when-open">Hold · Financial Aid</span>
+                      <span class="mm-when-cleared">Cleared today · Financial Aid</span>
+                    </p>
+                    <h3 id="mm-hold-title">
+                      <span class="mm-when-open">{aidHold.title}</span>
+                      <span class="mm-when-cleared">Financial aid hold released</span>
+                    </h3>
+                    <p class="mm-when-open">{aidHold.summary}</p>
+                    <p class="mm-when-cleared">
+                      Verification packet received. Your {balance.heldAid.label} of {money(balance.heldAid.amount)}{' '}
+                      {balance.heldAid.releasedNote}. Reference <span class="mm-nowrap">{aidHold.reference}</span>.
+                    </p>
+                    <p class="mm-hold-meta mm-when-open">
+                      <span>{aidHold.placed}</span>
+                      <span>{aidHold.blocks}</span>
+                    </p>
+                    <p class="mm-hold-actions mm-when-open">
+                      <button class="btn" type="button" data-resolve aria-haspopup="dialog" aria-controls="mm-resolve">
+                        Resolve
+                      </button>
+                      <a href={u('/support/articles/financial-aid-hold/')}>About aid holds</a>
+                    </p>
+                  </div>
+                </article>
+                <ul class="mm-todos" aria-label="Other tasks">
+                  {actionItems.map((item) => (
+                    <li>
+                      <input type="checkbox" id={`mm-todo-${item.id}`} data-todo={item.id} />
+                      <label for={`mm-todo-${item.id}`}>
+                        <span class="mm-todo-title">{item.title}</span>
+                        <span class="mm-todo-detail">
+                          {item.detail}
+                          {item.due && ` · ${item.due}`}
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {id === 'schedule' && (
+              <div class="mm-card-body">
+                <div class="mm-days" role="tablist" aria-label="Days this week" data-tabs>
+                  {schedule.map((day, index) => (
+                    <button
+                      type="button"
+                      role="tab"
+                      id={`mm-tab-${day.id}`}
+                      aria-controls={`mm-day-${day.id}`}
+                      aria-selected={index === 0 ? 'true' : 'false'}
+                      tabindex={index === 0 ? 0 : -1}
+                      class="mm-day"
+                    >
+                      <span class="mm-day-name">{day.short}</span>
+                      <span class="mm-day-date">{day.date}</span>
+                      <span class="mm-day-dots" aria-hidden="true">
+                        {day.items.map((item) => (
+                          <i class={`is-${item.kind}`} />
+                        ))}
+                      </span>
+                      <span class="sr-only">
+                        , {day.items.length} events{index === 0 ? ', today' : ''}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                {schedule.map((day, index) => (
+                  <div
+                    class="mm-day-panel"
+                    role="tabpanel"
+                    id={`mm-day-${day.id}`}
+                    aria-labelledby={`mm-tab-${day.id}`}
+                    tabindex="0"
+                    hidden={index !== 0}
+                  >
+                    <p class="mm-day-heading">
+                      {day.long}
+                      {index === 0 && <span class="mm-today-chip">Today</span>}
+                    </p>
+                    <ol class="mm-timeline">
+                      {day.items.map((item, itemIndex) => (
+                        <>
+                          {index === 0 && itemIndex === nowIndex && (
+                            <li class="mm-now" aria-label={`Now, ${today.nowLabel}`}>
+                              <span>Now · {today.nowLabel}</span>
+                            </li>
+                          )}
+                          <li
+                            class={`mm-event is-${item.kind}${index === 0 && itemIndex < nowIndex ? ' is-past' : ''}${
+                              index === 0 && itemIndex === nowIndex ? ' is-next' : ''
+                            }`}
+                          >
+                            <span class="mm-event-time">{timeRange(item)}</span>
+                            <span class="mm-event-body">
+                              <span class="mm-event-kind">
+                                {item.code ? `${item.code} · ${kindLabel[item.kind]}` : kindLabel[item.kind]}
+                                {index === 0 && itemIndex === nowIndex && <span class="mm-next-chip">Up next</span>}
+                              </span>
+                              <span class="mm-event-title">{item.title}</span>
+                              <span class="mm-event-where">{item.where}</span>
+                            </span>
+                          </li>
+                        </>
+                      ))}
+                    </ol>
+                  </div>
+                ))}
+                <p class="mm-card-foot">
+                  15 credits · 5 courses · <a href={u('/academics/calendar/')}>Academic calendar</a>
+                </p>
+              </div>
+            )}
+
+            {id === 'balance' && (
+              <div class="mm-card-body" data-balance-card data-state="held">
+                <p class="mm-kicker">{balance.term}</p>
+                <p class="mm-balance">
+                  <span class="mm-balance-label">Balance due</span>
+                  <span class="mm-balance-amount" data-balance-amount>
+                    {money(balanceDue)}
+                  </span>
+                  <span class="mm-balance-of">of {money(chargesTotal)} in Spring charges</span>
+                </p>
+                <div class="mm-cover" aria-hidden="true">
+                  <span class="mm-cover-aid" style={`--w:${pct(creditsTotal)}`} />
+                  <span class="mm-cover-held" data-cover-held style={`--w:${pct(balance.heldAid.amount)}`} />
+                  <span class="mm-cover-you" />
+                </div>
+                <ul class="mm-cover-key">
+                  <li>
+                    <i class="k-aid" aria-hidden="true" />
+                    Aid and payments <b>{money(creditsTotal)}</b>
+                  </li>
+                  <li data-held-line>
+                    <i class="k-held" aria-hidden="true" />
+                    <span data-held-text>
+                      {balance.heldAid.label}, on hold <b>{money(balance.heldAid.amount)}</b>
+                    </span>
+                  </li>
+                  <li>
+                    <i class="k-you" aria-hidden="true" />
+                    Not covered by aid <b>{money(chargesTotal - creditsTotal - balance.heldAid.amount)}</b>
+                  </li>
+                </ul>
+                <h3 class="mm-subhead">
+                  {balance.plan.name} <span>{balance.plan.enrolled}</span>
+                </h3>
+                <ol class="mm-plan">
+                  {balance.plan.installments.map((step, index) => (
+                    <li class={index === 0 ? 'is-next' : undefined}>
+                      <span class="mm-plan-due">
+                        {index === 0 && <span class="mm-plan-chip">Next</span>}
+                        {step.due}
+                      </span>
+                      <b data-installment>{money(installment)}</b>
+                    </li>
+                  ))}
+                </ol>
+                <details class="mm-ledger">
+                  <summary>Charges and credits</summary>
+                  <table>
+                    <caption class="sr-only">{balance.term} charges and credits</caption>
+                    <tbody>
+                      {balance.charges.map((line) => (
+                        <tr>
+                          <th scope="row">{line.label}</th>
+                          <td>{money(line.amount)}</td>
+                        </tr>
+                      ))}
+                      {balance.credits.map((line) => (
+                        <tr class="is-credit">
+                          <th scope="row">{line.label}</th>
+                          <td>−{money(line.amount)}</td>
+                        </tr>
+                      ))}
+                      <tr class="is-credit" data-held-row hidden>
+                        <th scope="row">{balance.heldAid.label} (scheduled)</th>
+                        <td>−{money(balance.heldAid.amount)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </details>
+                <p class="mm-card-foot">
+                  <a href={u('/support/articles/billing/')}>Read a billing statement</a>
+                </p>
+              </div>
+            )}
+
+            {id === 'degree' && (
+              <div class="mm-card-body">
+                <p class="mm-kicker">
+                  {degree.program} · {degree.catalog}
+                </p>
+                <div class="mm-degree">
+                  <figure class="mm-rings" aria-hidden="true">
+                    <svg viewBox="0 0 200 200" focusable="false">
+                      {degree.areas.map((area, index) => {
+                        const r = ringRadius(index);
+                        const done = (area.done / area.required) * 100;
+                        const total = ((area.done + area.inProgress) / area.required) * 100;
+                        return (
+                          <g class="mm-ring" data-ring={area.id} style={`--ring:${area.color}`}>
+                            <circle class="mm-ring-track" cx="100" cy="100" r={r} />
+                            <circle
+                              class="mm-ring-arc is-progress"
+                              cx="100"
+                              cy="100"
+                              r={r}
+                              pathLength="100"
+                              style={`--pct:${total.toFixed(2)}`}
+                            />
+                            <circle
+                              class="mm-ring-arc"
+                              cx="100"
+                              cy="100"
+                              r={r}
+                              pathLength="100"
+                              style={`--pct:${done.toFixed(2)}`}
+                            />
+                          </g>
+                        );
+                      })}
+                    </svg>
+                    <figcaption class="mm-rings-center">
+                      <b>{credits.done}</b>
+                      <span>of {degree.required} credits</span>
+                    </figcaption>
+                  </figure>
+                  <ul class="mm-legend">
+                    {degree.areas.map((area) => (
+                      <li data-legend={area.id} style={`--ring:${area.color}`}>
+                        <span class="mm-legend-name">{area.label}</span>
+                        <span class="mm-legend-value">
+                          <b>
+                            {area.done} of {area.required}
+                          </b>{' '}
+                          credits
+                          {area.inProgress > 0 && <span> · {area.inProgress} in progress</span>}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <dl class="mm-facts">
+                  <div>
+                    <dt>Cumulative GPA</dt>
+                    <dd>{degree.gpa}</dd>
+                  </div>
+                  <div>
+                    <dt>In progress</dt>
+                    <dd>{credits.inProgress} credits</dd>
+                  </div>
+                  <div>
+                    <dt>On track for</dt>
+                    <dd>Spring 2029</dd>
+                  </div>
+                </dl>
+                <p class="mm-card-foot">Advisor: {student.advisor} · today, 3:30 p.m.</p>
+              </div>
+            )}
+
+            {id === 'housing' && (
+              <div class="mm-card-body">
+                <div class="mm-room">
+                  <p class="mm-room-kicker">{housing.term}</p>
+                  <p class="mm-room-hall">{housing.hall}</p>
+                  <p class="mm-room-number">{housing.room}</p>
+                  <svg class="mm-room-key" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <circle cx="8" cy="12" r="4" />
+                    <path d="M12 12h9M18 12v3M15.5 12v2" />
+                  </svg>
+                </div>
+                <dl class="mm-room-facts">
+                  <div>
+                    <dt>Room</dt>
+                    <dd>{housing.type}</dd>
+                  </div>
+                  <div>
+                    <dt>Roommate</dt>
+                    <dd>{housing.roommate}</dd>
+                  </div>
+                  <div>
+                    <dt>Dining</dt>
+                    <dd>{housing.mealPlan}</dd>
+                  </div>
+                </dl>
+                <h3 class="mm-subhead">
+                  Open work orders <span>{housing.workOrders.length}</span>
+                </h3>
+                <ul class="mm-orders">
+                  {housing.workOrders.map((order) => (
+                    <li class={`is-${order.status}`}>
+                      <span class="mm-order-top">
+                        <span class="mm-order-id">{order.id}</span>
+                        <span class="mm-status">{order.statusLabel}</span>
+                      </span>
+                      <span class="mm-order-title">{order.title}</span>
+                      <span class="mm-order-detail">{order.detail}</span>
+                      <span class="mm-steps" aria-hidden="true">
+                        {['Received', 'Scheduled', 'Done'].map((label, index) => (
+                          <span class={index < order.progress ? 'is-on' : undefined}>{label}</span>
+                        ))}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p class="mm-card-foot">
+                  <a href={u('/support/?category=housing-repair#request')}>Request a repair</a> ·{' '}
+                  <a href={site.housingHref}>{site.housingPhone}</a>
+                </p>
+              </div>
+            )}
+
+            {id === 'library' && (
+              <div class="mm-card-body">
+                <ul class="mm-loans">
+                  {library.loans.map((loan) => (
+                    <li data-loan={loan.id} class={loan.dueInDays <= 3 ? 'is-soon' : undefined}>
+                      <span class="mm-loan-cover" aria-hidden="true">
+                        {loan.title.charAt(0)}
+                      </span>
+                      <span class="mm-loan-text">
+                        <span class="mm-loan-title">{loan.title}</span>
+                        <span class="mm-loan-author">
+                          {loan.author} · {loan.callNumber}
+                        </span>
+                        <span class="mm-loan-bar" aria-hidden="true">
+                          <span data-loan-bar style={`--w:${loanProgress(loan)}%`} />
+                        </span>
+                        <span class="mm-loan-due">
+                          <span data-loan-due>
+                            Due {loan.due} · {loan.dueInDays} days left
+                          </span>
+                          {loan.note && <span class="mm-loan-note">{loan.note}</span>}
+                        </span>
+                      </span>
+                      {loan.renewable && (
+                        <button
+                          class="mm-renew"
+                          type="button"
+                          data-renew={loan.id}
+                          aria-label={`Renew ${loan.title}`}
+                        >
+                          Renew
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <p class="mm-shelf">
+                  <b>On the hold shelf:</b> {library.holdShelf.title}. {library.holdShelf.pickup}.
+                </p>
+                <p class="mm-card-foot">
+                  <a href={u('/news/library-hours/')}>Spring library hours</a>
+                </p>
+              </div>
+            )}
+          </section>
+        ))
+      }
+    </div>
+    <p class="sr-only" role="status" aria-live="polite" data-live></p>
+  </div>
+
+  <script is:inline>
+    (function () {
+      try {
+        var saved = JSON.parse(localStorage.getItem('um-mymars') || '{}');
+        var grid = document.getElementById('mm-grid');
+        if (grid && Array.isArray(saved.order)) {
+          saved.order.forEach(function (id) {
+            var card = grid.querySelector('[data-card="' + id + '"]');
+            if (card) grid.appendChild(card);
+          });
+        }
+        if (saved.holdCleared) {
+          var hold = document.querySelector('[data-hold]');
+          if (hold) hold.setAttribute('data-state', 'cleared');
+        }
+      } catch (error) {
+        /* A blocked or malformed store falls back to the default layout. */
+      }
+    })();
+  </script>
+
+  <dialog class="mm-modal" id="mm-resolve" aria-labelledby="mm-resolve-title" data-resolve-dialog>
+    <div class="mm-modal-inner">
+      <header class="mm-modal-head">
+        <div>
+          <p class="mm-kicker">{aidHold.office}</p>
+          <h2 id="mm-resolve-title">Resolve your aid hold</h2>
+        </div>
+        <button class="mm-close" type="button" data-close-dialog aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </header>
+      <ol class="mm-stepper" aria-label="Steps">
+        <li data-step-marker="1" aria-current="step"><span>1</span> Review</li>
+        <li data-step-marker="2"><span>2</span> Documents</li>
+        <li data-step-marker="3"><span>3</span> Sign and send</li>
+      </ol>
+
+      <section class="mm-step" data-step="1" aria-labelledby="mm-step1-title">
+        <h3 id="mm-step1-title" tabindex="-1">What the office needs</h3>
+        <p>
+          Your 2026–27 aid was selected for verification. Until the packet arrives, your {balance.heldAid.label} of
+          <b>{money(balance.heldAid.amount)}</b> stays on hold and your Spring balance is higher.
+        </p>
+        <ul class="mm-need">
+          {aidHold.documents.map((doc) => <li>{doc.label}</li>)}
+        </ul>
+        <p class="mm-demo-note">Demo only. Nothing leaves this browser.</p>
+        <footer class="mm-modal-foot">
+          <button class="btn btn-ghost" type="button" data-close-dialog>Not now</button>
+          <button class="btn" type="button" data-next="2">Continue</button>
+        </footer>
+      </section>
+
+      <section class="mm-step" data-step="2" aria-labelledby="mm-step2-title" hidden>
+        <h3 id="mm-step2-title" tabindex="-1">Add your documents</h3>
+        <ul class="mm-docs">
+          {
+            aidHold.documents.map((doc) => (
+              <li data-doc={doc.id} data-state="empty">
+                <span class="mm-doc-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M7 3h7l4 4v14H7z" />
+                    <path d="M14 3v4h4" />
+                  </svg>
+                </span>
+                <span class="mm-doc-text">
+                  <span class="mm-doc-label">{doc.label}</span>
+                  <span class="mm-doc-file" data-doc-file>
+                    {doc.file} · {doc.size}
+                  </span>
+                  <span class="mm-doc-bar" aria-hidden="true">
+                    <span />
+                  </span>
+                </span>
+                <button class="mm-attach" type="button" data-attach={doc.id} aria-label={`Attach ${doc.label}`}>
+                  Attach
+                </button>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="field-error" data-docs-error hidden>Attach both documents to continue.</p>
+        <footer class="mm-modal-foot">
+          <button class="btn btn-ghost" type="button" data-next="1">Back</button>
+          <button class="btn" type="button" data-next="3">Continue</button>
+        </footer>
+      </section>
+
+      <section class="mm-step" data-step="3" aria-labelledby="mm-step3-title" hidden>
+        <h3 id="mm-step3-title" tabindex="-1">Sign and send</h3>
+        <form class="mm-sign" data-sign-form novalidate>
+          <div class="field">
+            <label for="mm-signature">Type your full name to sign</label>
+            <input
+              id="mm-signature"
+              name="signature"
+              type="text"
+              autocomplete="name"
+              required
+              aria-required="true"
+              aria-describedby="mm-signature-hint"
+            />
+            <p class="hint" id="mm-signature-hint">Sign as {student.name}.</p>
+            <p class="field-error" id="mm-signature-error" hidden></p>
+          </div>
+          <div class="mm-check">
+            <input id="mm-certify" type="checkbox" required aria-required="true" />
+            <label for="mm-certify">I certify the documents are complete and accurate.</label>
+          </div>
+          <p class="field-error" id="mm-certify-error" hidden>Check the box to certify the packet.</p>
+          <footer class="mm-modal-foot">
+            <button class="btn btn-ghost" type="button" data-next="2">Back</button>
+            <button class="btn" type="submit" data-send>
+              <span class="mm-spinner" aria-hidden="true"></span>
+              <span data-send-label>Send packet</span>
+            </button>
+          </footer>
+        </form>
+      </section>
+
+      <section class="mm-step mm-step-done" data-step="4" aria-labelledby="mm-step4-title" hidden>
+        <svg class="mm-done-check" viewBox="0 0 52 52" aria-hidden="true" focusable="false">
+          <circle cx="26" cy="26" r="23" />
+          <path d="m15 27 7.5 7.5L38 18" />
+        </svg>
+        <h3 id="mm-step4-title" tabindex="-1">Packet received</h3>
+        <p>
+          Financial Aid released the hold. Your {balance.heldAid.label} of {money(balance.heldAid.amount)}
+          {' '}{balance.heldAid.releasedNote}.
+        </p>
+        <p class="mm-ref">Reference <b>{aidHold.reference}</b></p>
+        <footer class="mm-modal-foot">
+          <button class="btn" type="button" data-finish>Back to dashboard</button>
+        </footer>
+      </section>
+    </div>
+  </dialog>
+
+  <dialog class="mm-drawer" id="mm-drawer" aria-labelledby="mm-drawer-title" data-drawer>
+    <div class="mm-drawer-inner">
+      <header class="mm-drawer-head">
+        <h2 id="mm-drawer-title">Notifications</h2>
+        <button class="mm-text-btn" type="button" data-mark-all>Mark all as read</button>
+        <button class="mm-close" type="button" data-close-drawer aria-label="Close notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </header>
+      <ul class="mm-notes" data-notes>
+        <li class="mm-note is-success is-unread" data-note="n-hold-cleared" data-card-target="actions" hidden>
+          <span class="mm-note-dot" aria-hidden="true"></span>
+          <div>
+            <p class="mm-note-title">
+              <span class="sr-only" data-unread-label>Unread: </span>Financial aid hold released
+            </p>
+            <p>Your {balance.heldAid.label} {balance.heldAid.releasedNote}. Your payment plan was updated.</p>
+            <p class="mm-note-meta">
+              <span>Just now</span>
+              <button class="mm-text-btn" type="button" data-goto="actions">Show me</button>
+            </p>
+          </div>
+        </li>
+        {
+          notifications.map((note) => (
+            <li class={`mm-note is-${note.tone} is-unread`} data-note={note.id} data-card-target={note.card}>
+              <span class="mm-note-dot" aria-hidden="true" />
+              <div>
+                <p class="mm-note-title">
+                  <span class="sr-only" data-unread-label>
+                    Unread:{' '}
+                  </span>
+                  {note.title}
+                </p>
+                <p>{note.body}</p>
+                <p class="mm-note-meta">
+                  <span>{note.when}</span>
+                  {note.card && (
+                    <button class="mm-text-btn" type="button" data-goto={note.card}>
+                      Show me
+                    </button>
+                  )}
+                </p>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </dialog>
+
+  <script>
+    import '../scripts/mymars.ts';
+  </script>
+</Base>

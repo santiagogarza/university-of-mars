@@ -1,0 +1,56 @@
+---
+import { u } from '../lib/paths';
+---
+
+<dialog class="cmdk" id="cmdk" aria-labelledby="cmdk-title" aria-describedby="cmdk-help" data-cmdk>
+  <div class="cmdk-panel">
+    <h2 id="cmdk-title" class="sr-only">Search the University of Mars</h2>
+    <p id="cmdk-help" class="sr-only">
+      Results update as you type. Use the up and down arrow keys to move through results, Tab and Shift Tab to jump
+      between groups, Enter to open, and Escape to close.
+    </p>
+    <div class="cmdk-bar">
+      <svg class="cmdk-bar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+        <circle cx="10.5" cy="10.5" r="6"></circle>
+        <path d="m15 15 5 5"></path>
+      </svg>
+      <input
+        id="cmdk-input"
+        class="cmdk-input"
+        type="text"
+        role="combobox"
+        aria-expanded="true"
+        aria-controls="cmdk-listbox"
+        aria-autocomplete="list"
+        aria-label="Search pages, help articles, news, and people"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="go"
+        placeholder="Search pages, help articles, news, people…"
+      />
+      <button class="cmdk-close" type="button" data-cmdk-close>
+        <span class="sr-only">Close search</span>
+        <kbd aria-hidden="true">Esc</kbd>
+      </button>
+    </div>
+    <div class="cmdk-body" data-cmdk-body>
+      <div class="cmdk-notice" data-cmdk-notice hidden></div>
+      <div id="cmdk-listbox" class="cmdk-list" role="listbox" aria-label="Search results"></div>
+    </div>
+    <div class="cmdk-foot">
+      <ul class="cmdk-keys" aria-hidden="true">
+        <li><kbd>↑</kbd><kbd>↓</kbd> Move</li>
+        <li><kbd>Tab</kbd> Next group</li>
+        <li><kbd>↵</kbd> Open</li>
+        <li><kbd>Esc</kbd> Close</li>
+      </ul>
+      <a class="cmdk-full" href={u('/search/')} data-cmdk-full>Search page with filters</a>
+    </div>
+    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true" data-cmdk-status></p>
+  </div>
+</dialog>
+
+<script>
+  import '../scripts/command-palette.ts';
+</script>

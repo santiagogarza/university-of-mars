@@ -483,7 +483,7 @@ function init(root: HTMLElement) {
       const y0 = Math.min(...boxes.map((b) => b.y));
       const x1 = Math.max(...boxes.map((b) => b.x + b.w));
       const y1 = Math.max(...boxes.map((b) => b.y + b.h));
-      animateTo(clampView(viewFor(grow({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, 360, 260), { pad: 48 })));
+      animateTo(clampView(viewFor(grow({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, 520, 380), { pad: 48 })));
     }, 320);
   }
 
@@ -574,7 +574,7 @@ function init(root: HTMLElement) {
       toSelect.value = id;
     }
     updatePicking();
-    computeRoute();
+    computeRoute({ pickedOnMap: true });
   }
 
   function clearRouteDrawing() {
@@ -594,7 +594,7 @@ function init(root: HTMLElement) {
     result.classList.add('is-warning');
   }
 
-  function computeRoute() {
+  function computeRoute({ pickedOnMap = false } = {}) {
     clearRouteDrawing();
     const fromId = fromSelect.value;
     const toId = toSelect.value;
@@ -604,7 +604,7 @@ function init(root: HTMLElement) {
     if (!fromId || !toId) {
       const only = byId.get(fromId || toId);
       const box = placeBox(only);
-      if (box && state.directions) animateTo(clampView(viewFor(grow(box, 520, 380), { pad: 30 })), 600);
+      if (box && state.directions && !pickedOnMap) animateTo(clampView(viewFor(grow(box, 520, 380), { pad: 30 })), 600);
       return;
     }
     if (fromId === toId) {
@@ -689,7 +689,7 @@ function init(root: HTMLElement) {
     updatePicking();
     computeRoute();
   });
-  stepFreeBox.addEventListener('change', computeRoute);
+  stepFreeBox.addEventListener('change', () => computeRoute());
   $<HTMLButtonElement>('[data-cm-swap]')?.addEventListener('click', () => {
     const a = fromSelect.value;
     fromSelect.value = toSelect.value;

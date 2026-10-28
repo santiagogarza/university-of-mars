@@ -97,89 +97,43 @@ const ring = 2 * Math.PI * 78;
     </div>
 
     <div class="npc-layout" data-layout>
-      <section class="npc-form-card" aria-labelledby="npc-form-title" data-form-card>
-        <h2 id="npc-form-title" class="npc-form-title">
-          Your answers <span class="npc-editing-tag" data-editing-tag hidden>Scenario A</span>
-        </h2>
-
-        <ol class="npc-steps">
-          {
-            steps.map((step, index) => (
-              <li>
-                <button type="button" class="npc-step-btn" data-goto={index + 1}>
-                  <span class="npc-step-dot" aria-hidden="true">
-                    {index + 1}
-                  </span>
-                  <span class="npc-step-name">{step.label}</span>
-                  <span class="sr-only" data-step-state />
-                </button>
-              </li>
-            ))
-          }
-        </ol>
-        <div class="npc-progress" aria-hidden="true"><span data-progress></span></div>
-
-        <form class="npc-form" data-npc-form novalidate>
-          <fieldset class="npc-step" data-step="1">
-            <legend>
-              <span class="npc-step-count">Step 1 of 5</span>
-              <span class="npc-step-title" tabindex="-1">Where are you coming from?</span>
-            </legend>
-            <p class="hint">Residency sets your tuition rate and which public grants you can receive.</p>
-            <div class="npc-options">
-              {
-                RESIDENCY_OPTIONS.map((option) => (
-                  <label class="npc-option">
-                    <input type="radio" name="residency" value={option.value} />
-                    <span class="npc-option-icon" aria-hidden="true">
-                      <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+      <section class="npc-form-col" aria-labelledby="npc-form-title">
+        <div class="npc-results-head">
+          <h2 id="npc-form-title">
+            Your answers <span class="npc-editing-tag" data-editing-tag hidden>Scenario A</span>
+          </h2>
+          <p class="npc-results-year">Five short steps</p>
+        </div>
+        <div class="npc-form-card" data-form-card>
+          <ol class="npc-steps">
+            {
+              steps.map((step, index) => (
+                <li>
+                  <button type="button" class="npc-step-btn" data-goto={index + 1}>
+                    <span class="npc-step-dot" aria-hidden="true">
+                      {index + 1}
                     </span>
-                    <span class="npc-option-text">
-                      <strong>{option.label}</strong>
-                      <span>{option.hint}</span>
-                    </span>
-                  </label>
-                ))
-              }
-            </div>
-          </fieldset>
+                    <span class="npc-step-name">{step.label}</span>
+                    <span class="sr-only" data-step-state />
+                  </button>
+                </li>
+              ))
+            }
+          </ol>
+          <div class="npc-progress" aria-hidden="true"><span data-progress></span></div>
 
-          <fieldset class="npc-step" data-step="2" hidden>
-            <legend>
-              <span class="npc-step-count">Step 2 of 5</span>
-              <span class="npc-step-title" tabindex="-1">Where will you live?</span>
-            </legend>
-            <p class="hint">Housing is the biggest cost after tuition. Living with family lowers the budget.</p>
-            <div class="npc-options">
-              {
-                HOUSING_OPTIONS.map((option) => (
-                  <label class="npc-option">
-                    <input type="radio" name="housing" value={option.value} />
-                    <span class="npc-option-icon" aria-hidden="true">
-                      <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
-                    </span>
-                    <span class="npc-option-text">
-                      <strong>{option.label}</strong>
-                      <span>{option.hint}</span>
-                    </span>
-                  </label>
-                ))
-              }
-            </div>
-          </fieldset>
-
-          <fieldset class="npc-step" data-step="3" hidden>
-            <legend>
-              <span class="npc-step-count">Step 3 of 5</span>
-              <span class="npc-step-title" tabindex="-1">Tell us about your household</span>
-            </legend>
-            <fieldset class="npc-subgroup">
-              <legend>Dependency status</legend>
-              <div class="npc-options npc-options-row">
+          <form class="npc-form" data-npc-form novalidate>
+            <fieldset class="npc-step" data-step="1">
+              <legend>
+                <span class="npc-step-count">Step 1 of 5</span>
+                <span class="npc-step-title" tabindex="-1">Where are you coming from?</span>
+              </legend>
+              <p class="hint">Residency sets your tuition rate and which public grants you can receive.</p>
+              <div class="npc-options">
                 {
-                  DEPENDENCY_OPTIONS.map((option) => (
+                  RESIDENCY_OPTIONS.map((option) => (
                     <label class="npc-option">
-                      <input type="radio" name="dependency" value={option.value} />
+                      <input type="radio" name="residency" value={option.value} />
                       <span class="npc-option-icon" aria-hidden="true">
                         <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
                       </span>
@@ -192,101 +146,151 @@ const ring = 2 * Math.PI * 78;
                 }
               </div>
             </fieldset>
-            <div class="field npc-size-field">
-              <label for="npc-size" data-size-label>People in your parents’ household</label>
-              <div class="npc-stepper">
-                <button type="button" data-size-step="-1" aria-label="One fewer person">−</button>
+
+            <fieldset class="npc-step" data-step="2" hidden>
+              <legend>
+                <span class="npc-step-count">Step 2 of 5</span>
+                <span class="npc-step-title" tabindex="-1">Where will you live?</span>
+              </legend>
+              <p class="hint">Housing is the biggest cost after tuition. Living with family lowers the budget.</p>
+              <div class="npc-options">
+                {
+                  HOUSING_OPTIONS.map((option) => (
+                    <label class="npc-option">
+                      <input type="radio" name="housing" value={option.value} />
+                      <span class="npc-option-icon" aria-hidden="true">
+                        <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+                      </span>
+                      <span class="npc-option-text">
+                        <strong>{option.label}</strong>
+                        <span>{option.hint}</span>
+                      </span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="npc-step" data-step="3" hidden>
+              <legend>
+                <span class="npc-step-count">Step 3 of 5</span>
+                <span class="npc-step-title" tabindex="-1">Tell us about your household</span>
+              </legend>
+              <fieldset class="npc-subgroup">
+                <legend>Dependency status</legend>
+                <div class="npc-options npc-options-row">
+                  {
+                    DEPENDENCY_OPTIONS.map((option) => (
+                      <label class="npc-option">
+                        <input type="radio" name="dependency" value={option.value} />
+                        <span class="npc-option-icon" aria-hidden="true">
+                          <svg viewBox="0 0 32 32" set:html={icons[option.value]} />
+                        </span>
+                        <span class="npc-option-text">
+                          <strong>{option.label}</strong>
+                          <span>{option.hint}</span>
+                        </span>
+                      </label>
+                    ))
+                  }
+                </div>
+              </fieldset>
+              <div class="field npc-size-field">
+                <label for="npc-size" data-size-label>People in your parents’ household</label>
+                <div class="npc-stepper">
+                  <button type="button" data-size-step="-1" aria-label="One fewer person">−</button>
+                  <input
+                    id="npc-size"
+                    name="size"
+                    type="number"
+                    inputmode="numeric"
+                    min={LIMITS.size.min}
+                    max={LIMITS.size.max}
+                    aria-describedby="npc-size-hint"
+                  />
+                  <button type="button" data-size-step="1" aria-label="One more person">+</button>
+                </div>
+                <p class="hint" id="npc-size-hint" data-size-hint>Count yourself, your parents, and anyone they support.</p>
+              </div>
+            </fieldset>
+
+            <fieldset class="npc-step" data-step="4" hidden>
+              <legend>
+                <span class="npc-step-count">Step 4 of 5</span>
+                <span class="npc-step-title" tabindex="-1">Income and assets</span>
+              </legend>
+              <div class="npc-money">
+                <div class="npc-money-head">
+                  <label for="npc-income-range" data-income-label>Parents’ household income</label>
+                  <output class="npc-money-value" for="npc-income-range" data-income-out>$0</output>
+                </div>
                 <input
-                  id="npc-size"
-                  name="size"
-                  type="number"
-                  inputmode="numeric"
-                  min={LIMITS.size.min}
-                  max={LIMITS.size.max}
-                  aria-describedby="npc-size-hint"
+                  class="npc-range"
+                  id="npc-income-range"
+                  type="range"
+                  min={LIMITS.income.min}
+                  max={LIMITS.income.max}
+                  step={LIMITS.income.step}
+                  aria-describedby="npc-income-hint"
                 />
-                <button type="button" data-size-step="1" aria-label="One more person">+</button>
+                <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$150k</span><span>$300k+</span></div>
+                <div class="npc-typed">
+                  <label for="npc-income">Or type the amount</label>
+                  <span class="npc-typed-input">
+                    <span aria-hidden="true">$</span>
+                    <input id="npc-income" type="text" inputmode="numeric" autocomplete="off" />
+                  </span>
+                </div>
+                <p class="hint" id="npc-income-hint">Total yearly income before taxes, from last year’s return.</p>
               </div>
-              <p class="hint" id="npc-size-hint" data-size-hint>Count yourself, your parents, and anyone they support.</p>
-            </div>
-          </fieldset>
 
-          <fieldset class="npc-step" data-step="4" hidden>
-            <legend>
-              <span class="npc-step-count">Step 4 of 5</span>
-              <span class="npc-step-title" tabindex="-1">Income and assets</span>
-            </legend>
-            <div class="npc-money">
-              <div class="npc-money-head">
-                <label for="npc-income-range" data-income-label>Parents’ household income</label>
-                <output class="npc-money-value" for="npc-income-range" data-income-out>$0</output>
+              <div class="npc-money">
+                <div class="npc-money-head">
+                  <label for="npc-assets-range" data-assets-label>Parents’ savings and investments</label>
+                  <output class="npc-money-value" for="npc-assets-range" data-assets-out>$0</output>
+                </div>
+                <input
+                  class="npc-range"
+                  id="npc-assets-range"
+                  type="range"
+                  min={LIMITS.assets.min}
+                  max={LIMITS.assets.max}
+                  step={LIMITS.assets.step}
+                  aria-describedby="npc-assets-hint"
+                />
+                <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$200k</span><span>$400k+</span></div>
+                <div class="npc-typed">
+                  <label for="npc-assets">Or type the amount</label>
+                  <span class="npc-typed-input">
+                    <span aria-hidden="true">$</span>
+                    <input id="npc-assets" type="text" inputmode="numeric" autocomplete="off" />
+                  </span>
+                </div>
+                <p class="hint" id="npc-assets-hint">
+                  Cash, savings, and investments. Leave out retirement accounts and the home you live in.
+                </p>
               </div>
-              <input
-                class="npc-range"
-                id="npc-income-range"
-                type="range"
-                min={LIMITS.income.min}
-                max={LIMITS.income.max}
-                step={LIMITS.income.step}
-                aria-describedby="npc-income-hint"
-              />
-              <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$150k</span><span>$300k+</span></div>
-              <div class="npc-typed">
-                <label for="npc-income">Or type the amount</label>
-                <span class="npc-typed-input">
-                  <span aria-hidden="true">$</span>
-                  <input id="npc-income" type="text" inputmode="numeric" autocomplete="off" />
-                </span>
+            </fieldset>
+
+            <div class="npc-step" data-step="5" hidden>
+              <h3 class="npc-review-title">
+                <span class="npc-step-count">Step 5 of 5</span>
+                <span class="npc-step-title" tabindex="-1">Review your answers</span>
+              </h3>
+              <dl class="npc-review" data-review></dl>
+              <div class="npc-review-actions">
+                <button type="button" class="btn" data-print>Print or save as PDF</button>
+                <button type="button" class="btn btn-ghost" data-copy-link>Copy a link to this estimate</button>
+                <button type="button" class="linkish" data-reset>Start over</button>
               </div>
-              <p class="hint" id="npc-income-hint">Total yearly income before taxes, from last year’s return.</p>
             </div>
 
-            <div class="npc-money">
-              <div class="npc-money-head">
-                <label for="npc-assets-range" data-assets-label>Parents’ savings and investments</label>
-                <output class="npc-money-value" for="npc-assets-range" data-assets-out>$0</output>
-              </div>
-              <input
-                class="npc-range"
-                id="npc-assets-range"
-                type="range"
-                min={LIMITS.assets.min}
-                max={LIMITS.assets.max}
-                step={LIMITS.assets.step}
-                aria-describedby="npc-assets-hint"
-              />
-              <div class="npc-range-scale" aria-hidden="true"><span>$0</span><span>$200k</span><span>$400k+</span></div>
-              <div class="npc-typed">
-                <label for="npc-assets">Or type the amount</label>
-                <span class="npc-typed-input">
-                  <span aria-hidden="true">$</span>
-                  <input id="npc-assets" type="text" inputmode="numeric" autocomplete="off" />
-                </span>
-              </div>
-              <p class="hint" id="npc-assets-hint">
-                Cash, savings, and investments. Leave out retirement accounts and the home you live in.
-              </p>
+            <div class="npc-step-nav">
+              <button type="button" class="btn btn-ghost" data-prev>Back</button>
+              <button type="button" class="btn" data-next>Next</button>
             </div>
-          </fieldset>
-
-          <div class="npc-step" data-step="5" hidden>
-            <h3 class="npc-review-title">
-              <span class="npc-step-count">Step 5 of 5</span>
-              <span class="npc-step-title" tabindex="-1">Review your answers</span>
-            </h3>
-            <dl class="npc-review" data-review></dl>
-            <div class="npc-review-actions">
-              <button type="button" class="btn" data-print>Print or save as PDF</button>
-              <button type="button" class="btn btn-ghost" data-copy-link>Copy a link to this estimate</button>
-              <button type="button" class="linkish" data-reset>Start over</button>
-            </div>
-          </div>
-
-          <div class="npc-step-nav">
-            <button type="button" class="btn btn-ghost" data-prev>Back</button>
-            <button type="button" class="btn" data-next>Next</button>
-          </div>
-        </form>
+          </form>
+        </div>
       </section>
 
       <section class="npc-results" aria-labelledby="npc-results-title" data-results>

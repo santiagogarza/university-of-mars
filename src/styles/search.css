@@ -4,6 +4,17 @@ main [id] {
   scroll-margin-top: 6.5rem;
 }
 
+main .search-target {
+  animation: search-flash 1.8s ease-out;
+}
+
+@keyframes search-flash {
+  from {
+    background: rgba(166, 133, 86, 0.32);
+    box-shadow: 0 0 0 0.4rem rgba(166, 133, 86, 0.32);
+  }
+}
+
 .cmdk kbd,
 .search-page kbd,
 .header-search-kbd {

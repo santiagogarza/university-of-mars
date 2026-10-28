@@ -71,7 +71,10 @@ export function highlighted(text: string, terms: string[]): DocumentFragment {
 export function trailFor(result: SearchResult): { parts: string[]; section?: string } {
   const { doc, section } = result;
   if (doc.type === 'action') return { parts: ['Quick action'] };
-  if (section?.heading) return { parts: [...doc.crumbs, doc.title], section: section.heading };
+  if (section?.heading) {
+    const parts = doc.crumbs.at(-1) === doc.title ? doc.crumbs : [...doc.crumbs, doc.title];
+    return { parts, section: section.heading };
+  }
   return { parts: doc.crumbs };
 }
 

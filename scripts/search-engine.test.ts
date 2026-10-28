@@ -10,9 +10,10 @@ import {
   prepare,
   relatedHelp,
   search,
+  slugify,
   type SearchDoc,
 } from '../src/lib/search-engine.ts';
-import { extractPage, textFragment } from '../src/lib/search-extract.ts';
+import { extractPage } from '../src/lib/search-extract.ts';
 
 const docs: SearchDoc[] = [
   {
@@ -37,7 +38,7 @@ const docs: SearchDoc[] = [
     summary: 'Routine repairs are scheduled on weekdays.',
     keywords: 'maintenance work order',
     area: 'Campus life & support',
-    sections: [{ heading: 'Call instead', anchor: '#:~:text=Call%20instead', text: 'Call for an active leak or a door that will not lock.' }],
+    sections: [{ heading: 'Call instead', anchor: '#call-instead', text: 'Call for an active leak or a door that will not lock.' }],
   },
   {
     id: 'page:/support/articles/password/',
@@ -142,8 +143,9 @@ test('no-result queries still suggest help articles', () => {
   assert.equal(relatedHelp(index, 'qqqq', 2).length, 2);
 });
 
-test('text fragments escape the characters the syntax reserves', () => {
-  assert.equal(textFragment('Move-in, spring'), '#:~:text=Move%2Din%2C%20spring');
+test('heading slugs are stable, lowercase, and accent-free', () => {
+  assert.equal(slugify('Spring Semester 2027'), 'spring-semester-2027');
+  assert.equal(slugify('  Café & Move-in: Tips '), 'cafe-move-in-tips');
 });
 
 test('extractPage reads title, breadcrumbs, and sections from rendered HTML', () => {
@@ -168,7 +170,7 @@ test('extractPage reads title, breadcrumbs, and sections from rendered HTML', ()
     doc.sections?.map((section) => [section.heading, section.anchor]),
     [
       ['', ''],
-      ['Call instead', '#:~:text=Call%20instead'],
+      ['Call instead', '#call-instead'],
       ['College of Arts & Letters', '#college-arts'],
     ],
   );

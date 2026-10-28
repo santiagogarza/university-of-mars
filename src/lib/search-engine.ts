@@ -11,7 +11,7 @@ export type GroupKey = 'actions' | 'pages' | 'help' | 'news' | 'people';
 
 export type SearchSection = {
   heading: string;
-  /** `#id`, a text fragment, or '' for the text before the first heading. */
+  /** `#id`, `#heading-slug`, or '' for the text before the first heading. */
   anchor: string;
   text: string;
 };
@@ -111,6 +111,13 @@ export function tokenize(text: string): Token[] {
     tokens.push({ value: match[0], start: match.index, end: match.index + match[0].length });
   }
   return tokens;
+}
+
+/** Anchor for a heading that has no id of its own; the palette resolves it on the target page. */
+export function slugify(text: string): string {
+  return normalize(text)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export function queryTerms(query: string): string[] {

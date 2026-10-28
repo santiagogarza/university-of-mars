@@ -34,7 +34,7 @@ export const quickActions: QuickAction[] = [
     id: 'spring-calendar',
     title: 'Spring 2027 calendar',
     description: 'Instruction, add/drop, recess, and finals for Spring Semester 2027.',
-    href: '/academics/calendar/#:~:text=Spring%20Semester%202027',
+    href: '/academics/calendar/#spring-semester-2027',
     icon: 'calendar',
     keywords: 'academic calendar dates deadlines add drop finals spring break semester registrar',
     featured: true,

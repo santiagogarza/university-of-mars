@@ -1,4 +1,4 @@
-import type { SearchDoc, SearchSection } from './search-engine';
+import { slugify, type SearchDoc, type SearchSection } from './search-engine.ts';
 
 /**
  * Turn one rendered page into a search document.
@@ -67,11 +67,6 @@ function firstText(html: string, open: RegExp, tag: string): string {
   return clean(html.slice(start, end < 0 ? undefined : end).replace(/<[^>]+>/g, ' '));
 }
 
-export function textFragment(text: string): string {
-  const encoded = encodeURIComponent(text).replace(/-/g, '%2D').replace(/,/g, '%2C').replace(/&/g, '%26');
-  return `#:~:text=${encoded}`;
-}
-
 type WalkSection = { heading: string; anchor: string; parts: string[] };
 
 function walkMain(main: string): SearchSection[] {
@@ -110,7 +105,7 @@ function walkMain(main: string): SearchSection[] {
         const { level, id, parentId } = heading;
         heading = null;
         if (!text) continue;
-        const ownAnchor = id ? `#${id}` : parentId ? `#${parentId}` : textFragment(text);
+        const ownAnchor = `#${id ?? parentId ?? slugify(text)}`;
         if (level === 2 || (level === 3 && (id || parentId))) {
           sections.push({ heading: text, anchor: ownAnchor, parts: [] });
         } else {

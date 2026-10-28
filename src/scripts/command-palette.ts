@@ -6,6 +6,7 @@ import {
   queryTerms,
   relatedHelp,
   search,
+  slugify,
   type PreparedDoc,
   type SearchDoc,
   type SearchResult,
@@ -72,6 +73,8 @@ let index: PreparedDoc[] | null = null;
 let indexFailed = false;
 let opener: HTMLElement | null = null;
 let statusTimer = 0;
+/** The person picked an option since the last keystroke; a late index load keeps that pick. */
+let userMoved = false;
 
 function ensureIndex(): void {
   if (index || !dialog) return;
@@ -79,11 +82,11 @@ function ensureIndex(): void {
     .then((prepared) => {
       index = prepared;
       indexFailed = false;
-      if (dialog.open) render(false);
+      if (dialog.open) render(!userMoved);
     })
     .catch(() => {
       indexFailed = true;
-      if (dialog.open) render(false);
+      if (dialog.open) render(!userMoved);
     });
 }
 
@@ -265,6 +268,7 @@ function showNotice(heading: string, body: string): void {
 
 function render(resetActive = true): void {
   if (!listbox || !input) return;
+  if (resetActive) userMoved = false;
   const query = input.value;
   const terms = queryTerms(query);
   const groups = buildGroups(query);
@@ -352,6 +356,7 @@ function setActive(next: number, scroll = true): void {
 
 function move(delta: number): void {
   if (!items.length) return;
+  userMoved = true;
   setActive((active + delta + items.length) % items.length);
 }
 
@@ -365,6 +370,7 @@ function groupOfIndex(position: number): number {
 
 function moveGroup(delta: number): void {
   if (!groupStarts.length) return;
+  userMoved = true;
   const current = groupOfIndex(Math.max(active, 0));
   const next = (current + delta + groupStarts.length) % groupStarts.length;
   setActive(groupStarts[next]!);
@@ -412,18 +418,49 @@ function navigateTo(href: string, newTab: boolean): void {
   const url = new URL(target, window.location.href);
   const samePage = normalizePath(url.pathname) === normalizePath(window.location.pathname) && url.search === window.location.search;
   close(!samePage);
-  if (samePage && url.hash && !url.hash.startsWith('#:~:')) {
-    const destination = document.getElementById(decodeURIComponent(url.hash.slice(1)));
-    if (window.location.hash === url.hash) destination?.scrollIntoView({ block: 'start' });
-    else window.location.hash = url.hash;
-    if (destination) {
-      if (!destination.hasAttribute('tabindex')) destination.setAttribute('tabindex', '-1');
-      destination.focus({ preventScroll: true });
+  if (samePage && url.hash) {
+    if (window.location.hash === url.hash) revealHash(true);
+    else {
+      focusOnHashChange = true;
+      window.location.hash = url.hash;
     }
     return;
   }
   go(href);
 }
+
+/* ---------- Section anchors ---------- */
+
+let focusOnHashChange = false;
+
+/**
+ * Search links point at headings without an id as `#heading-slug`. Find that
+ * heading, give it the id, and scroll to it. Real ids are left to the browser.
+ */
+function revealHash(focus: boolean): void {
+  const id = decodeURIComponent(window.location.hash.slice(1));
+  if (!id) return;
+  let target = document.getElementById(id);
+  if (!target) {
+    target = [...document.querySelectorAll<HTMLElement>('main h2, main h3')].find((node) => slugify(node.textContent ?? '') === id) ?? null;
+    if (!target) return;
+    target.id = id;
+    target.scrollIntoView({ block: 'start' });
+    target.classList.remove('search-target');
+    void target.offsetWidth;
+    target.classList.add('search-target');
+  }
+  if (focus) {
+    if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: true });
+  }
+}
+
+revealHash(false);
+window.addEventListener('hashchange', () => {
+  revealHash(focusOnHashChange);
+  focusOnHashChange = false;
+});
 
 /* ---------- Open and close ---------- */
 
@@ -556,7 +593,10 @@ if (dialog && input && listbox) {
     const option = (event.target as Element).closest<HTMLElement>('.cmdk-option');
     if (!option) return;
     const position = Number(option.dataset.index);
-    if (position !== active) setActive(position, false);
+    if (position !== active) {
+      userMoved = true;
+      setActive(position, false);
+    }
   });
   listbox.addEventListener('click', (event) => {
     const option = (event.target as Element).closest<HTMLElement>('.cmdk-option');

@@ -83,7 +83,7 @@ function init(root: HTMLElement) {
     else status.textContent = '';
   }
 
-  async function load3d() {
+  async function load3d(focusOnReady = false) {
     if (globe || mode === 'loading') return;
     setMode('loading');
     try {
@@ -97,6 +97,7 @@ function init(root: HTMLElement) {
         onPick: (id) => select(id),
         onReady: () => {
           setMode('3d');
+          if (focusOnReady) stage.focus();
           if (active) {
             globe?.focus(active);
             syncInset();
@@ -206,7 +207,7 @@ function init(root: HTMLElement) {
     globe?.resetView();
   });
   optIn.addEventListener('click', () => {
-    load3d().then(() => stage.focus());
+    load3d(true);
   });
 
   root.addEventListener('keydown', (event) => {

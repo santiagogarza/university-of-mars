@@ -1079,7 +1079,7 @@ body.mm-dragging * {
 
 .mm-rings {
   position: relative;
-  width: 11rem;
+  width: 11.5rem;
   margin: 0.2rem 0 0;
 }
 
@@ -1096,7 +1096,7 @@ body.mm-dragging * {
 
 .mm-ring circle {
   fill: none;
-  stroke-width: 12;
+  stroke-width: 10;
 }
 
 .mm-ring-track {
@@ -1142,13 +1142,13 @@ body.mm-dragging * {
 
 .mm-rings-center b {
   font-family: var(--serif);
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 500;
   color: var(--oxblood-deep);
 }
 
 .mm-rings-center span {
-  max-width: 5rem;
+  max-width: 4.2rem;
   color: var(--ink-soft);
   font-size: 0.72rem;
   font-weight: 600;
@@ -1245,7 +1245,7 @@ body.mm-dragging * {
 
 @container (min-width: 30rem) {
   .mm-degree {
-    grid-template-columns: 11rem 1fr;
+    grid-template-columns: 11.5rem 1fr;
     align-items: center;
   }
 }

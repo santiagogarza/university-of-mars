@@ -59,7 +59,7 @@ const credits = degree.areas.reduce(
   (sum, area) => ({ done: sum.done + area.done, inProgress: sum.inProgress + area.inProgress }),
   { done: 0, inProgress: 0 },
 );
-const ringRadius = (index: number) => 86 - index * 17;
+const ringRadius = (index: number) => 90 - index * 14;
 
 const cardTitles: Record<CardId, string> = {
   actions: 'Action items',

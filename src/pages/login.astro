@@ -13,12 +13,6 @@ import { u } from '../lib/paths';
   />
   <div class="wrap prose narrow">
     <form class="form-card" id="login-form" novalidate>
-      <div id="login-error" class="login-error" role="alert" tabindex="-1" hidden>
-        <p>
-          MyUM didn’t recognize that email or password. Try again, or
-          <a href={u('/support/articles/password/')}>reset the password</a>.
-        </p>
-      </div>
       <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
       <div class="form-grid">
         <div class="field full">
@@ -35,6 +29,14 @@ import { u } from '../lib/paths';
       <p class="page-actions"><button class="btn" type="submit">Sign in</button></p>
       <p><a href={u('/support/articles/password/')}>Forgot password</a></p>
     </form>
+    <aside class="callout demo-signin" aria-labelledby="demo-signin-title">
+      <h2 id="demo-signin-title">Try the MyMars demo</h2>
+      <p>
+        This sign-in is a demo. Any @umars.edu address with a password of eight or more characters opens MyMars, the
+        student dashboard, as a sample student, Ava Reyes. No real account is checked.
+      </p>
+      <p><a class="btn btn-navy" href={u('/mymars/')} data-demo-link>Open MyMars as Ava Reyes</a></p>
+    </aside>
   </div>
   <script>
     const form = document.querySelector<HTMLFormElement>('#login-form');
@@ -44,7 +46,6 @@ import { u } from '../lib/paths';
       const password = form.querySelector<HTMLInputElement>('#login-password');
       const emailError = form.querySelector<HTMLElement>('#login-email-error');
       const passwordError = form.querySelector<HTMLElement>('#login-password-error');
-      const alert = document.querySelector<HTMLElement>('#login-error');
       const badEmail = !email || !/^[^\s@]+@umars\.edu$/i.test(email.value.trim());
       const badPassword = !password || password.value.length < 8;
       if (emailError) {
@@ -58,15 +59,12 @@ import { u } from '../lib/paths';
       email?.setAttribute('aria-invalid', badEmail ? 'true' : 'false');
       password?.setAttribute('aria-invalid', badPassword ? 'true' : 'false');
       if (badEmail || badPassword) {
-        if (alert) alert.hidden = true;
         (badEmail ? email : password)?.focus();
         return;
       }
       if (password) password.value = '';
-      if (alert) {
-        alert.hidden = false;
-        alert.focus();
-      }
+      const dashboard = document.querySelector<HTMLAnchorElement>('[data-demo-link]');
+      if (dashboard) window.location.assign(dashboard.href);
     });
   </script>
 </Base>

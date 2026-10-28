@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import CampusMap from '../components/CampusMap.astro';
+import PageHero from '../components/PageHero.astro';
+import { site } from '../data/site';
+import { u } from '../lib/paths';
+import '../styles/campus-map.css';
+---
+
+<Base
+  title="Campus map"
+  description="Interactive map of the University of Mars Jezero campus: buildings, hours, step-free entrances, shuttle stops, and walking directions."
+>
+  <PageHero
+    eyebrow="Visit the Jezero campus"
+    title="Campus map"
+    lede="Find a building, check today’s hours and step-free entrances, and get walking directions across the Jezero campus."
+    crumbs={[{ href: '/campus-map/', label: 'Campus map' }]}
+  >
+    <p class="page-actions">
+      <a class="btn btn-ghost" href={u('/admissions/#visit')}>Plan a campus visit</a>
+      <a class="btn btn-ghost" href={u('/accessibility/')}>Accessibility on campus</a>
+    </p>
+  </PageHero>
+
+  <CampusMap />
+
+  <div class="wrap prose cm-more-links">
+    <h2>Getting around</h2>
+    <p>
+      The Rim Loop shuttle runs clockwise around the Rim Road every 8 minutes on weekdays during Spring Semester 2027.
+      The late bus leaves the Library Loop for Syrtis Court and Elysium Hall until 12:15 a.m. Every shuttle kneels and
+      has a ramp.
+    </p>
+    <p>
+      To report a broken power door, a closed elevator, or another barrier on a route, call the Access office at
+      <a href={site.accessHref}>{site.accessPhone}</a> or
+      <a href={u('/support/?category=accessibility#request')}>report a barrier</a> in the Help Center. In an
+      emergency, call Campus Safety at <a href={site.safetyHref}>{site.safetyPhone}</a>.
+    </p>
+  </div>
+</Base>

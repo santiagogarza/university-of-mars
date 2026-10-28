@@ -111,6 +111,12 @@ export const searchIndex: SearchItem[] = [
     text: `founded ${site.founded} leadership jezero chancellor contact`,
   },
   {
+    title: 'Campus map',
+    href: '/campus-map/',
+    group: 'About',
+    text: 'map buildings directions walking route shuttle stops step-free entrances elevators hours jezero campus',
+  },
+  {
     title: 'Title IX and civil rights',
     href: '/title-ix/',
     group: 'About',

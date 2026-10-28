@@ -17,6 +17,7 @@ export const utilityAudiences: NavLink[] = [
 
 export const utilityTools: NavLink[] = [
   { label: 'MyUM', href: '/login/' },
+  { label: 'Campus map', href: '/campus-map/' },
   { label: 'Search', href: '/search/' },
 ];
 
@@ -130,6 +131,7 @@ export const primaryNav: NavItem[] = [
         title: 'The university',
         links: [
           { label: 'About UM', href: '/about/' },
+          { label: 'Campus map', href: '/campus-map/' },
           { label: 'Leadership', href: '/about/#leadership' },
           { label: 'Facts and figures', href: '/about/#facts' },
           { label: 'News', href: '/#news' },

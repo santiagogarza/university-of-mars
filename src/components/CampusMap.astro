@@ -1,0 +1,779 @@
+---
+import Photo from './Photo.astro';
+import {
+  MAP_HEIGHT,
+  MAP_WIDTH,
+  TODAY_LABEL,
+  allPlaces,
+  categoryLabels,
+  libraryLoop,
+  places,
+  rimRoad,
+  stops,
+  walkEdges,
+  walkNodes,
+  type Place,
+} from '../data/campus-map';
+import { hasStepFreeDoor } from '../lib/campus-route';
+import { u } from '../lib/paths';
+
+const nodeById = new Map(walkNodes.map((n) => [n.id, n]));
+
+const primary = (place: Place) => place.categories[0] ?? 'landmark';
+const bounds = (place: Place) => {
+  const xs = place.rects.flatMap(([x, , w]) => [x, x + w]);
+  const ys = place.rects.flatMap(([, y, , h]) => [y, y + h]);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
+};
+const labelPoint = (place: Place) => {
+  if (place.labelOutside) return place.labelOutside;
+  const [x, y, w, h] = [...place.rects].sort((a, b) => b[2] * b[3] - a[2] * a[3])[0] ?? [0, 0, 0, 0];
+  return { x: x + w / 2, y: y + h / 2, anchor: 'middle' as const };
+};
+const sortedPlaces = [...allPlaces].sort((a, b) => a.name.localeCompare(b.name));
+// Tab order on the map follows reading order: rows north to south, then west to east.
+const drawOrder = [...places].sort((a, b) => {
+  const row = (p: Place) => Math.round((bounds(p).y0 + bounds(p).y1) / 2 / 160);
+  return row(a) - row(b) || bounds(a).x0 - bounds(b).x0;
+});
+const todayRow = (days: string) => /^(Monday|Weekdays|Daily)/.test(days);
+
+// Crater rim: Jezero's wall crosses the northwest corner of the drawing.
+const rim = { cx: 1150, cy: 1150, r: 1350 };
+const polar = (r: number, deg: number) => {
+  const t = (deg * Math.PI) / 180;
+  return { x: rim.cx + r * Math.cos(t), y: rim.cy + r * Math.sin(t) };
+};
+const hachures = Array.from({ length: 70 }, (_, i) => {
+  const deg = -166 + i * 0.9;
+  const a = polar(rim.r - 34, deg);
+  const b = polar(rim.r - 34 - (16 + ((i * 7) % 5) * 7), deg);
+  return `M${a.x.toFixed(1)} ${a.y.toFixed(1)}L${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+}).join('');
+const rimArc = (r: number, from: number, to: number) => {
+  const a = polar(r, from);
+  const b = polar(r, to);
+  return `M ${a.x.toFixed(1)} ${a.y.toFixed(1)} A ${r} ${r} 0 0 1 ${b.x.toFixed(1)} ${b.y.toFixed(1)}`;
+};
+
+type Pt = [number, number];
+const mesas: { name: string; cap: Pt[]; label: Pt }[] = [
+  {
+    name: 'Lookout Mesa',
+    cap: [[1420, 640], [1470, 608], [1545, 618], [1592, 662], [1586, 738], [1540, 792], [1462, 800], [1414, 760], [1400, 700]],
+    label: [1497, 705],
+  },
+  {
+    name: 'North Mesa',
+    cap: [[1432, 112], [1500, 80], [1580, 96], [1614, 152], [1602, 240], [1542, 290], [1470, 282], [1426, 222], [1416, 160]],
+    label: [1515, 190],
+  },
+  {
+    name: 'Kodiak Butte',
+    cap: [[1442, 892], [1492, 870], [1542, 890], [1548, 940], [1494, 966], [1446, 946]],
+    label: [1495, 922],
+  },
+];
+const scalePoly = (pts: Pt[], k: number, dx = 0, dy = 0) => {
+  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+  return pts.map(([x, y]) => `${(cx + (x - cx) * k + dx).toFixed(1)},${(cy + (y - cy) * k + dy).toFixed(1)}`).join(' ');
+};
+
+// Seeded scatter so the drawing is the same on every build.
+let seed = 20270111;
+const rand = () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = seed;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const segDist = (px: number, py: number, ax: number, ay: number, bx: number, by: number) => {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const t = Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy || 1)));
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+};
+const walkSegments = [
+  ...walkEdges.map((e) => {
+    const a = nodeById.get(e.from)!;
+    const b = nodeById.get(e.to)!;
+    return [a.x, a.y, b.x, b.y] as const;
+  }),
+  ...allPlaces.flatMap((p) =>
+    p.entrances.map((e) => {
+      const n = nodeById.get(e.node)!;
+      return [e.x, e.y, n.x, n.y] as const;
+    }),
+  ),
+];
+const roadSegments: [number, number, number, number][] = [
+  [430, 165, 1250, 165],
+  [1340, 255, 1340, 815],
+  [1250, 905, 300, 905],
+  [215, 820, 215, 370],
+  [800, 165, 800, 235],
+  [800, 905, 800, 1000],
+];
+const labelZones = [
+  [690, 412, 110, 30],
+  [270, 346, 116, 28],
+  [470, 588, 112, 26],
+];
+const clear = (x: number, y: number, pad: number) =>
+  labelZones.every(([lx, ly, lw, lh]) => x < lx - pad || x > lx + lw + pad || y < ly - pad || y > ly + lh + pad) &&
+  walkSegments.every((s) => segDist(x, y, ...s) > pad + 6) &&
+  roadSegments.every((s) => segDist(x, y, ...s) > pad + 14) &&
+  allPlaces.every((p) => {
+    const b = bounds(p);
+    return x < b.x0 - pad || x > b.x1 + pad || y < b.y0 - pad || y > b.y1 + pad;
+  }) &&
+  Math.hypot(x - 800, y - 520) > 52 &&
+  Math.hypot(x - 800, y - 212) > 40;
+
+const trees: { x: number; y: number; r: number }[] = [];
+for (let i = 0; i < 900 && trees.length < 230; i += 1) {
+  const onQuad = i < 260;
+  const x = onQuad ? 632 + rand() * 336 : 232 + rand() * 1092;
+  const y = onQuad ? 412 + rand() * 216 : 182 + rand() * 706;
+  const r = 6 + rand() * 4.5;
+  if (!clear(x, y, r + 2)) continue;
+  if (trees.some((t) => Math.hypot(t.x - x, t.y - y) < t.r + r + (onQuad ? 9 : 16))) continue;
+  trees.push({ x, y, r });
+}
+const shrubs: { x: number; y: number; r: number }[] = [];
+for (let i = 0; i < 400 && shrubs.length < 90; i += 1) {
+  const x = rand() * MAP_WIDTH;
+  const y = rand() * MAP_HEIGHT;
+  const inside = x > 205 && x < 1350 && y > 155 && y < 915;
+  const onMesa = x > 1390 && ((y > 590 && y < 820) || y < 310 || (y > 860 && y < 975));
+  if (inside || onMesa || Math.hypot(x - rim.cx, y - rim.cy) > rim.r - 40) continue;
+  if (x > 820 && x < 1010 && y > 920) continue;
+  shrubs.push({ x, y, r: 2 + rand() * 3 });
+}
+
+// Pitched roofs read as four facets lit from the northwest; labs and newer buildings are flat.
+const flatRoofs = new Set(['observatory', 'arcadia', 'greenhouse', 'union', 'rec', 'health-services', 'safety', 'delta-cafe', 'clock-tower']);
+const hipRoof = (x: number, y: number, w: number, h: number) => {
+  if (w >= h) {
+    const r = h / 2;
+    return {
+      light: `M${x} ${y}H${x + w}L${x + w - r} ${y + r}H${x + r}Z`,
+      soft: `M${x} ${y}L${x + r} ${y + r}L${x} ${y + h}Z`,
+      dark: `M${x} ${y + h}H${x + w}L${x + w - r} ${y + r}H${x + r}Z`,
+      dim: `M${x + w} ${y}L${x + w - r} ${y + r}L${x + w} ${y + h}Z`,
+    };
+  }
+  const r = w / 2;
+  return {
+    light: `M${x} ${y}H${x + w}L${x + r} ${y + r}Z`,
+    soft: `M${x} ${y}L${x + r} ${y + r}V${y + h - r}L${x} ${y + h}Z`,
+    dark: `M${x} ${y + h}H${x + w}L${x + r} ${y + h - r}Z`,
+    dim: `M${x + w} ${y}L${x + r} ${y + r}V${y + h - r}L${x + w} ${y + h}Z`,
+  };
+};
+const rooftopUnits = (x: number, y: number, w: number, h: number) =>
+  w > 60 && h > 50
+    ? [
+        [x + w * 0.62, y + h * 0.18, 16, 11],
+        [x + w * 0.2, y + h * 0.68, 12, 9],
+      ]
+    : [];
+
+const edgePath = (from: string, to: string) => {
+  const a = nodeById.get(from)!;
+  const b = nodeById.get(to)!;
+  return `M${a.x} ${a.y}L${b.x} ${b.y}`;
+};
+const flatWalks = walkEdges.filter((e) => !e.stairs).map((e) => edgePath(e.from, e.to)).join('');
+const stairWalks = walkEdges.filter((e) => e.stairs).map((e) => edgePath(e.from, e.to)).join('');
+const connectors = allPlaces
+  .filter((p) => p.kind === 'building')
+  .flatMap((p) =>
+    p.entrances
+      .filter((e) => !e.plaza)
+      .map((e) => {
+        const n = nodeById.get(e.node)!;
+        return `M${e.x} ${e.y}L${n.x} ${n.y}`;
+      }),
+  )
+  .join('');
+const stepFreeDoors = places.flatMap((p) =>
+  p.entrances.filter((e) => e.stepFree && !e.plaza).map((e) => ({ ...e, place: p.id })),
+);
+const accessibleCount = allPlaces.filter(hasStepFreeDoor).length;
+
+const filters = [
+  { id: 'academic', label: 'Academic' },
+  { id: 'housing', label: 'Housing' },
+  { id: 'dining', label: 'Dining' },
+  { id: 'services', label: 'Services' },
+];
+---
+
+<section class="cm" data-cm aria-labelledby="cm-heading">
+  <h2 id="cm-heading" class="sr-only">Interactive campus map</h2>
+  <div class="cm-sidebar">
+    <div class="cm-modebar">
+      <button class="btn btn-navy cm-dir-toggle" type="button" aria-pressed="false" data-cm-dir-toggle>
+        <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"
+          ><path
+            d="M5 19c3-1 3-5 6-6s4-4 3-7"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-dasharray="2.5 3"></path><circle cx="5" cy="19" r="2.4" fill="currentColor"></circle><circle
+            cx="14"
+            cy="5"
+            r="2.4"
+            fill="currentColor"></circle></svg
+        >
+        <span data-cm-dir-label>Get walking directions</span>
+      </button>
+    </div>
+
+    <div class="cm-find" data-cm-find>
+      <div class="search-field cm-search">
+        <label for="cm-q">Find a building, office, or service</label>
+        <input
+          id="cm-q"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          aria-controls="cm-list"
+          aria-describedby="cm-count"
+          placeholder="Try registrar, coffee, or pool"
+        />
+      </div>
+      <div class="cm-chips" role="group" aria-labelledby="cm-chips-label">
+        <p id="cm-chips-label" class="cm-chips-label">Show only</p>
+        {
+          filters.map((f) => (
+            <button type="button" class={`cm-chip cm-chip-${f.id}`} aria-pressed="false" data-cm-filter={f.id}>
+              <span class="cm-swatch" aria-hidden="true" />
+              {f.label}
+            </button>
+          ))
+        }
+        <button type="button" class="cm-chip cm-chip-access" aria-pressed="false" data-cm-filter="access">
+          <svg class="cm-isa" viewBox="-10 -10 20 20" aria-hidden="true"
+            ><use href="#cm-isa-glyph"></use></svg
+          >
+          Accessible entrances
+        </button>
+      </div>
+      <p id="cm-count" class="cm-count" aria-live="polite">{allPlaces.length} places</p>
+      <ul id="cm-list" class="cm-list">
+        {
+          sortedPlaces.map((p) => (
+            <li data-cm-item={p.id}>
+              <button type="button" class="cm-item" data-cm-select={p.id}>
+                <span class={`cm-swatch cm-swatch-${primary(p)}`} aria-hidden="true" />
+                <span class="cm-item-text">
+                  <span class="cm-item-name">{p.name}</span>
+                  <span class="cm-item-meta">
+                    {p.categories.map((c) => categoryLabels[c]).join(' · ')}
+                    {hasStepFreeDoor(p) && <span class="cm-item-access"> · Step-free entrance</span>}
+                  </span>
+                </span>
+              </button>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="cm-none" data-cm-none hidden>
+        <p><strong>No places match.</strong> Check the spelling, or clear the filters.</p>
+        <button type="button" class="btn btn-ghost" data-cm-reset-filters>Clear search and filters</button>
+      </div>
+    </div>
+
+    <div class="cm-directions" data-cm-directions hidden>
+      <h3 class="cm-dir-title">Walking directions</h3>
+      <p class="cm-hint" data-cm-hint>Choose a starting place, then a destination. You can pick either on the map.</p>
+      <div class="cm-dir-fields">
+        <div class="field">
+          <label for="cm-from"><span class="cm-pin cm-pin-a" aria-hidden="true">A</span> From</label>
+          <select id="cm-from" data-cm-from>
+            <option value="">Choose a starting place</option>
+            {sortedPlaces.map((p) => <option value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+        <button type="button" class="cm-swap" data-cm-swap aria-label="Swap start and destination">
+          <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20"
+            ><path
+              d="M7 4v14m0 0-3-3m3 3 3-3M17 20V6m0 0-3 3m3-3 3 3"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path></svg
+          >
+        </button>
+        <div class="field">
+          <label for="cm-to"><span class="cm-pin cm-pin-b" aria-hidden="true">B</span> To</label>
+          <select id="cm-to" data-cm-to>
+            <option value="">Choose a destination</option>
+            {sortedPlaces.map((p) => <option value={p.id}>{p.name}</option>)}
+          </select>
+        </div>
+      </div>
+      <label class="cm-check">
+        <input type="checkbox" data-cm-stepfree />
+        <span>Step-free route <span class="cm-check-note">Avoids steps and uses step-free entrances</span></span>
+      </label>
+      <div class="cm-route-result" data-cm-route-result aria-live="polite"></div>
+      <ol class="cm-steps" data-cm-steps tabindex="0" aria-label="Route steps" hidden></ol>
+      <p class="cm-dir-actions">
+        <button type="button" class="btn btn-ghost" data-cm-clear-route>Clear route</button>
+        <span class="cm-fineprint">Times assume about 80 meters a minute on level walks.</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="cm-stage" data-cm-stage>
+    <div
+      class="cm-viewport"
+      id="cm-viewport"
+      tabindex="0"
+      role="group"
+      aria-roledescription="map"
+      aria-label="Jezero campus map"
+      aria-describedby="cm-help"
+      data-cm-viewport
+    >
+      <svg
+        class="cm-svg"
+        viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+        preserveAspectRatio="xMidYMid meet"
+        xmlns="http://www.w3.org/2000/svg"
+        tabindex="-1"
+        data-cm-svg
+      >
+        <defs>
+          <radialGradient id="cm-ground" cx="50%" cy="52%" r="70%">
+            <stop offset="0" stop-color="#f1dfc8"></stop>
+            <stop offset="0.65" stop-color="#e8cba9"></stop>
+            <stop offset="1" stop-color="#dcb48c"></stop>
+          </radialGradient>
+          <linearGradient id="cm-lawn" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#9db574"></stop>
+            <stop offset="1" stop-color="#84a05c"></stop>
+          </linearGradient>
+          <linearGradient id="cm-mesa-cap" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#e0a77c"></stop>
+            <stop offset="1" stop-color="#c98458"></stop>
+          </linearGradient>
+          <pattern id="cm-glass" width="12" height="12" patternUnits="userSpaceOnUse">
+            <rect width="12" height="12" fill="#b9d3cf"></rect>
+            <path d="M0 0H12M0 0V12" stroke="#7fa6a2" stroke-width="1.4"></path>
+          </pattern>
+          <pattern id="cm-parking" width="14" height="40" patternUnits="userSpaceOnUse">
+            <rect width="14" height="40" fill="#cbbfb2"></rect>
+            <path d="M0 0V16M0 24V40" stroke="#f4ede4" stroke-width="1.5"></path>
+          </pattern>
+          <g id="cm-isa-glyph">
+            <circle r="9.5" fill="#1b3048" stroke="#fff" stroke-width="1.8"></circle>
+            <circle cx="0.6" cy="-5" r="1.6" fill="#fff"></circle>
+            <path
+              d="M-0.6 -2.6 L-0.2 1.2 H3.2 L4.6 4.8 M-0.4 -0.6 H2.6"
+              fill="none"
+              stroke="#fff"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+            <path d="M-3.4 -0.6 A 4 4 0 1 0 2.6 4.4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round"
+            ></path>
+          </g>
+        </defs>
+
+        <g class="cm-terrain" aria-hidden="true">
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#cm-ground)"></rect>
+          <ellipse cx="1130" cy="960" rx="190" ry="40" fill="#dfbd98" opacity="0.5"></ellipse>
+          <ellipse cx="120" cy="560" rx="70" ry="160" fill="#dfbd98" opacity="0.45"></ellipse>
+          <ellipse cx="1390" cy="420" rx="40" ry="140" fill="#dfbd98" opacity="0.5"></ellipse>
+
+          <path d="M -10 520 C 120 540 215 660 210 860 L 210 1010 L -10 1010 Z" fill="#efdbbf" opacity="0.85"></path>
+          <g class="cm-channels" fill="none" stroke="#f7ead7" stroke-linecap="round">
+            <path d="M -10 560 C 60 575 100 640 150 690 S 190 790 200 860" stroke-width="5"></path>
+            <path d="M -10 560 C 50 610 70 700 110 770 S 140 900 165 1010" stroke-width="4"></path>
+            <path d="M -10 560 C 30 640 25 750 55 830 S 70 950 60 1010" stroke-width="3.5"></path>
+            <path d="M 110 770 C 80 820 95 880 120 930" stroke-width="2.5"></path>
+            <path d="M 150 690 C 120 720 125 760 140 800" stroke-width="2"></path>
+          </g>
+          <text class="cm-terrain-label" x="78" y="720" transform="rotate(62 78 720)">Old delta</text>
+
+          <path d={`M 0 0 L ${polar(rim.r, -121.6).x.toFixed(1)} 0 A ${rim.r} ${rim.r} 0 0 0 0 ${polar(rim.r, -148.4).y.toFixed(1)} Z`} fill="#d4a27a"></path>
+          <path d={rimArc(rim.r - 8, -170, -100)} fill="none" stroke="#c48a62" stroke-width="46"></path>
+          <path d={rimArc(rim.r - 2, -170, -100)} fill="none" stroke="#dcae86" stroke-width="10" opacity="0.9"></path>
+          <path d={rimArc(rim.r - 48, -170, -100)} fill="none" stroke="#e0bb94" stroke-width="28" opacity="0.55"></path>
+          <path d={hachures} stroke="#a9704d" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+          <path id="cm-rim-text" d={rimArc(rim.r + 46, -139, -124)} fill="none"></path>
+          <text class="cm-rim-label"><textPath href="#cm-rim-text" startOffset="50%" text-anchor="middle">Jezero crater rim</textPath></text>
+
+          {
+            mesas.map((m) => (
+              <g class="cm-mesa">
+                <polygon points={scalePoly(m.cap, 1.5)} fill="none" stroke="#c99671" stroke-width="1.4" stroke-dasharray="5 6" />
+                <polygon points={scalePoly(m.cap, 1.32)} fill="none" stroke="#c48d66" stroke-width="1.5" />
+                <polygon points={scalePoly(m.cap, 1.2, 10, 12)} fill="#a9603f" opacity="0.55" />
+                <polygon points={scalePoly(m.cap, 1.18)} fill="#bd7650" />
+                <polygon points={scalePoly(m.cap, 1)} fill="url(#cm-mesa-cap)" stroke="#9a5537" stroke-width="2" />
+                <polygon points={scalePoly(m.cap, 0.62)} fill="none" stroke="#efc29b" stroke-width="1.4" opacity="0.8" />
+                <text class="cm-terrain-label cm-mesa-label" x={m.label[0]} y={m.label[1]}>
+                  {m.name}
+                </text>
+              </g>
+            ))
+          }
+          <path d="M 1340 700 C 1365 700 1380 690 1402 690" fill="none" stroke="#8e5a3c" stroke-width="2.4" stroke-dasharray="3 5"></path>
+
+          <g fill="#a3905f" opacity="0.75">
+            {shrubs.map((s) => <circle cx={s.x.toFixed(1)} cy={s.y.toFixed(1)} r={s.r.toFixed(1)} />)}
+          </g>
+        </g>
+
+        <g class="cm-grounds" aria-hidden="true">
+          <path d={rimRoad} fill="#f3e5d2"></path>
+          <rect x="630" y="410" width="340" height="220" rx="18" fill="url(#cm-lawn)"></rect>
+          <rect x="286" y="416" width="78" height="68" rx="6" fill="url(#cm-lawn)"></rect>
+          <rect x="452" y="556" width="146" height="80" rx="10" fill="url(#cm-lawn)" opacity="0.9"></rect>
+          <rect x="690" y="360" width="220" height="30" rx="4" fill="#ecdcc6"></rect>
+          <circle cx="800" cy="520" r="46" fill="#efe3d1" stroke="#d7c3a8" stroke-width="2"></circle>
+          <text class="cm-area-label" x="745" y="434">Main Quad</text>
+          <text class="cm-area-label" x="526" y="607">Union Green</text>
+          <text class="cm-area-label cm-area-label-dark" x="328" y="367">West Village</text>
+        </g>
+
+        <g class="cm-roads" aria-hidden="true">
+          <rect x="830" y="928" width="168" height="56" rx="4" fill="url(#cm-parking)" stroke="#a89a8c" stroke-width="2"></rect>
+          <path d="M 800 905 V 1010" stroke="#8d7d6f" stroke-width="26" fill="none"></path>
+          <path d={rimRoad} fill="none" stroke="#8d7d6f" stroke-width="22"></path>
+          <path d={libraryLoop} fill="none" stroke="#8d7d6f" stroke-width="16"></path>
+          <path d="M 800 905 V 1010" stroke="#a5968a" stroke-width="20" fill="none"></path>
+          <path d={rimRoad} fill="none" stroke="#a5968a" stroke-width="16"></path>
+          <path d={libraryLoop} fill="none" stroke="#a5968a" stroke-width="11"></path>
+          <path d={rimRoad} fill="none" stroke="#efe6da" stroke-width="1.6" stroke-dasharray="10 12" opacity="0.8"></path>
+          <path d={rimRoad} class="cm-shuttle-line" fill="none"></path>
+          <path d={libraryLoop} class="cm-shuttle-line" fill="none"></path>
+          <rect x="776" y="884" width="12" height="12" fill="#a68556" stroke="#6b5434" stroke-width="1.5"></rect>
+          <rect x="812" y="884" width="12" height="12" fill="#a68556" stroke="#6b5434" stroke-width="1.5"></rect>
+          <text class="cm-road-label" x="1000" y="169.5">Rim Road</text>
+          <text class="cm-road-label" x="0" y="0" transform="translate(1344.5 760) rotate(90)">Rim Road</text>
+          <text class="cm-road-label" x="0" y="0" transform="translate(804 975) rotate(-90)">Olympus Way</text>
+          <text class="cm-terrain-label cm-parking-label" x="914" y="1000">Visitor parking</text>
+          <text class="cm-terrain-label cm-trail-label" x="1372" y="684">Mesa Trail</text>
+        </g>
+
+        <g class="cm-walks" aria-hidden="true" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d={connectors} stroke="#d6bf9f" stroke-width="7"></path>
+          <path d={flatWalks + stairWalks} stroke="#d6bf9f" stroke-width="12"></path>
+          <path d={connectors} stroke="#faf2e6" stroke-width="4"></path>
+          <path d={flatWalks + stairWalks} stroke="#faf2e6" stroke-width="8.5"></path>
+          <path d={stairWalks} stroke="#b59a79" stroke-width="8.5" stroke-dasharray="1.6 3.4"></path>
+        </g>
+
+        <g class="cm-trees" aria-hidden="true">
+          <g fill="#5b4a30" opacity="0.22">
+            {trees.map((t) => <circle cx={(t.x + 3).toFixed(1)} cy={(t.y + 3.5).toFixed(1)} r={t.r.toFixed(1)} />)}
+          </g>
+          <g fill="#6f8c48" stroke="#58733a" stroke-width="1">
+            {trees.map((t) => <circle cx={t.x.toFixed(1)} cy={t.y.toFixed(1)} r={t.r.toFixed(1)} />)}
+          </g>
+          <g fill="#9bb86c" opacity="0.8">
+            {trees.map((t) => <circle cx={(t.x - t.r * 0.3).toFixed(1)} cy={(t.y - t.r * 0.3).toFixed(1)} r={(t.r * 0.45).toFixed(1)} />)}
+          </g>
+        </g>
+
+        <g class="cm-places">
+          {
+            drawOrder.map((p) => {
+              const cat = primary(p);
+              const lp = labelPoint(p);
+              const lineH = 17;
+              const top = lp.y - ((p.label.length - 1) * lineH) / 2;
+              return (
+                <g
+                  class={`cm-place cm-cat-${cat}`}
+                  id={`cm-place-${p.id}`}
+                  data-place={p.id}
+                  data-cats={p.categories.join(' ')}
+                  data-stepfree={hasStepFreeDoor(p) ? 'true' : 'false'}
+                  tabindex="0"
+                  role="button"
+                  aria-label={`${p.name}, ${p.categories.map((c) => categoryLabels[c]).join(' and ')}`}
+                >
+                  {p.rects.map(([x, y, w, h]) => (
+                    <rect class="cm-halo" x={x - 5} y={y - 5} width={w + 10} height={h + 10} rx="6" />
+                  ))}
+                  {p.rects.map(([x, y, w, h]) => (
+                    <rect class="cm-shadow" x={x + 5} y={y + 6} width={w} height={h} rx="3" />
+                  ))}
+                  {p.rects.map(([x, y, w, h]) => (
+                    <rect class={p.id === 'greenhouse' ? 'cm-roof cm-roof-glass' : 'cm-roof'} x={x} y={y} width={w} height={h} rx="3" />
+                  ))}
+                  {flatRoofs.has(p.id)
+                    ? p.rects.map(([x, y, w, h]) => (
+                        <>
+                          {w > 40 && h > 40 && <rect class="cm-ridge" x={x + 7} y={y + 7} width={w - 14} height={h - 14} rx="2" />}
+                          {p.id !== 'greenhouse' &&
+                            rooftopUnits(x, y, w, h).map(([ux, uy, uw, uh]) => (
+                              <rect class="cm-unit" x={ux} y={uy} width={uw} height={uh} rx="1.5" />
+                            ))}
+                        </>
+                      ))
+                    : p.rects.map(([x, y, w, h]) => {
+                        const f = hipRoof(x, y, w, h);
+                        return (
+                          <g class="cm-hip">
+                            <path class="cm-facet-light" d={f.light} />
+                            <path class="cm-facet-soft" d={f.soft} />
+                            <path class="cm-facet-dark" d={f.dark} />
+                            <path class="cm-facet-dim" d={f.dim} />
+                          </g>
+                        );
+                      })}
+                  {p.id === 'library' && <rect class="cm-atrium" x="745" y="338" width="110" height="22" rx="2" />}
+                  {p.id === 'arcadia' && (
+                    <path class="cm-sawtooth" d="M1192 400V495M1210 400V495M1228 400V495M1246 400V495M1264 400V495M1282 400V495" />
+                  )}
+                  {p.id === 'observatory' && (
+                    <g class="cm-dome">
+                      <circle cx="1250" cy="245" r="22" />
+                      <path d="M1250 223 V267" />
+                    </g>
+                  )}
+                  {p.id === 'clock-tower' && (
+                    <g class="cm-clock">
+                      <path d="M786 506 L800 520 L814 506 M786 534 L800 520 L814 534" />
+                      <circle cx="800" cy="520" r="7" />
+                      <path d="M800 520 V515 M800 520 H804" />
+                    </g>
+                  )}
+                  <text
+                    class={p.labelOutside ? 'cm-label cm-label-outside' : p.id === 'greenhouse' ? 'cm-label cm-label-dark' : 'cm-label'}
+                    x={lp.x}
+                    y={top}
+                    text-anchor={lp.anchor ?? 'middle'}
+                  >
+                    {p.label.map((line, i) => (
+                      <tspan x={lp.x} dy={i === 0 ? '0.35em' : lineH}>
+                        {line}
+                      </tspan>
+                    ))}
+                  </text>
+                </g>
+              );
+            })
+          }
+        </g>
+
+        <g class="cm-doors" data-cm-doors aria-hidden="true">
+          {stepFreeDoors.map((d) => <use href="#cm-isa-glyph" x={d.x} y={d.y} data-door-of={d.place} />)}
+        </g>
+
+        <g class="cm-stops">
+          {
+            stops.map((s) => {
+              const e = s.entrances[0]!;
+              const labelLeft = e.x > 1300;
+              return (
+                <g
+                  class="cm-place cm-stop"
+                  id={`cm-place-${s.id}`}
+                  data-place={s.id}
+                  data-cats="transit"
+                  data-stepfree="true"
+                  tabindex="0"
+                  role="button"
+                  aria-label={s.name}
+                >
+                  <circle class="cm-halo" cx={e.x} cy={e.y} r="19" />
+                  <rect class="cm-stop-sign" x={e.x - 11} y={e.y - 11} width="22" height="22" rx="6" />
+                  <path
+                    class="cm-stop-bus"
+                    d={`M${e.x - 6} ${e.y + 3}V${e.y - 4}Q${e.x - 6} ${e.y - 6} ${e.x - 4} ${e.y - 6}H${e.x + 4}Q${e.x + 6} ${e.y - 6} ${e.x + 6} ${e.y - 4}V${e.y + 3}Z`}
+                  />
+                  <path class="cm-stop-window" d={`M${e.x - 4.5} ${e.y - 2}H${e.x + 4.5}`} />
+                  <circle class="cm-stop-wheel" cx={e.x - 3.5} cy={e.y + 4.5} r="1.8" />
+                  <circle class="cm-stop-wheel" cx={e.x + 3.5} cy={e.y + 4.5} r="1.8" />
+                  <text class="cm-stop-label" x={labelLeft ? e.x - 17 : e.x + 17} y={e.y + 4} text-anchor={labelLeft ? 'end' : 'start'}>
+                    {s.label[0]}
+                  </text>
+                </g>
+              );
+            })
+          }
+        </g>
+
+        <g class="cm-route" data-cm-route aria-hidden="true">
+          <path class="cm-route-casing" data-cm-route-casing></path>
+          <path class="cm-route-line" data-cm-route-line></path>
+          <path class="cm-route-dots" data-cm-route-dots></path>
+          <g class="cm-route-pin cm-route-pin-a" data-cm-pin-a>
+            <circle r="14"></circle>
+            <text y="5">A</text>
+          </g>
+          <g class="cm-route-pin cm-route-pin-b" data-cm-pin-b>
+            <circle r="14"></circle>
+            <text y="5">B</text>
+          </g>
+        </g>
+      </svg>
+
+      <div class="cm-compass" aria-hidden="true">
+        <svg viewBox="0 0 40 40" width="40" height="40"
+          ><circle cx="20" cy="20" r="18" fill="#fffcf8" stroke="#e4d9cc"></circle><path
+            d="M20 6 L25 21 H15 Z"
+            fill="#6b2430"></path><path d="M20 34 L25 21 H15 Z" fill="#c9b9a7"></path><text
+            x="20"
+            y="15.5"
+            text-anchor="middle"
+            font-size="7"
+            font-weight="700"
+            fill="#fff">N</text
+          ></svg
+        >
+      </div>
+      <div class="cm-scale" aria-hidden="true"><span class="cm-scale-bar" data-cm-scale-bar></span><span data-cm-scale-label>100 m</span></div>
+      <p class="cm-pick-banner" data-cm-pick-banner aria-hidden="true" hidden></p>
+    </div>
+
+    <div class="cm-zoom" role="group" aria-label="Map zoom">
+      <button type="button" data-cm-zoom="in" aria-label="Zoom in"><span aria-hidden="true">+</span></button>
+      <button type="button" data-cm-zoom="out" aria-label="Zoom out"><span aria-hidden="true">−</span></button>
+      <button type="button" data-cm-zoom="reset" aria-label="Show the whole campus">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"
+          ><path
+            d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"></path></svg
+        >
+      </button>
+    </div>
+
+    <aside class="cm-panel" id="cm-panel" aria-label="Place details" data-cm-panel hidden>
+      <button type="button" class="cm-close" data-cm-close aria-label="Close details">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"
+          ><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path></svg
+        >
+      </button>
+      {
+        allPlaces.map((p) => {
+          const doors = p.entrances.filter((e) => e.stepFree && (!e.plaza || p.kind === 'stop'));
+          const firstToday = p.hours.findIndex((h) => todayRow(h.days));
+          return (
+            <article class="cm-detail" data-cm-detail={p.id} aria-labelledby={`cm-title-${p.id}`} hidden>
+              {p.photo ? (
+                <div class="frame cm-photo">
+                  <Photo name={p.photo.name} alt={p.photo.alt} sizes="(min-width: 900px) 24rem, 100vw" />
+                </div>
+              ) : (
+                <div class="cm-photo cm-photo-stop" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" width="64" height="64">
+                    <rect x="2" y="2" width="60" height="60" rx="14" fill="#24486a" />
+                    <path d="M16 42V20q0-5 5-5h22q5 0 5 5v22z" fill="#fff" />
+                    <path d="M20 27h24" stroke="#24486a" stroke-width="3" />
+                    <circle cx="23" cy="46" r="4" fill="#fff" stroke="#24486a" stroke-width="2" />
+                    <circle cx="41" cy="46" r="4" fill="#fff" stroke="#24486a" stroke-width="2" />
+                  </svg>
+                </div>
+              )}
+              <div class="cm-detail-body">
+                <p class="cm-tags">
+                  {p.categories.map((c) => (
+                    <span class={`cm-tag cm-tag-${c}`}>{categoryLabels[c]}</span>
+                  ))}
+                  {doors.length > 0 && <span class="cm-tag cm-tag-access">Step-free entrance</span>}
+                </p>
+                <h3 class="cm-detail-title" id={`cm-title-${p.id}`} tabindex="-1">
+                  {p.name}
+                </h3>
+                <p class="cm-summary">{p.summary}</p>
+
+                <h4>Hours</h4>
+                <p class="cm-hours-note">Spring Semester 2027. Today is {TODAY_LABEL}.</p>
+                <dl class="cm-hours">
+                  {p.hours.map((h, i) => (
+                    <div class={i === firstToday ? 'is-today' : undefined}>
+                      <dt>
+                        {h.days}
+                        {i === firstToday && <span class="cm-today">Today</span>}
+                      </dt>
+                      <dd>{h.time}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <h4>{p.kind === 'stop' ? 'Service' : 'Departments and offices'}</h4>
+                <ul class="cm-depts">
+                  {p.departments.map((d) => (
+                    <li>{d}</li>
+                  ))}
+                </ul>
+
+                <h4>Accessibility</h4>
+                <ul class="cm-access">
+                  {p.kind === 'building' && (
+                    <li>
+                      <strong>Step-free entrances:</strong>{' '}
+                      {doors.length ? doors.map((d) => d.label).join('; ') : 'None. See the notes below.'}
+                    </li>
+                  )}
+                  {p.kind === 'building' && (
+                    <li>
+                      <strong>Elevators:</strong> {p.elevator}
+                    </li>
+                  )}
+                  {p.accessNotes.map((n) => (
+                    <li>{n}</li>
+                  ))}
+                </ul>
+
+                <div class="cm-detail-actions">
+                  <button type="button" class="btn" data-cm-route-to={p.id}>
+                    Directions to here
+                  </button>
+                  <button type="button" class="btn btn-ghost" data-cm-route-from={p.id}>
+                    Directions from here
+                  </button>
+                </div>
+                {p.link && (
+                  <p class="cm-more">
+                    <a href={u(p.link.href)}>{p.link.label}</a>
+                  </p>
+                )}
+              </div>
+            </article>
+          );
+        })
+      }
+    </aside>
+  </div>
+
+  <div class="cm-legend">
+    <p id="cm-help" class="cm-help">
+      Drag or use the arrow keys to pan. Scroll, pinch, or press + and − to zoom, and 0 to show the whole campus. Tab
+      moves between buildings, Enter opens one, and Escape closes the details.
+    </p>
+    <ul class="cm-legend-list" aria-label="Map key">
+      <li><span class="cm-swatch cm-swatch-academic" aria-hidden="true"></span>Academic</li>
+      <li><span class="cm-swatch cm-swatch-housing" aria-hidden="true"></span>Housing</li>
+      <li><span class="cm-swatch cm-swatch-dining" aria-hidden="true"></span>Dining</li>
+      <li><span class="cm-swatch cm-swatch-services" aria-hidden="true"></span>Services</li>
+      <li><span class="cm-legend-line cm-legend-shuttle" aria-hidden="true"></span>Rim Loop shuttle</li>
+      <li><span class="cm-legend-line cm-legend-steps" aria-hidden="true"></span>Walk with steps</li>
+      <li>
+        <svg class="cm-isa" viewBox="-10 -10 20 20" aria-hidden="true"><use href="#cm-isa-glyph"></use></svg>Step-free
+        entrance ({accessibleCount} places)
+      </li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  import '../scripts/campus-map.ts';
+</script>

@@ -1,0 +1,494 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import { site } from '../../data/site';
+import { u } from '../../lib/paths';
+import {
+  activityLimit,
+  applicantTypes,
+  applyDates,
+  applyTerm,
+  colleges,
+  essayLimit,
+  essayMinimum,
+  essayPrompts,
+  programs,
+} from '../../data/admissions';
+import { STEPS } from '../../scripts/apply/model';
+import '../../styles/apply.css';
+
+const collegeName = (id: string) => colleges.find((college) => college.id === id)?.short ?? '';
+const searchText = (program: (typeof programs)[number]) =>
+  [program.name, program.degree, collegeName(program.college), program.blurb, program.signature, ...program.tags]
+    .join(' ')
+    .toLowerCase();
+---
+
+<Base
+  title={`Apply for ${applyTerm}`}
+  description={`Start a ${applyTerm} undergraduate application to the University of Mars. Your answers save in this browser as you go.`}
+>
+  <PageHero
+    eyebrow="Admissions"
+    title={`Apply for ${applyTerm}`}
+    lede={`Transfer applications for ${applyTerm} are open through ${applyDates.transferDeadline}. Eight short steps, about 45 minutes, and your answers save in this browser as you go.`}
+    crumbs={[
+      { href: '/admissions/', label: 'Admissions' },
+      { href: '/admissions/apply/', label: 'Apply' },
+    ]}
+  />
+
+  <div class="wrap apply-shell">
+    <noscript>
+      <p class="callout">
+        Turn on scripts in this browser to use the application. You can also call admissions at
+        <a href={site.admitHref}>{site.admitPhone}</a>.
+      </p>
+    </noscript>
+
+    <p class="sr-only" id="apply-live" aria-live="polite"></p>
+    <div class="apply" id="apply-app" hidden>
+      <nav class="stepper" aria-label="Application steps" style={`--steps: ${STEPS.length}`}>
+        <ol class="stepper-list">
+          {
+            STEPS.map((step, index) => (
+              <li class="stepper-item" data-index={index} data-state={index === 0 ? 'current' : 'todo'}>
+                <button type="button" class="stepper-button" data-goto={index} disabled={index !== 0}>
+                  <span class="stepper-dot" aria-hidden="true">
+                    <span class="stepper-num">{index + 1}</span>
+                    <svg class="stepper-check" viewBox="0 0 24 24">
+                      <path d="M5 12.5l4.2 4.2L19 7" />
+                    </svg>
+                    <span class="stepper-alert">!</span>
+                  </span>
+                  <span class="stepper-label">{step.label}</span>
+                  <span class="sr-only stepper-status"></span>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="stepper-track" aria-hidden="true"><span class="stepper-fill"></span></div>
+      </nav>
+
+      <div class="apply-layout">
+        <div class="apply-card">
+          <div class="apply-status">
+            <p class="apply-count" id="step-count">Step 1 of {STEPS.length}</p>
+            <p class="saved" id="saved-indicator" data-state="idle">
+              <svg class="saved-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7"></path></svg>
+              <span class="saved-text">Not saved yet</span>
+            </p>
+          </div>
+          <div class="apply-progress" aria-hidden="true"><span id="apply-progress-fill"></span></div>
+
+          <div class="restored" id="restored-note" hidden>
+            <p>
+              <strong>Welcome back.</strong> We restored the draft saved in this browser.
+            </p>
+            <button type="button" class="linkish" data-dismiss-restored>Dismiss</button>
+          </div>
+
+          <div id="apply-errors" class="error-summary" tabindex="-1" hidden></div>
+
+          <form id="apply-form" novalidate>
+            <p class="required-note"><span class="req" aria-hidden="true">*</span> Required</p>
+
+            <section class="step" id="step-about" data-step="about" aria-labelledby="h-about">
+              <h2 id="h-about" tabindex="-1">About you</h2>
+              <p class="step-intro">Use your legal name as it appears on your transcripts. You can tell us what you like to be called, too.</p>
+              <fieldset class="field choices apply-types">
+                <legend>Applying as</legend>
+                {
+                  applicantTypes.map((type) => (
+                    <label class:list={['type-option', { 'is-closed': !type.open }]}>
+                      <input
+                        type="radio"
+                        name="applicantType"
+                        id={`type-${type.value}`}
+                        value={type.value}
+                        data-bind="about.applicantType"
+                        disabled={!type.open}
+                        required
+                        aria-required="true"
+                      />
+                      <span>
+                        <strong>{type.label}</strong>
+                        <span class="hint">{type.hint}</span>
+                      </span>
+                    </label>
+                  ))
+                }
+                <p class="field-error" hidden></p>
+              </fieldset>
+              <p class="entry-term"><span class="kicker">Entry term</span> {applyTerm}, Jezero campus</p>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="first-name">Legal first name</label>
+                  <input id="first-name" type="text" autocomplete="given-name" data-bind="about.firstName" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="last-name">Legal last name</label>
+                  <input id="last-name" type="text" autocomplete="family-name" data-bind="about.lastName" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="preferred-name">Preferred first name <span class="hint">(optional)</span></label>
+                  <input id="preferred-name" type="text" autocomplete="nickname" data-bind="about.preferredName" />
+                </div>
+                <div class="field">
+                  <label for="pronouns">Pronouns <span class="hint">(optional)</span></label>
+                  <select id="pronouns" data-bind="about.pronouns">
+                    <option value="">Prefer not to say</option>
+                    <option>she/her</option>
+                    <option>he/him</option>
+                    <option>they/them</option>
+                    <option>Another set, shared later</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="birth-date">Date of birth</label>
+                  <input id="birth-date" type="date" autocomplete="bday" data-bind="about.birthDate" required aria-required="true" max={applyDates.campusTodayIso} />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="citizenship">Citizenship status</label>
+                  <select id="citizenship" data-bind="about.citizenship" required aria-required="true">
+                    <option value="">Select a status</option>
+                    <option>Citizen</option>
+                    <option>Permanent resident</option>
+                    <option>International (will need a student visa)</option>
+                    <option>Other, to explain later</option>
+                  </select>
+                  <p class="field-error" hidden></p>
+                </div>
+                <fieldset class="field full choices">
+                  <legend>Will you be the first in your family to earn a four-year degree? <span class="hint">(optional)</span></legend>
+                  <div class="inline-choices">
+                    <label><input type="radio" name="firstGen" value="Yes" data-bind="about.firstGen" /> Yes</label>
+                    <label><input type="radio" name="firstGen" value="No" data-bind="about.firstGen" /> No</label>
+                    <label><input type="radio" name="firstGen" value="Not sure" data-bind="about.firstGen" /> Not sure</label>
+                  </div>
+                </fieldset>
+              </div>
+            </section>
+
+            <section class="step" id="step-contact" data-step="contact" aria-labelledby="h-contact" hidden>
+              <h2 id="h-contact" tabindex="-1">Contact</h2>
+              <p class="step-intro">We send your portal sign-in and your decision to this email. Use one you check often.</p>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input id="email" type="email" autocomplete="email" placeholder="name@example.com" data-bind="contact.email" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="phone">Phone</label>
+                  <input id="phone" type="tel" autocomplete="tel" placeholder="(628) 555-0123" data-bind="contact.phone" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field full">
+                  <label for="street">Street address</label>
+                  <input id="street" type="text" autocomplete="street-address" data-bind="contact.street" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="city">City</label>
+                  <input id="city" type="text" autocomplete="address-level2" data-bind="contact.city" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="region">Region or province <span class="hint">(optional)</span></label>
+                  <input id="region" type="text" autocomplete="address-level1" data-bind="contact.region" />
+                </div>
+                <div class="field">
+                  <label for="postal">Postal code</label>
+                  <input id="postal" type="text" autocomplete="postal-code" data-bind="contact.postal" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="country">Country or territory</label>
+                  <input id="country" type="text" autocomplete="country-name" data-bind="contact.country" required aria-required="true" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <fieldset class="field full choices">
+                  <legend>How should we reach you first?</legend>
+                  <div class="inline-choices">
+                    <label><input type="radio" name="contactPref" value="email" data-bind="contact.contactPref" /> Email</label>
+                    <label><input type="radio" name="contactPref" value="text" data-bind="contact.contactPref" /> Text message</label>
+                    <label><input type="radio" name="contactPref" value="call" data-bind="contact.contactPref" /> Phone call</label>
+                  </div>
+                </fieldset>
+              </div>
+            </section>
+
+            <section class="step" id="step-academics" data-step="academics" aria-labelledby="h-academics" hidden>
+              <h2 id="h-academics" tabindex="-1">Academic history</h2>
+              <p class="step-intro">
+                List every college you have attended, and the high school you finished. Add the courses you are taking now
+                or want us to see, with the grade so far.
+              </p>
+              <ol class="school-list" id="school-list"></ol>
+              <p class="list-actions">
+                <button type="button" class="btn btn-ghost" id="add-school">
+                  <span aria-hidden="true">+</span> Add a school
+                </button>
+              </p>
+              <p class="field-error" data-error-for="add-school" hidden></p>
+            </section>
+
+            <section class="step" id="step-tests" data-step="tests" aria-labelledby="h-tests" hidden>
+              <h2 id="h-tests" tabindex="-1">Test scores</h2>
+              <p class="step-intro">
+                Scores are optional for {applyTerm}. If you share them, self-report here. Official reports are needed only if you enroll.
+              </p>
+              <label class="switch">
+                <input type="checkbox" id="test-optional" role="switch" data-bind="tests.optional" />
+                <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+                <span class="switch-text">
+                  <strong>Apply test-optional</strong>
+                  <span class="hint">Your application is read the same way with or without scores.</span>
+                </span>
+              </label>
+              <div class="tests-optional-note" id="tests-optional-note">
+                <p>
+                  <strong>You are applying test-optional.</strong> Readers will not see a blank where scores would be. You can
+                  change this until {applyDates.transferDeadline}.
+                </p>
+              </div>
+              <div id="tests-entry" hidden>
+                <ol class="score-list" id="score-list"></ol>
+                <p class="list-actions">
+                  <button type="button" class="btn btn-ghost" id="add-score"><span aria-hidden="true">+</span> Add a score</button>
+                </p>
+                <p class="field-error" data-error-for="add-score" hidden></p>
+              </div>
+            </section>
+
+            <section class="step" id="step-major" data-step="major" aria-labelledby="h-major" hidden>
+              <h2 id="h-major" tabindex="-1">Intended major</h2>
+              <p class="step-intro">
+                Choose a first choice and, if you like, a second. Transfer students are admitted to a college, so your first
+                choice matters most.
+              </p>
+              <div class="major-choices" id="major-choices">
+                <div class="major-slot" data-slot="first">
+                  <span class="kicker">First choice</span>
+                  <strong class="major-slot-name">Not chosen yet</strong>
+                  <button type="button" class="linkish" data-clear="first" hidden>Remove<span class="sr-only"> first choice</span></button>
+                </div>
+                <div class="major-slot" data-slot="second">
+                  <span class="kicker">Second choice <span class="hint">(optional)</span></span>
+                  <strong class="major-slot-name">Not chosen yet</strong>
+                  <button type="button" class="linkish" data-clear="second" hidden>Remove<span class="sr-only"> second choice</span></button>
+                </div>
+              </div>
+              <div class="major-tools">
+                <div class="field search-programs">
+                  <label for="major-search">Search {programs.length} programs</label>
+                  <input id="major-search" type="search" autocomplete="off" placeholder="Try “field”, “robotics”, or “writing”" aria-describedby="major-results" />
+                  <p class="field-error" hidden></p>
+                </div>
+                <div class="chips" role="group" aria-label="Filter by college">
+                  <button type="button" class="chip" data-filter="" aria-pressed="true">All</button>
+                  {
+                    colleges.map((college) => (
+                      <button type="button" class="chip" data-filter={college.id} aria-pressed="false">
+                        {college.short}
+                      </button>
+                    ))
+                  }
+                </div>
+              </div>
+              <p class="major-results" id="major-results" role="status">{programs.length} programs</p>
+              <ul class="program-grid" id="program-grid">
+                {
+                  programs.map((program) => (
+                    <li class="program" data-program={program.id} data-college={program.college} data-search={searchText(program)}>
+                      <span class="program-badge" aria-hidden="true"></span>
+                      <p class="program-college">{collegeName(program.college)}</p>
+                      <h3 class="program-name">
+                        {program.name} <span class="program-degree">{program.degree}</span>
+                      </h3>
+                      <p class="program-blurb">{program.blurb}</p>
+                      <p class="program-signature">
+                        <span class="kicker">Signature course</span>
+                        {program.signature}
+                      </p>
+                      <ul class="program-tags">
+                        {program.tags.map((tag) => <li>{tag}</li>)}
+                      </ul>
+                      {program.note && <p class="program-note">{program.note}</p>}
+                      <div class="program-actions">
+                        <button type="button" class="program-pick" data-pick="first" aria-pressed="false">
+                          First choice<span class="sr-only">: {program.name}</span>
+                        </button>
+                        <button type="button" class="program-pick" data-pick="second" aria-pressed="false">
+                          Second choice<span class="sr-only">: {program.name}</span>
+                        </button>
+                      </div>
+                    </li>
+                  ))
+                }
+              </ul>
+              <p class="major-empty" id="major-empty" hidden>
+                No programs match that search. Try a broader word, or choose Exploratory Studies.
+              </p>
+            </section>
+
+            <section class="step" id="step-essay" data-step="essay" aria-labelledby="h-essay" hidden>
+              <h2 id="h-essay" tabindex="-1">Essay</h2>
+              <p class="step-intro">
+                Choose one prompt and write {essayMinimum} to {essayLimit} words. There is no right answer. Readers want to hear you.
+              </p>
+              <fieldset class="field choices prompt-choices">
+                <legend>Prompt</legend>
+                {
+                  essayPrompts.map((prompt) => (
+                    <label class="prompt-option">
+                      <input type="radio" name="essayPrompt" id={`essay-prompt-${prompt.id}`} value={prompt.id} data-bind="essay.prompt" required aria-required="true" />
+                      <span>
+                        <strong>{prompt.title}</strong>
+                        <span class="prompt-text">{prompt.text}</span>
+                      </span>
+                    </label>
+                  ))
+                }
+                <p class="field-error" hidden></p>
+              </fieldset>
+              <div class="field essay-field">
+                <label for="essay-text">Your essay</label>
+                <p class="essay-prompt-echo" id="essay-prompt-echo" hidden></p>
+                <textarea id="essay-text" rows="14" data-bind="essay.text" required aria-required="true" aria-describedby="essay-count essay-note"></textarea>
+                <div class="essay-meter" id="essay-meter" data-tone="empty" aria-hidden="true">
+                  <span class="essay-meter-min" style={`left: ${(essayMinimum / essayLimit) * 100}%`}></span>
+                  <span class="essay-meter-fill"></span>
+                </div>
+                <div class="essay-foot">
+                  <p class="essay-count" id="essay-count"><strong>0</strong> / {essayLimit} words</p>
+                  <p class="essay-note" id="essay-note">Aim for {essayMinimum} to {essayLimit} words.</p>
+                </div>
+                <p class="sr-only" id="essay-live" aria-live="polite"></p>
+                <p class="field-error" hidden></p>
+              </div>
+            </section>
+
+            <section class="step" id="step-activities" data-step="activities" aria-labelledby="h-activities" hidden>
+              <h2 id="h-activities" tabindex="-1">Activities</h2>
+              <p class="step-intro">
+                Up to {activityLimit} activities, most important first. Drag the handle to reorder, or use the arrow buttons.
+                Work and family responsibilities count.
+              </p>
+              <p class="sr-only" id="reorder-help">Press the up or down arrow key to move this activity.</p>
+              <ol class="activity-list" id="activity-list"></ol>
+              <p class="list-actions">
+                <button type="button" class="btn btn-ghost" id="add-activity"><span aria-hidden="true">+</span> Add an activity</button>
+                <span class="hint" id="activity-count"></span>
+              </p>
+              <p class="field-error" data-error-for="add-activity" hidden></p>
+              <p class="sr-only" id="reorder-live" aria-live="assertive"></p>
+            </section>
+
+            <section class="step" id="step-review" data-step="review" aria-labelledby="h-review" hidden>
+              <h2 id="h-review" tabindex="-1">Review &amp; submit</h2>
+              <p class="step-intro">Check each section. Use Edit to change an answer, and you will come straight back here.</p>
+              <div class="review" id="review-body"></div>
+              <div class="certify">
+                <div class="field choices">
+                  <label>
+                    <input type="checkbox" id="certify" data-bind="review.certify" required aria-required="true" />
+                    <span>
+                      I certify that the information in this application is complete and my own, and that the essay is my own work.
+                    </span>
+                  </label>
+                  <p class="field-error" hidden></p>
+                </div>
+              </div>
+            </section>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-ghost" id="step-back" hidden>
+                <span aria-hidden="true">←</span> Back
+              </button>
+              <button type="submit" class="btn" id="step-next">Continue <span aria-hidden="true">→</span></button>
+            </div>
+          </form>
+        </div>
+
+        <aside class="apply-aside" aria-labelledby="aside-heading">
+          <div class="aside-card">
+            <p class="eyebrow">{applyTerm} transfer</p>
+            <h2 id="aside-heading">Your application</h2>
+            <div class="ring" id="progress-ring" style="--pct: 0">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+                <circle class="ring-fg" cx="60" cy="60" r="52"></circle>
+              </svg>
+              <p class="ring-label"><strong id="progress-pct">0%</strong> <span>complete</span></p>
+            </div>
+            <dl class="aside-facts">
+              <div><dt>Deadline</dt><dd>{applyDates.transferDeadline}</dd></div>
+              <div><dt>Decisions</dt><dd>{applyDates.transferDecisions}</dd></div>
+              <div><dt>Fee</dt><dd>None for {applyTerm}</dd></div>
+            </dl>
+            <div class="start-over" id="start-over">
+              <button type="button" class="linkish" data-start-over>Start over</button>
+              <span class="start-over-confirm" hidden>
+                Erase this draft?
+                <button type="button" class="linkish" data-start-over-yes>Erase</button>
+                <button type="button" class="linkish" data-start-over-no>Keep it</button>
+              </span>
+            </div>
+          </div>
+          <div class="aside-card aside-help">
+            <h2>Questions?</h2>
+            <p>
+              Admissions answers weekdays 9 a.m. to 4 p.m. at <a href={site.admitHref}>{site.admitPhone}</a> or
+              <a href={`mailto:${site.admitEmail}`}>{site.admitEmail}</a>.
+            </p>
+            <p class="note">Drafts stay in this browser only. Nothing is sent until you submit.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <section class="apply-confirmation" id="apply-confirmation" aria-labelledby="confirm-title" hidden>
+      <div class="confirm-head">
+        <svg class="confirm-seal" viewBox="0 0 96 96" aria-hidden="true">
+          <circle class="confirm-ring" cx="48" cy="48" r="44"></circle>
+          <path class="confirm-tick" d="M29 49.5l12.5 12.5L67 36"></path>
+        </svg>
+        <div>
+          <p class="eyebrow">Application submitted</p>
+          <h2 id="confirm-title" tabindex="-1">Your application is in.</h2>
+          <p class="lede" id="confirm-lede"></p>
+        </div>
+      </div>
+      <div class="confirm-grid">
+        <div class="confirm-id-card">
+          <p class="kicker">Application ID</p>
+          <p class="confirm-id" id="confirm-id"></p>
+          <p class="note">Quote this ID in any email or call to admissions.</p>
+          <button type="button" class="btn btn-ghost" id="copy-id">Copy ID</button>
+          <span class="copy-status" id="copy-status" role="status"></span>
+          <dl class="confirm-facts" id="confirm-facts"></dl>
+        </div>
+        <div class="confirm-timeline">
+          <h3>What happens next</h3>
+          <ol class="timeline" id="confirm-timeline"></ol>
+        </div>
+      </div>
+      <p class="page-actions confirm-actions">
+        <a class="btn" href={u('/financial-aid/#next-year')}>Plan aid for 2027–28</a>
+        <button type="button" class="btn btn-ghost" id="print-copy">Print a copy</button>
+        <a href={u('/admissions/')}>Back to Admissions</a>
+        <button type="button" class="linkish" id="new-application">Start a new application</button>
+      </p>
+    </section>
+  </div>
+
+  <script>
+    import '../../scripts/apply/wizard.ts';
+  </script>
+</Base>

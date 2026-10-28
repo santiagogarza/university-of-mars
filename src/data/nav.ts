@@ -55,6 +55,7 @@ export const primaryNav: NavItem[] = [
       {
         title: 'Apply',
         links: [
+          { label: 'Start your application', href: '/admissions/apply/' },
           { label: 'First-year admission', href: '/admissions/' },
           { label: 'Transfer admission', href: '/admissions/#transfer' },
           { label: 'International students', href: '/admissions/#international' },

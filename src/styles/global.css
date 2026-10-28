@@ -1455,14 +1455,15 @@ address {
   }
 }
 
+/* With script running, appearance.css handles this via data-motion so the setting can override the device. */
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html:not([data-theme]) {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  html:not([data-theme]) *,
+  html:not([data-theme]) *::before,
+  html:not([data-theme]) *::after {
     transition: none !important;
     animation: none !important;
   }

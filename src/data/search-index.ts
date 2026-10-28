@@ -99,6 +99,12 @@ export const searchIndex: SearchItem[] = [
     text: 'fall 2026 spring semester 2027 finals commencement summer',
   },
   {
+    title: 'Spring 2027 course planner',
+    href: '/academics/planner/',
+    group: 'Academics',
+    text: 'schedule of classes sections weekly calendar conflicts prerequisites credits generate schedules ics export',
+  },
+  {
     title: 'Research',
     href: '/research/',
     group: 'Research',

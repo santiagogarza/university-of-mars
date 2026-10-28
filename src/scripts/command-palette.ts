@@ -32,6 +32,8 @@ type Item =
 
 type Group = { key: string; label: string; total?: number; items: Item[] };
 
+const PALETTE_LIMITS = { pages: 4, help: 3, news: 2, people: 3, actions: 2 };
+
 const dialog = document.querySelector<HTMLDialogElement>('[data-cmdk]');
 const input = document.querySelector<HTMLInputElement>('#cmdk-input');
 const listbox = document.querySelector<HTMLElement>('#cmdk-listbox');
@@ -230,7 +232,7 @@ function buildGroups(query: string): Group[] {
 
   const results = search(index, query);
   if (results.length) {
-    for (const group of groupResults(results)) {
+    for (const group of groupResults(results, PALETTE_LIMITS)) {
       groups.push({ key: group.key, label: group.label, total: group.total, items: group.results.map((result) => ({ kind: 'result', result })) });
     }
     let actions = groups.find((group) => group.key === 'actions');

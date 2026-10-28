@@ -87,6 +87,12 @@ export const searchIndex: SearchItem[] = [
     text: 'Fall 2027 apply visit tuition transfer international',
   },
   {
+    title: 'Apply for Fall 2027',
+    href: '/admissions/apply/',
+    group: 'Admissions',
+    text: 'start your application transfer major essay activities test optional',
+  },
+  {
     title: 'Academics',
     href: '/academics/',
     group: 'Academics',

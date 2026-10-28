@@ -1779,6 +1779,10 @@
   border-top: 1px solid var(--line);
 }
 
+.confirm-facts div:last-child {
+  grid-column: 1 / -1;
+}
+
 .confirm-timeline h3 {
   margin-bottom: 0.9rem;
 }

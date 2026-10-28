@@ -427,11 +427,23 @@ if (app && form && confirmation) {
     });
     drag.to = to;
     drag.rows.forEach((el, i) => {
-      if (i === drag!.from) return;
+      const rank = $('.activity-rank', el);
+      if (i === drag!.from) {
+        if (rank) rank.textContent = String(to + 1);
+        return;
+      }
       let offset = 0;
-      if (i > drag!.from && i <= to) offset = -drag!.shift;
-      if (i < drag!.from && i >= to) offset = drag!.shift;
+      let position = i;
+      if (i > drag!.from && i <= to) {
+        offset = -drag!.shift;
+        position = i - 1;
+      }
+      if (i < drag!.from && i >= to) {
+        offset = drag!.shift;
+        position = i + 1;
+      }
       el.style.transform = offset ? `translateY(${offset}px)` : '';
+      if (rank) rank.textContent = String(position + 1);
     });
   });
 
@@ -442,7 +454,8 @@ if (app && form && confirmation) {
     activityList.classList.remove('is-sorting');
     row.classList.remove('is-dragging');
     for (const el of rows) el.style.transform = '';
-    if (from !== to) {
+    if (from === to) rows.forEach((el, i) => ($('.activity-rank', el)!.textContent = String(i + 1)));
+    else {
       const list = state.data.activities;
       const [item] = list.splice(from, 1);
       list.splice(to, 0, item);
@@ -804,7 +817,7 @@ if (app && form && confirmation) {
     const prompt = essayPrompts.find((p) => p.id === d.essay.prompt);
     const words = countWords(d.essay.text);
     const essay = `<p class="review-prompt"><strong>${esc(prompt?.title ?? 'No prompt chosen')}</strong> <span class="pill">${words} words</span></p>
-      <div class="review-essay">${d.essay.text.trim() ? esc(d.essay.text.trim()) : '<span class="muted">No essay yet.</span>'}</div>`;
+      <div class="review-essay" tabindex="0" role="region" aria-label="Essay text">${d.essay.text.trim() ? esc(d.essay.text.trim()) : '<span class="muted">No essay yet.</span>'}</div>`;
     const activities = d.activities.length
       ? `<ol class="review-activities">${d.activities
           .map((x) => `<li><strong>${esc(activityTitle(x))}</strong><span>${esc(activityMeta(x))}</span>${x.desc ? `<p>${esc(x.desc)}</p>` : ''}</li>`)

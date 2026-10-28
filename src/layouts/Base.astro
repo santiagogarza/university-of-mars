@@ -65,6 +65,7 @@ const fullTitle = title === 'University of Mars' ? title : `${title} · Universi
           ? saved.reduceMotion
           : window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (reduce) root.setAttribute('data-motion', 'reduce');
+      else if (saved.reduceMotion === false) root.setAttribute('data-motion', 'allow');
     </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />

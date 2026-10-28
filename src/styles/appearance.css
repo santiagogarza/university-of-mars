@@ -74,6 +74,40 @@ html[data-motion='reduce'] *::after {
   animation: none !important;
 }
 
+/*
+ * global.css drops all motion under prefers-reduced-motion. When someone turns
+ * Reduce motion off on purpose (data-motion='allow'), the animations this file
+ * adds come back. The site has no other transitions or animations.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion='allow'] {
+    scroll-behavior: smooth;
+  }
+
+  html[data-motion='allow'] .appearance-panel:not([hidden]) {
+    animation: appearance-in 0.18s ease-out !important;
+  }
+
+  html[data-motion='allow'] .theme-option-face {
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease !important;
+  }
+
+  html[data-motion='allow'] .switch-track {
+    transition: background-color 0.2s ease !important;
+  }
+
+  html[data-motion='allow'] .switch-thumb {
+    transition: transform 0.2s cubic-bezier(0.3, 0.7, 0.4, 1) !important;
+  }
+
+  html[data-motion='allow'][data-theme='dark'] img {
+    transition: filter 0.3s ease !important;
+  }
+}
+
 /* ---------- Theme switch animation ---------- */
 
 html.theme-fade,

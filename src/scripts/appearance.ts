@@ -113,6 +113,7 @@ function applySettings(origin?: Origin) {
   if (settings.dyslexicFont) root.dataset.font = 'dyslexic';
   else delete root.dataset.font;
   if (motionReduced()) root.dataset.motion = 'reduce';
+  else if (settings.reduceMotion === false) root.dataset.motion = 'allow';
   else delete root.dataset.motion;
   document.dispatchEvent(new CustomEvent('um:appearance-change'));
 }
